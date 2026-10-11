@@ -1572,6 +1572,9 @@ NAT(U_allocateInstance)
     (void)self;
     jobj *cls = a[0].l;
     if (!cls) return npe("class");
+    /* ART's allocateInstance initialises the class first */
+    dvm_class *c = dvm_class_of(cls->klass.jc);
+    if (c && !dvm_ensure_init(c)) return false;
     jobj *o = dvm_new_object(cls->klass.jc); dvm_slots(o);
     *ret = L(o);
     return true;

@@ -1078,6 +1078,8 @@ static void *find_jni(dvm_method *m)
     return fn;
 }
 
+static void *rebind_native(dvm_method *m);
+
 static bool call_native(dvm_method *m, jobj *self, const jvalue *params, jvalue *ret)
 {
     if (m->intrinsic) return m->intrinsic(self, params, ret);
@@ -1086,6 +1088,9 @@ static bool call_native(dvm_method *m, jobj *self, const jvalue *params, jvalue 
         /* what the next report needs to tell a native never registered from one registered somewhere else */
         tl_log_line("dvm: no native for %s.%s%s (dex namespace %d)", m->cls->name, m->name, m->sig, m->cls->dex ? m->cls->dex->ns : -1);
         void tl_jni_log_natives_named(const char *); tl_jni_log_natives_named(m->name);
+        fn = rebind_native(m);
+    }
+    if (!fn) {
         return dvm_throw("java/lang/UnsatisfiedLinkError", "No implementation found for %s.%s%s", m->cls->name, m->name, m->sig);
     }
     if (g_dvm_trace >= 2) tl_log_line("dvm: jni %s.%s%s", m->cls->name, m->name, m->sig);
@@ -1172,6 +1177,86 @@ static mref *resolve_mref(dvm_dex *d, uint32_t idx, bool is_static)
     if (!d->mcache[idx]) __atomic_store_n(&d->mcache[idx], (dvm_method *)r, __ATOMIC_RELEASE); else { free(r); r = (mref *)d->mcache[idx]; }
     pthread_mutex_unlock(&g_lock);
     return r;
+}
+
+/* Dalvik instruction lengths in code units, the data payloads included: for reading a method's code without running it. */
+static uint32_t insn_width(const uint16_t *p)
+{
+    uint16_t w = p[0];
+    uint8_t op = w & 0xFF;
+    if (op == 0x00) {
+        if (w == 0x0100) return 4u + p[1] * 2u;
+        if (w == 0x0200) return 2u + p[1] * 4u;
+        if (w == 0x0300) { uint32_t n = p[2] | (uint32_t)p[3] << 16; return 4u + (p[1] * n + 1) / 2; }
+        return 1;
+    }
+    switch (op) {
+    case 0x02: case 0x05: case 0x08: case 0x13: case 0x15: case 0x16: case 0x19: case 0x1a: case 0x1c: case 0x1f: case 0x20:
+    case 0x22: case 0x23: case 0x29: case 0xfe: case 0xff: return 2;
+    case 0x03: case 0x06: case 0x09: case 0x14: case 0x17: case 0x1b: case 0x24: case 0x25: case 0x26: case 0x2a: case 0x2b:
+    case 0x2c: case 0xfc: case 0xfd: return 3;
+    case 0xfa: case 0xfb: return 4;
+    case 0x18: return 5;
+    }
+    if ((op >= 0x2d && op <= 0x3d) || (op >= 0x44 && op <= 0x6d) || (op >= 0x90 && op <= 0xaf) || (op >= 0xd0 && op <= 0xe2)) return 2;
+    if ((op >= 0x6e && op <= 0x72) || (op >= 0x74 && op <= 0x78)) return 3;
+    return 1;
+}
+
+/*
+ * A native nothing has bound. A class protected by a DEX virtualiser (nmmp: GBWhatsApp's mods, libsaleh's classesNInit0) binds its
+ * natives from its <clinit>, which calls a static native (I)V registrar with the class's index. Whatever path skipped that, make it
+ * happen now: initialise the class if it is not, and failing that run the registrar its <clinit> calls once more.
+ */
+static void *rebind_native(dvm_method *m)
+{
+    static _Thread_local bool busy;
+    if (busy) return NULL;
+    dvm_class *c = m->cls;
+    int st = c->state;
+    tl_log_line("dvm:   %s is %s", c->name, st == CS_INITIALIZED ? "initialised" : st == CS_INITIALIZING ? "being initialised"
+                                            : st == CS_FAILED ? "a class that failed to initialise" : "not initialised yet");
+    busy = true;
+    void *fn = NULL;
+    if (st == CS_LINKED) {
+        if (!dvm_ensure_init(c)) { char b[400]; tl_log_line("dvm:   initialising it threw %s", tl_dvm_describe_pending(b, sizeof(b)) ? b : "?"); tl_jni_clear(); }
+        m->jni_looked = false;
+        if ((fn = find_jni(m))) { tl_log_line("dvm:   bound once %s was initialised", c->name); busy = false; return fn; }
+    }
+    for (int i = 0; i < c->ndm && !fn; i++) {
+        dvm_method *ci = &c->dm[i];
+        if (strcmp(ci->name, "<clinit>") || !ci->insns) continue;
+        int32_t konst[16] = {0};
+        bool known[16] = {0};
+        for (uint32_t pc = 0; pc < ci->ninsns && !fn; ) {
+            const uint16_t *p = ci->insns + pc;
+            uint8_t op = p[0] & 0xFF;
+            if (op == 0x12) { konst[(p[0] >> 8) & 0xF] = (int16_t)p[0] >> 12; known[(p[0] >> 8) & 0xF] = true; }
+            else if ((op == 0x13 || op == 0x14) && (p[0] >> 8) < 16) {
+                konst[p[0] >> 8] = op == 0x13 ? (int16_t)p[1] : (int32_t)(p[1] | (uint32_t)p[2] << 16);
+                known[p[0] >> 8] = true;
+            } else if (op == 0x71 && (p[0] >> 12) == 1 && known[p[2] & 0xF]) {
+                mref *r = resolve_mref(c->dex, p[1], true);
+                if (r->dm && (r->dm->flags & 0x108) == 0x108 && !strcmp(r->sig, "(I)V")) {
+                    jvalue a, rr; a.j = 0; a.i = konst[p[2] & 0xF];
+                    bool ok = dvm_ensure_init(r->dm->cls) && dvm_call(r->dm, NULL, &a, &rr);
+                    if (!ok) tl_jni_clear();
+                    m->jni_looked = false;
+                    fn = find_jni(m);
+                    tl_log_line("dvm:   ran %s.%s(%d) from %s.<clinit> again%s: %s", r->dm->cls->name, r->dm->name, a.i, c->name,
+                                ok ? "" : " (it threw)", fn ? "bound" : "still unbound");
+                }
+            }
+            pc += insn_width(p);
+        }
+    }
+    if (!fn) {
+        bool has = false;
+        for (int i = 0; i < c->ndm; i++) if (!strcmp(c->dm[i].name, "<clinit>")) has = true;
+        tl_log_line("dvm:   %s", has ? "its <clinit> calls no static native (I)V registrar that binds it" : "it has no <clinit>");
+    }
+    busy = false;
+    return fn;
 }
 
 /* ---- fields */
@@ -2264,6 +2349,7 @@ bool tl_dvm_load_natives(const char *libdir)
     }
     dvm_current_thread();
     g_core_up = true;
+    tl_log_line("dvm: Husk translation layer, T4Msy build gb4 (natives bound through class initialisation)");
     return ok;
 }
 
