@@ -2071,6 +2071,10 @@ dvm_native_fn dvm_fast_path(const char *cls, const char *name, const char *sig)
     if (!strcmp(cls, "java/lang/Object") && !strcmp(name, "getClass") && !strcmp(sig, "()Ljava/lang/Class;")) return Object_getClass;
     if (!strcmp(cls, "java/lang/System") && !strcmp(name, "loadLibrary") && !strcmp(sig, "(Ljava/lang/String;)V")) return System_loadLibrary;
     if (!strcmp(cls, "java/lang/System") && !strcmp(name, "load") && !strcmp(sig, "(Ljava/lang/String;)V")) return System_load;
+    /* Runtime.runFinalization: ART's allocator puts every finalizable object on FinalizerReference's list, and its sentinel
+       check asserts the one it just made is there. Nothing here queues finalizers, so there is nothing to wait for (WhatsApp
+       calls it from a worker and its crash handler restarts the app on the AssertionError). */
+    if (!strcmp(cls, "java/lang/ref/FinalizerReference") && !strcmp(name, "finalizeAllEnqueued") && !strcmp(sig, "(J)V")) return VMR_zero;
     if (strcmp(cls, "java/lang/String")) return NULL;
     if (!strcmp(name, "length") && !strcmp(sig, "()I")) return String_length;
     if (!strcmp(name, "equals") && !strcmp(sig, "(Ljava/lang/Object;)Z")) return String_equals;
