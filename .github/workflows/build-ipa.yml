@@ -152,6 +152,18 @@ jobs:
           T=src/translation-layer
           clang -O1 -I$T tools/compat/scan.c $T/husk-tl-scan.c $T/husk-tl-zip.c $T/husk-tl-elf.c $T/husk-tl-json.c -lz -o "$RUNNER_TEMP/tl-scan"
           "$RUNNER_TEMP/tl-scan" "$RUNNER_TEMP/apk/com.whatsapp.apk" | tee "$RUNNER_TEMP/scan.json" | head -c 6000
+      - name: Decompile the classes in the companion-registration NPE (printed only, not stored)
+        continue-on-error: true
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/jadx.zip" https://github.com/skylot/jadx/releases/download/v1.5.1/jadx-1.5.1.zip
+          mkdir -p "$RUNNER_TEMP/jadx" && unzip -q "$RUNNER_TEMP/jadx.zip" -d "$RUNNER_TEMP/jadx"
+          for c in X.0iC X.0gC; do
+            "$RUNNER_TEMP/jadx/bin/jadx" --single-class "$c" --single-class-output "$RUNNER_TEMP/dec-$c.java" --show-bad-code --add-debug-lines -q "$RUNNER_TEMP/apk/com.whatsapp.apk" 2>&1 | tail -3
+          done
+          F="$RUNNER_TEMP/dec-X.0iC.java"
+          grep -n "A05(\|A06(\|A0X(\|/\* 70 \*/\|/\* 6[5-9] \*/\|/\* 7[0-4] \*/" "$F" | head -40
+          L=$(grep -n " A05(" "$F" | head -1 | cut -d: -f1); [ -n "$L" ] && sed -n "$((L-2)),$((L+45))p" "$F"
+          F2="$RUNNER_TEMP/dec-X.0gC.java"; L=$(grep -n " CIl(" "$F2" | head -1 | cut -d: -f1); [ -n "$L" ] && sed -n "$((L-2)),$((L+25))p" "$F2"
       - name: Run WhatsApp in javaapp-test (Husk's Java runtime on this Mac, 120 s)
         run: |
           set +e
