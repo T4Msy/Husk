@@ -162,6 +162,11 @@ jobs:
           mkdir -p "$R/com.android.conscrypt/cacerts" && cp build/android-system/cacerts/* "$R/com.android.conscrypt/cacerts/"
           mkdir -p "$RUNNER_TEMP/out"
           printf 'wait 100000\nshot %s\nwait 2000\nquit\n' "$RUNNER_TEMP/out/whatsapp.png" > "$RUNNER_TEMP/ctl"
+          # ANGLE for macOS (EGL/GLES over Metal), from the Google Chrome the runner image carries
+          EGL="$(find "/Applications/Google Chrome.app/Contents/Frameworks" -name libEGL.dylib | head -1)"
+          GLES="$(find "/Applications/Google Chrome.app/Contents/Frameworks" -name libGLESv2.dylib | head -1)"
+          echo "ANGLE: $EGL $GLES"
+          TL_ANGLE_EGL="$EGL" TL_ANGLE_GLES="$GLES" \
           TL_ART="$R/com.android.art" TL_FRAMEWORK="$R/husk-framework.dex" TL_FRAMEWORK_RES="$R/framework-res.apk" \
           TL_PACKAGE=com.whatsapp TL_DATA="$RUNNER_TEMP/data" TL_CTL="$RUNNER_TEMP/ctl" TL_AUDIO_MUTE=1 \
             perl -e 'alarm shift; exec @ARGV' 200 "$RUNNER_TEMP/javaapp-test" "$RUNNER_TEMP/apk/com.whatsapp.apk" 120 > "$RUNNER_TEMP/out/whatsapp.log" 2>&1
