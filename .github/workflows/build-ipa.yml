@@ -161,7 +161,7 @@ jobs:
           cp "$R/org.apache.http.legacy.jar" /Volumes/GTAV/husk2/modules/jars/
           mkdir -p "$R/com.android.conscrypt/cacerts" && cp build/android-system/cacerts/* "$R/com.android.conscrypt/cacerts/"
           mkdir -p "$RUNNER_TEMP/out"
-          printf 'wait 100000\nshot %s\nwait 2000\nquit\n' "$RUNNER_TEMP/out/whatsapp.png" > "$RUNNER_TEMP/ctl"
+          printf 'wait 100000\nshot %s\ntap 400 1567\nwait 45000\nshot %s\nwait 2000\nquit\n' "$RUNNER_TEMP/out/whatsapp.png" "$RUNNER_TEMP/out/whatsapp-after-agree.png" > "$RUNNER_TEMP/ctl"
           # ANGLE for macOS (EGL/GLES over Metal), from the Google Chrome the runner image carries
           findegl() { find "$@" -name libEGL.dylib 2>/dev/null | grep -v '\.dSYM' | head -1; }
           EGL="$(findegl /Applications)"
@@ -181,7 +181,7 @@ jobs:
           DYLD_LIBRARY_PATH="$(dirname "$EGL")" TL_ANGLE_EGL="$EGL" TL_ANGLE_GLES="$GLES" \
           TL_ART="$R/com.android.art" TL_FRAMEWORK="$R/husk-framework.dex" TL_FRAMEWORK_RES="$R/framework-res.apk" \
           TL_PACKAGE=com.whatsapp TL_DATA="$RUNNER_TEMP/data" TL_CTL="$RUNNER_TEMP/ctl" TL_AUDIO_MUTE=1 \
-            perl -e 'alarm shift; exec @ARGV' 200 "$RUNNER_TEMP/javaapp-test" "$RUNNER_TEMP/apk/com.whatsapp.apk" 120 > "$RUNNER_TEMP/out/whatsapp.log" 2>&1
+            perl -e 'alarm shift; exec @ARGV' 260 "$RUNNER_TEMP/javaapp-test" "$RUNNER_TEMP/apk/com.whatsapp.apk" 180 > "$RUNNER_TEMP/out/whatsapp.log" 2>&1
           echo "exit code $?"
           grep -E 'main thread ended|=== CRASH|exit\(|frames in|not implemented|unresolved import|Exception|activity' "$RUNNER_TEMP/out/whatsapp.log" | sort | uniq -c | sort -rn | head -80
           tail -120 "$RUNNER_TEMP/out/whatsapp.log"
