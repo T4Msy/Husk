@@ -163,12 +163,18 @@ jobs:
           mkdir -p "$RUNNER_TEMP/out"
           printf 'wait 100000\nshot %s\nwait 2000\nquit\n' "$RUNNER_TEMP/out/whatsapp.png" > "$RUNNER_TEMP/ctl"
           # ANGLE for macOS (EGL/GLES over Metal), from the Google Chrome the runner image carries
-          EGL="$(find /Applications -name libEGL.dylib -path '*Libraries*' 2>/dev/null | head -1)"
+          findegl() { find "$@" -name libEGL.dylib 2>/dev/null | grep -v '\.dSYM' | head -1; }
+          EGL="$(findegl /Applications)"
+          if [ -z "$EGL" ]; then
+            HOMEBREW_NO_AUTO_UPDATE=1 brew install --cask google-chrome 2>&1 | tail -3
+            EGL="$(findegl /Applications)"
+          fi
           if [ -z "$EGL" ]; then
             CFT="$(curl -fsSL https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json \
               | python3 -c "import json,sys;print(next(d['url'] for d in json.load(sys.stdin)['channels']['Stable']['downloads']['chrome'] if d['platform']=='mac-arm64'))")"
+            echo "CfT: $CFT"
             curl -fsSL -o "$RUNNER_TEMP/cft.zip" "$CFT" && ditto -x -k "$RUNNER_TEMP/cft.zip" "$RUNNER_TEMP/cft"
-            EGL="$(find "$RUNNER_TEMP/cft" -name libEGL.dylib | head -1)"
+            EGL="$(findegl "$RUNNER_TEMP/cft")"
           fi
           GLES="$(dirname "$EGL")/libGLESv2.dylib"
           echo "ANGLE: $EGL $GLES"
