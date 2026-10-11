@@ -659,6 +659,7 @@ static jo jni_NewLocalRef(void *env, jo o) { (void)env; return tl_jni_ref(o); }
 static int32_t jni_EnsureLocalCapacity(void *env, int32_t n) { (void)env; (void)n; return 0; }
 static uint32_t jni_GetObjectRefType(void *env, jo o) { (void)env; (void)o; return 1; }
 bool tl_dvm_initialise(tl_jclass *jc);
+const char *tl_dvm_describe_pending(char *buf, size_t n);
 /* a class's initialiser runs before native code sees its methods, fields or objects (ART's EnsureInitialized); one that throws
    here leaves the ID usable and only says so, as the interpreter will meet the failure where Java code touches the class */
 static void initialise_for_id(tl_jclass *jc)
