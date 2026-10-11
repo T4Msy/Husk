@@ -7,6 +7,11 @@ name: Build Husk IPA
 
 on:
   workflow_dispatch:
+    inputs:
+      probe_only:
+        description: Only run the WhatsApp probe (no IPA, no release)
+        type: boolean
+        default: false
   push:
     branches: [claude/husk-ipa-build]
     paths-ignore: ['**.md']
@@ -54,6 +59,7 @@ jobs:
   ipa:
     name: App and IPA (macOS)
     needs: runtime
+    if: ${{ !inputs.probe_only }}
     runs-on: macos-26
     timeout-minutes: 120
     steps:
@@ -158,10 +164,10 @@ jobs:
           printf 'wait 100000\nshot %s\nwait 2000\nquit\n' "$RUNNER_TEMP/out/whatsapp.png" > "$RUNNER_TEMP/ctl"
           TL_ART="$R/com.android.art" TL_FRAMEWORK="$R/husk-framework.dex" TL_FRAMEWORK_RES="$R/framework-res.apk" \
           TL_PACKAGE=com.whatsapp TL_DATA="$RUNNER_TEMP/data" TL_CTL="$RUNNER_TEMP/ctl" TL_AUDIO_MUTE=1 \
-            timeout 200 "$RUNNER_TEMP/javaapp-test" "$RUNNER_TEMP/apk/com.whatsapp.apk" 120 > "$RUNNER_TEMP/out/whatsapp.log" 2>&1
+            perl -e 'alarm shift; exec @ARGV' 200 "$RUNNER_TEMP/javaapp-test" "$RUNNER_TEMP/apk/com.whatsapp.apk" 120 > "$RUNNER_TEMP/out/whatsapp.log" 2>&1
           echo "exit code $?"
           grep -E 'main thread ended|=== CRASH|exit\(|frames in|not implemented|unresolved import|Exception|activity' "$RUNNER_TEMP/out/whatsapp.log" | sort | uniq -c | sort -rn | head -80
-          tail -60 "$RUNNER_TEMP/out/whatsapp.log"
+          tail -120 "$RUNNER_TEMP/out/whatsapp.log"
           cp "$RUNNER_TEMP/scan.json" "$RUNNER_TEMP/out/"
       - uses: actions/upload-artifact@v4
         if: always()
