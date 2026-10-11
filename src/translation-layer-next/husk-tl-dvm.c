@@ -1076,6 +1076,7 @@ static bool call_native(dvm_method *m, jobj *self, const jvalue *params, jvalue 
     if (!fn) {
         /* what the next report needs to tell a native never registered from one registered somewhere else */
         tl_log_line("dvm: no native for %s.%s%s (dex namespace %d)", m->cls->name, m->name, m->sig, m->cls->dex ? m->cls->dex->ns : -1);
+        void tl_jni_log_natives_named(const char *); tl_jni_log_natives_named(m->name);
         return dvm_throw("java/lang/UnsatisfiedLinkError", "No implementation found for %s.%s%s", m->cls->name, m->name, m->sig);
     }
     if (g_dvm_trace >= 2) tl_log_line("dvm: jni %s.%s%s", m->cls->name, m->name, m->sig);

@@ -574,6 +574,14 @@ static uint32_t jni_GetVersion(void *env) { (void)env; return 0x00010006; }
 static jo jni_FindClass(void *env, const char *name)
 {
     (void)env;
+    /* ART rewrites '.' as '/' (NormalizeJniClassDescriptor) for code that asks for "a.b.C": GBWhatsApp's mods register their
+       natives on classes they name that way */
+    char slashed[512];
+    if (name && strchr(name, '.') && strlen(name) < sizeof(slashed)) {
+        snprintf(slashed, sizeof(slashed), "%s", name);
+        for (char *p = slashed; *p; p++) if (*p == '.') *p = '/';
+        name = slashed;
+    }
     bool array = name[0] == '[';
     bool framework = !strncmp(name, "android/", 8) || !strncmp(name, "java/", 5) || !strncmp(name, "javax/", 6)
                   || !strncmp(name, "dalvik/", 7) || !strncmp(name, "libcore/", 8) || !strncmp(name, "sun/", 4)
@@ -584,6 +592,8 @@ static jo jni_FindClass(void *env, const char *name)
         /* the Java runtime is up: a class exists when some DEX on its class paths defines it */
         tl_jclass *c = tl_jni_class(name);
         if (c->dvm || framework) return c->mirror;
+        static int misses;
+        if (misses++ < 40) tl_log_line("jni: FindClass(%s): no DEX defines it", name);
         char msg[200]; snprintf(msg, sizeof(msg), "%s", name);
         tl_jni_throw("java/lang/NoClassDefFoundError", msg);
         return NULL;
@@ -1050,8 +1060,10 @@ static int32_t jni_RegisterNatives(void *env, jo cls, const native_method *m, in
         /* the class that declares the method, the given one or a superclass (ART's FindClassMethod): Reanimated registers
            NativeProxyCommon's natives through its subclass NativeProxy */
         tl_jclass *c = given;
-        if (!tl_dvm_declares(c, m[i].name, m[i].sig))
+        if (!tl_dvm_declares(c, m[i].name, m[i].sig)) {
             for (tl_jclass *k = given->super; k; k = k->super) if (tl_dvm_declares(k, m[i].name, m[i].sig)) { c = k; break; }
+            if (c == given && given->dvm) tl_log_line("jni: RegisterNatives %s.%s%s: the class declares no such method", given->name, m[i].name, m[i].sig);
+        }
         c->natives = realloc(c->natives, (size_t)(c->nnatives + 1) * sizeof(*c->natives));
         c->natives[c->nnatives].name = strdup(m[i].name);
         c->natives[c->nnatives].sig = strdup(m[i].sig);
@@ -1086,6 +1098,19 @@ void *tl_jni_native_any(const char *cls, const char *name, const char *sig)
             for (int i = 0; i < c->nnatives; i++) if (!strcmp(c->natives[i].name, name) && (!sig || !strcmp(c->natives[i].sig, sig))) r = c->natives[i].fn;
     pthread_mutex_unlock(&g_lock);
     return r;
+}
+
+/* For a native nothing binds: where a native of that name was registered instead (another class, another signature). */
+void tl_jni_log_natives_named(const char *name)
+{
+    int shown = 0;
+    pthread_mutex_lock(&g_lock);
+    for (int b = 0; b < NBUCKETS && shown < 8; b++)
+        for (tl_jclass *c = g_classes[b]; c && shown < 8; c = c->next)
+            for (int i = 0; i < c->nnatives && shown < 8; i++)
+                if (!strcmp(c->natives[i].name, name)) { tl_log_line("dvm:   %s.%s%s is registered", c->name, name, c->natives[i].sig); shown++; }
+    pthread_mutex_unlock(&g_lock);
+    if (!shown) tl_log_line("dvm:   no class registered a native named %s", name);
 }
 
 void dvm_monitor_enter(jobj *o);
