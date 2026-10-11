@@ -1064,12 +1064,26 @@ static int32_t jni_RegisterNatives(void *env, jo cls, const native_method *m, in
 }
 static int32_t jni_UnregisterNatives(void *env, jo cls) { (void)env; (void)cls; return 0; }
 
-void *tl_jni_native(const char *cls, const char *name, const char *sig)
+/* The natives registered on this very class: a class of a dex opened at run time lives in its own namespace, and is not the one
+   its name finds (GBWhatsApp's mods register theirs on classes of the dex its protector loads). */
+void *tl_jni_native_in(tl_jclass *c, const char *name, const char *sig)
 {
-    tl_jclass *c = tl_jni_class(cls);
     void *r = NULL;
+    if (!c) return NULL;
     pthread_mutex_lock(&g_lock);
     for (int i = 0; i < c->nnatives; i++) if (!strcmp(c->natives[i].name, name) && (!sig || !strcmp(c->natives[i].sig, sig))) r = c->natives[i].fn;
+    pthread_mutex_unlock(&g_lock);
+    return r;
+}
+void *tl_jni_native(const char *cls, const char *name, const char *sig) { return tl_jni_native_in(tl_jni_class(cls), name, sig); }
+/* Last resort: a native registered on any class of that name, whichever namespace's it is. */
+void *tl_jni_native_any(const char *cls, const char *name, const char *sig)
+{
+    void *r = NULL;
+    pthread_mutex_lock(&g_lock);
+    for (tl_jclass *c = g_classes[hash_str(cls) % NBUCKETS]; c && !r; c = c->next)
+        if (!strcmp(c->name, cls))
+            for (int i = 0; i < c->nnatives; i++) if (!strcmp(c->natives[i].name, name) && (!sig || !strcmp(c->natives[i].sig, sig))) r = c->natives[i].fn;
     pthread_mutex_unlock(&g_lock);
     return r;
 }

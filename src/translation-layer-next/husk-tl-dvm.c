@@ -1048,7 +1048,10 @@ static void mangle(const char *s, char *out, size_t n, bool sig)
 static void *find_jni(dvm_method *m)
 {
     if (m->jni_looked) return m->jni;
-    void *fn = tl_jni_native(m->cls->name, m->name, m->sig);
+    void *tl_jni_native_in(tl_jclass *, const char *, const char *);
+    void *fn = tl_jni_native_in(m->cls->jc, m->name, m->sig);
+    if (!fn) fn = tl_jni_native(m->cls->name, m->name, m->sig);
+    if (!fn) { void *tl_jni_native_any(const char *, const char *, const char *); fn = tl_jni_native_any(m->cls->name, m->name, m->sig); }
     if (!fn) {
         char cls[400], nm[200], sg[400], sym[1100];
         mangle(m->cls->name, cls, sizeof(cls), false);
@@ -1062,7 +1065,7 @@ static void *find_jni(dvm_method *m)
         }
     }
     m->jni = fn;
-    m->jni_looked = true;
+    m->jni_looked = fn != NULL;     /* not found yet: RegisterNatives may still bind it, as on Android, so look again next call */
     return fn;
 }
 
@@ -1070,7 +1073,11 @@ static bool call_native(dvm_method *m, jobj *self, const jvalue *params, jvalue 
 {
     if (m->intrinsic) return m->intrinsic(self, params, ret);
     void *fn = find_jni(m);
-    if (!fn) return dvm_throw("java/lang/UnsatisfiedLinkError", "No implementation found for %s.%s%s", m->cls->name, m->name, m->sig);
+    if (!fn) {
+        /* what the next report needs to tell a native never registered from one registered somewhere else */
+        tl_log_line("dvm: no native for %s.%s%s (dex namespace %d)", m->cls->name, m->name, m->sig, m->cls->dex ? m->cls->dex->ns : -1);
+        return dvm_throw("java/lang/UnsatisfiedLinkError", "No implementation found for %s.%s%s", m->cls->name, m->name, m->sig);
+    }
     if (g_dvm_trace >= 2) tl_log_line("dvm: jni %s.%s%s", m->cls->name, m->name, m->sig);
     int64_t gp[8]; double fp[8]; int64_t stk[24];
     int ng = 0, nf = 0, ns = 0;
