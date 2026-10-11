@@ -186,9 +186,12 @@ jobs:
           grep -E 'main thread ended|=== CRASH|exit\(|frames in|not implemented|unresolved import|Exception|activity' "$RUNNER_TEMP/out/whatsapp.log" | sort | uniq -c | sort -rn | head -80
           tail -120 "$RUNNER_TEMP/out/whatsapp.log"
           cp "$RUNNER_TEMP/scan.json" "$RUNNER_TEMP/out/"
+          # Results on their own branch (probe-results), readable with plain git
           if [ -f "$RUNNER_TEMP/out/whatsapp.png" ]; then
-            sips -Z 480 -s format jpeg -s formatOptions 60 "$RUNNER_TEMP/out/whatsapp.png" --out "$RUNNER_TEMP/out/whatsapp-small.jpg" >/dev/null
-            echo "SCREENSHOT-BASE64-BEGIN"; base64 -i "$RUNNER_TEMP/out/whatsapp-small.jpg" | fold -w 76; echo "SCREENSHOT-BASE64-END"
+            P="$RUNNER_TEMP/results"; git init -q -b probe-results "$P"
+            cp "$RUNNER_TEMP/out/"* "$P/"
+            git -C "$P" add -A && git -C "$P" -c user.name=ci -c user.email=ci@localhost commit -qm "WhatsApp probe, run $GITHUB_RUN_ID"
+            git -C "$P" push -qf "https://x-access-token:${{ github.token }}@github.com/$GITHUB_REPOSITORY" probe-results
           fi
       - uses: actions/upload-artifact@v4
         if: always()
