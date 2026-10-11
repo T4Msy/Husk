@@ -671,6 +671,15 @@ bool dvm_assignable(tl_jclass *sub, tl_jclass *sup)
     return false;
 }
 
+/* JNI's AllocObject, NewObject and Get*ID initialise the class, as ART's do: code protected by a DEX virtualiser (nmmp, as
+   GBWhatsApp's mods are) binds a class's natives in its <clinit>, and makes the class's objects from native code. */
+static bool g_core_up;      /* the core classes are initialised in their order (tl_dvm_load_natives): libcore's own JNI_OnLoad runs first */
+bool tl_dvm_initialise(tl_jclass *jc)
+{
+    dvm_class *c = g_core_up ? dvm_class_of(jc) : NULL;
+    return !c || dvm_ensure_init(c);
+}
+
 /* Whether a class itself declares a method (not one it inherits): JNI's RegisterNatives binds a native to the class that does. */
 bool tl_dvm_declares(tl_jclass *jc, const char *name, const char *sig)
 {
@@ -2254,6 +2263,7 @@ bool tl_dvm_load_natives(const char *libdir)
         if (c && !dvm_ensure_init(c)) { char b[400]; tl_log_line("dvm: initialising %s threw %s", order[i], tl_dvm_describe_pending(b, sizeof(b)) ? b : "?"); tl_jni_clear(); }
     }
     dvm_current_thread();
+    g_core_up = true;
     return ok;
 }
 
