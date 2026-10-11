@@ -178,7 +178,7 @@ jobs:
           fi
           GLES="$(dirname "$EGL")/libGLESv2.dylib"
           echo "ANGLE: $EGL $GLES"
-          TL_ANGLE_EGL="$EGL" TL_ANGLE_GLES="$GLES" \
+          DYLD_LIBRARY_PATH="$(dirname "$EGL")" TL_ANGLE_EGL="$EGL" TL_ANGLE_GLES="$GLES" \
           TL_ART="$R/com.android.art" TL_FRAMEWORK="$R/husk-framework.dex" TL_FRAMEWORK_RES="$R/framework-res.apk" \
           TL_PACKAGE=com.whatsapp TL_DATA="$RUNNER_TEMP/data" TL_CTL="$RUNNER_TEMP/ctl" TL_AUDIO_MUTE=1 \
             perl -e 'alarm shift; exec @ARGV' 200 "$RUNNER_TEMP/javaapp-test" "$RUNNER_TEMP/apk/com.whatsapp.apk" 120 > "$RUNNER_TEMP/out/whatsapp.log" 2>&1
