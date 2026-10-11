@@ -163,8 +163,14 @@ jobs:
           mkdir -p "$RUNNER_TEMP/out"
           printf 'wait 100000\nshot %s\nwait 2000\nquit\n' "$RUNNER_TEMP/out/whatsapp.png" > "$RUNNER_TEMP/ctl"
           # ANGLE for macOS (EGL/GLES over Metal), from the Google Chrome the runner image carries
-          EGL="$(find "/Applications/Google Chrome.app/Contents/Frameworks" -name libEGL.dylib | head -1)"
-          GLES="$(find "/Applications/Google Chrome.app/Contents/Frameworks" -name libGLESv2.dylib | head -1)"
+          EGL="$(find /Applications -name libEGL.dylib -path '*Libraries*' 2>/dev/null | head -1)"
+          if [ -z "$EGL" ]; then
+            CFT="$(curl -fsSL https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json \
+              | python3 -c "import json,sys;print(next(d['url'] for d in json.load(sys.stdin)['channels']['Stable']['downloads']['chrome'] if d['platform']=='mac-arm64'))")"
+            curl -fsSL -o "$RUNNER_TEMP/cft.zip" "$CFT" && ditto -x -k "$RUNNER_TEMP/cft.zip" "$RUNNER_TEMP/cft"
+            EGL="$(find "$RUNNER_TEMP/cft" -name libEGL.dylib | head -1)"
+          fi
+          GLES="$(dirname "$EGL")/libGLESv2.dylib"
           echo "ANGLE: $EGL $GLES"
           TL_ANGLE_EGL="$EGL" TL_ANGLE_GLES="$GLES" \
           TL_ART="$R/com.android.art" TL_FRAMEWORK="$R/husk-framework.dex" TL_FRAMEWORK_RES="$R/framework-res.apk" \
