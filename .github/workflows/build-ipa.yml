@@ -1,0 +1,170 @@
+name: Build Husk IPA
+
+# Builds Husk.ipa from this branch without rebuilding QEMU, ANGLE or MoltenVK: those come unchanged from the official
+# 1.1.0 IPA (src/ios-jit, the QEMU patches and the ANGLE build have not changed since it). What 1.1.0 does not have is
+# built here: the app itself from the current sources, its Java runtime for Java apps (from the Lineage image the
+# Android guest boots), and the on-device pairing library.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/husk-ipa-build]
+    paths-ignore: ['**.md']
+
+permissions:
+  contents: write
+
+env:
+  BASE_IPA: https://github.com/Leviidev/Husk/releases/download/1.1.0/Husk.ipa
+  BASE_IPA_SHA256: f2044fea5b5f8287deffa0466f5f71bfd915fc4ee0d1cb852b10b0242c6ca949
+  LINEAGE_IMG: https://github.com/Leviidev/Husk/releases/download/lineage-v2/vda-v12.qcow2
+  LINEAGE_SHA256: a8dbaecc8fdcd682991b078d6bbb7df6972e459208634fa8dcbad24f17208d6a
+  R8_JAR: https://storage.googleapis.com/r8-releases/raw/8.5.35/r8lib.jar
+  WHATSAPP_APK: https://www.whatsapp.com/android/current/WhatsApp.apk
+
+jobs:
+  runtime:
+    name: Java runtime (Linux)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21' }
+      - name: Tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq qemu-utils e2fsprogs
+      - name: Lineage image and R8
+        run: |
+          mkdir -p "$RUNNER_TEMP/dl"
+          curl -fsSL --retry 5 -o "$RUNNER_TEMP/dl/r8.jar" "$R8_JAR"
+          curl -fsSL --retry 5 -o "$RUNNER_TEMP/dl/vda.qcow2" "$LINEAGE_IMG"
+          echo "$LINEAGE_SHA256  $RUNNER_TEMP/dl/vda.qcow2" | sha256sum -c -
+      - name: Build java-runtime and android-system
+        run: |
+          HUSK_JDK="$JAVA_HOME" HUSK_D8="$RUNNER_TEMP/dl/r8.jar" WORK="$RUNNER_TEMP/work" \
+            ./scripts/ci/build_runtime_linux.sh "$RUNNER_TEMP/dl/vda.qcow2"
+          rm -rf "$RUNNER_TEMP/work" "$RUNNER_TEMP/dl/vda.qcow2"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime
+          path: |
+            build/java-runtime
+            build/android-system
+          retention-days: 7
+
+  ipa:
+    name: App and IPA (macOS)
+    needs: runtime
+    runs-on: macos-26
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: runtime, path: build }
+      - name: Xcode
+        run: |
+          ls -d /Applications/Xcode*.app
+          X="$(ls -d /Applications/Xcode_*.app | grep -v -i beta | sort -V | tail -1)"
+          sudo xcode-select -s "$X"
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+      - name: Tools
+        env: { HOMEBREW_NO_AUTO_UPDATE: '1', HOMEBREW_NO_INSTALL_CLEANUP: '1' }
+        run: |
+          brew install xcodegen qemu
+          rustup target add aarch64-apple-ios
+      - name: Prebuilt QEMU, ANGLE, MoltenVK and guest from the official 1.1.0 IPA
+        run: |
+          curl -fsSL --retry 5 -o "$RUNNER_TEMP/base.ipa" "$BASE_IPA"
+          echo "$BASE_IPA_SHA256  $RUNNER_TEMP/base.ipa" | shasum -a 256 -c -
+          mkdir -p "$RUNNER_TEMP/base" && unzip -q "$RUNNER_TEMP/base.ipa" -d "$RUNNER_TEMP/base"
+          B="$RUNNER_TEMP/base/Payload/Husk.app"
+          mkdir -p build/ios-arm64/lib build/ios-arm64/sysroot/lib guests/phase0 third_party/build/qemu-10.0.12-utm/pc-bios
+          cp "$B/Frameworks/libqemu-aarch64-softmmu.dylib" build/ios-arm64/lib/
+          cp "$B/Frameworks/libANGLE-shared.dylib" build/ios-arm64/sysroot/lib/
+          xcodebuild -create-xcframework -framework "$B/Frameworks/MoltenVK.framework" -output build/ios-arm64/lib/MoltenVK.xcframework
+          cp "$B/vmlinuz-virt" "$B/initramfs-virt" guests/phase0/
+          cp "$B"/pc-bios/* third_party/build/qemu-10.0.12-utm/pc-bios/
+          bzip2 -c "$B/edk2-aarch64-code.fd" > third_party/build/qemu-10.0.12-utm/pc-bios/edk2-aarch64-code.fd.bz2
+          otool -L build/ios-arm64/lib/libqemu-aarch64-softmmu.dylib | head -5
+      - name: On-device pairing library (Rust)
+        run: ./scripts/build_rppairing_ios.sh
+      - name: Build and package
+        run: |
+          ./scripts/package_ipa.sh "$PWD/build/Husk.ipa" || { tail -200 /tmp/husk_ipa/build.log; grep -E 'error:' /tmp/husk_ipa/build.log | head -50; exit 1; }
+          ./scripts/package_ipa.sh --trollstore "$PWD/build/Husk.tipa"
+      - name: Check the package
+        run: |
+          set -x
+          cd build
+          unzip -tq Husk.ipa
+          rm -rf chk && mkdir chk && unzip -q Husk.ipa -d chk
+          A=chk/Payload/Husk.app
+          plutil -p "$A/Info.plist" | grep -E 'CFBundle(Identifier|ShortVersionString|Version|Executable)"|MinimumOSVersion|HuskBuild|DTSDKName|DTXcode"'
+          lipo -info "$A/Husk"
+          ls "$A/Frameworks" "$A/PlugIns"
+          ls "$A/java-runtime" "$A/android-system"
+          du -sh "$A/java-runtime" "$A/android-system"
+          codesign -d --entitlements - "$A" 2>&1 | tail -20
+          for x in "$A"/PlugIns/*.appex; do plutil -p "$x/Info.plist" | grep -E 'CFBundleIdentifier"|NSExtensionPointIdentifier'; done
+          shasum -a 256 Husk.ipa Husk.tipa | tee SHA256SUMS.txt
+          echo "commit $(git rev-parse HEAD)" >> SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Husk-ipa
+          path: |
+            build/Husk.ipa
+            build/Husk.tipa
+            build/SHA256SUMS.txt
+      - name: Release
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          TAG="husk-main-${GITHUB_SHA::7}-run${GITHUB_RUN_NUMBER}"
+          VER="$(plutil -extract CFBundleShortVersionString raw src/app/Husk/Info.plist) ($(plutil -extract CFBundleVersion raw src/app/Husk/Info.plist))"
+          gh release create "$TAG" build/Husk.ipa build/Husk.tipa build/SHA256SUMS.txt --prerelease --target "$GITHUB_SHA" \
+            --title "Husk $VER custom build (Leviidev/Husk main ${GITHUB_SHA::7})" \
+            --notes "Unofficial build of Husk from upstream main at ${GITHUB_SHA}, with its Java runtime bundled. QEMU, ANGLE and MoltenVK are taken unchanged from the official 1.1.0 IPA. Workflow run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+  whatsapp-probe:
+    name: WhatsApp on the translation layer (Mac harness)
+    needs: runtime
+    runs-on: macos-26
+    continue-on-error: true
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: runtime, path: build }
+      - name: Official WhatsApp APK (not redistributed; inspected and run here only)
+        run: |
+          mkdir -p "$RUNNER_TEMP/apk"
+          curl -fsSL --retry 3 -A 'Mozilla/5.0 (Linux; Android 14)' -o "$RUNNER_TEMP/apk/com.whatsapp.apk" "$WHATSAPP_APK"
+          ls -l "$RUNNER_TEMP/apk"; shasum -a 256 "$RUNNER_TEMP/apk/com.whatsapp.apk"
+          unzip -l "$RUNNER_TEMP/apk/com.whatsapp.apk" | grep -E '\.dex$|lib/[^/]+/' | awk '{print $4}' | sed -E 's#^(lib/[^/]+)/.*#\1#' | sort | uniq -c
+          unzip -l "$RUNNER_TEMP/apk/com.whatsapp.apk" | grep -E 'META-INF/.*\.(RSA|DSA|EC)$' || true
+      - name: Husk's own scan of the APK
+        run: |
+          T=src/translation-layer
+          clang -O1 -I$T tools/compat/scan.c $T/husk-tl-scan.c $T/husk-tl-zip.c $T/husk-tl-elf.c $T/husk-tl-json.c -lz -o "$RUNNER_TEMP/tl-scan"
+          "$RUNNER_TEMP/tl-scan" "$RUNNER_TEMP/apk/com.whatsapp.apk" | tee "$RUNNER_TEMP/scan.json" | head -c 6000
+      - name: Run WhatsApp in javaapp-test (Husk's Java runtime on this Mac, 120 s)
+        run: |
+          set +e
+          ./tools/regress/build.sh tools/javaapp-test.c "$RUNNER_TEMP/javaapp-test" 2>&1 | tail -30
+          R="$PWD/build/java-runtime"
+          sudo mkdir -p /Volumes/GTAV/husk2/modules/jars /Volumes/GTAV/husk2/tmp && sudo chown -R "$USER" /Volumes/GTAV
+          cp "$R/org.apache.http.legacy.jar" /Volumes/GTAV/husk2/modules/jars/
+          mkdir -p "$R/com.android.conscrypt/cacerts" && cp build/android-system/cacerts/* "$R/com.android.conscrypt/cacerts/"
+          mkdir -p "$RUNNER_TEMP/out"
+          printf 'wait 100000\nshot %s\nwait 2000\nquit\n' "$RUNNER_TEMP/out/whatsapp.png" > "$RUNNER_TEMP/ctl"
+          TL_ART="$R/com.android.art" TL_FRAMEWORK="$R/husk-framework.dex" TL_FRAMEWORK_RES="$R/framework-res.apk" \
+          TL_PACKAGE=com.whatsapp TL_DATA="$RUNNER_TEMP/data" TL_CTL="$RUNNER_TEMP/ctl" TL_AUDIO_MUTE=1 \
+            timeout 200 "$RUNNER_TEMP/javaapp-test" "$RUNNER_TEMP/apk/com.whatsapp.apk" 120 > "$RUNNER_TEMP/out/whatsapp.log" 2>&1
+          echo "exit code $?"
+          grep -E 'main thread ended|=== CRASH|exit\(|frames in|not implemented|unresolved import|Exception|activity' "$RUNNER_TEMP/out/whatsapp.log" | sort | uniq -c | sort -rn | head -80
+          tail -60 "$RUNNER_TEMP/out/whatsapp.log"
+          cp "$RUNNER_TEMP/scan.json" "$RUNNER_TEMP/out/"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: whatsapp-probe
+          path: ${{ runner.temp }}/out
