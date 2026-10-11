@@ -116,6 +116,42 @@ static bool grant_self(size_t host_bytes, char *err, size_t errlen)
 #endif
 
 #if defined(__APPLE__) && !TARGET_OS_OSX
+/*
+ * StikDebug's region makes its writable view with vm_remap(VM_FLAGS_ANYWHERE), and now and then the kernel puts it hundreds of GiB
+ * from the executable one; the loader reaches one from the other with adrp (+-4 GiB), so every library then fails to load. Another
+ * writable alias of the same pages, placed right beside the executable view, gives back a usable pair. Only a writable mapping is
+ * made, so nothing here asks for execute rights; the alias is trusted once a write through it reads back through the original.
+ */
+static bool near_rw_alias(void)
+{
+    const size_t step = (size_t)64 << 20, reach = (size_t)3 << 30;
+    for (size_t k = 0; k * step + g_x.size < reach - g_x.size; k++) {
+        for (int below = 0; below < 2; below++) {
+            uint8_t *want = below ? g_x.rx - g_x.size - k * step : g_x.rx + g_x.size + k * step;
+            if (below && (uintptr_t)g_x.rx < g_x.size + k * step) continue;
+            vm_address_t a = (vm_address_t)(uintptr_t)want;
+            vm_prot_t cur = 0, max = 0;
+            if (vm_remap(mach_task_self(), &a, g_x.size, 0, VM_FLAGS_FIXED, mach_task_self(), (vm_address_t)(uintptr_t)g_x.rw, FALSE,
+                         &cur, &max, VM_INHERIT_NONE) != KERN_SUCCESS) continue;
+            if (!(cur & VM_PROT_WRITE) && vm_protect(mach_task_self(), a, g_x.size, FALSE, VM_PROT_READ | VM_PROT_WRITE) != KERN_SUCCESS) {
+                vm_deallocate(mach_task_self(), a, g_x.size); continue;
+            }
+            /* the last page of the region, which nothing has written yet: a byte written through the new alias must show in the old one */
+            volatile uint8_t *n = (uint8_t *)(uintptr_t)a + g_x.size - 1, *o = g_x.rw + g_x.size - 1;
+            uint8_t keep = *o; *n = (uint8_t)(keep ^ 0x5a);
+            bool same = *o == (uint8_t)(keep ^ 0x5a);
+            *o = keep;
+            if (!same) { vm_deallocate(mach_task_self(), a, g_x.size); continue; }
+            tl_log_line("xmem: writable view was %td MiB from the executable one; using a new alias at %p (%td MiB)", (g_x.rw - g_x.rx) >> 20,
+                        (void *)(uintptr_t)a, ((uint8_t *)(uintptr_t)a - g_x.rx) >> 20);
+            g_x.rw = (uint8_t *)(uintptr_t)a;
+            return true;
+        }
+    }
+    tl_log_line("xmem: writable view is %td MiB from the executable one and no alias could be placed near it", (g_x.rw - g_x.rx) >> 20);
+    return false;
+}
+
 /* The phone: StikDebug's region if a debugger granted one, otherwise one the process makes for itself where the device allows that (before TXM). */
 static bool open_platform(size_t host_bytes, char *err, size_t errlen)
 {
@@ -124,6 +160,8 @@ static bool open_platform(size_t host_bytes, char *err, size_t errlen)
         g_x.rx = m->rx_addr;
         g_x.rw = m->rw_addr;
         g_x.size = m->size;
+        ptrdiff_t d = g_x.rw - g_x.rx;
+        if (d > ((ptrdiff_t)3 << 30) || d < -((ptrdiff_t)3 << 30)) near_rw_alias();
         return true;
     }
     /* From iOS 26 the Trusted Execution Monitor decides what may execute, and an attempt to run unblessed memory can end the process rather than fail. Only a debugger
