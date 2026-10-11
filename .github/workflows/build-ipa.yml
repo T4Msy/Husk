@@ -186,6 +186,10 @@ jobs:
           grep -E 'main thread ended|=== CRASH|exit\(|frames in|not implemented|unresolved import|Exception|activity' "$RUNNER_TEMP/out/whatsapp.log" | sort | uniq -c | sort -rn | head -80
           tail -120 "$RUNNER_TEMP/out/whatsapp.log"
           cp "$RUNNER_TEMP/scan.json" "$RUNNER_TEMP/out/"
+          if [ -f "$RUNNER_TEMP/out/whatsapp.png" ]; then
+            sips -Z 480 -s format jpeg -s formatOptions 60 "$RUNNER_TEMP/out/whatsapp.png" --out "$RUNNER_TEMP/out/whatsapp-small.jpg" >/dev/null
+            echo "SCREENSHOT-BASE64-BEGIN"; base64 -i "$RUNNER_TEMP/out/whatsapp-small.jpg" | fold -w 76; echo "SCREENSHOT-BASE64-END"
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
