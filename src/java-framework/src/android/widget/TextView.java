@@ -381,7 +381,10 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
         public void onSpanAdded(Spannable t, Object w, int s, int e) { if (w == Selection.SELECTION_END || w == Selection.SELECTION_START) { mBlinkStart = android.os.SystemClock.uptimeMillis(); invalidate(); } else if (w instanceof android.text.style.UpdateAppearance) relayout(); }
         public void onSpanRemoved(Spannable t, Object w, int s, int e) { if (w instanceof android.text.style.UpdateAppearance) relayout(); }
         public void onSpanChanged(Spannable t, Object w, int os, int oe, int ns, int ne) {
-            if (w == Selection.SELECTION_END || w == Selection.SELECTION_START) { mBlinkStart = android.os.SystemClock.uptimeMillis(); invalidate(); onSelectionChanged(getSelectionStart(), getSelectionEnd()); }
+            if (w == Selection.SELECTION_END || w == Selection.SELECTION_START) {
+                mBlinkStart = android.os.SystemClock.uptimeMillis(); invalidate();
+                if ((t.getSpanFlags(w) & Spanned.SPAN_INTERMEDIATE) == 0) onSelectionChanged(getSelectionStart(), getSelectionEnd());
+            }
             else if (w instanceof android.text.style.UpdateAppearance) relayout();
         }
     }
@@ -985,7 +988,7 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
     public android.view.ActionMode.Callback getCustomSelectionActionModeCallback() { return null; }
     protected int getFadeHeight(boolean p0) { return 0; }
     protected int getFadeTop(boolean p0) { return 0; }
-    public void getFocusedRect(android.graphics.Rect p0) {}
+    public void getFocusedRect(android.graphics.Rect p0) { getDrawingRect(p0); }
     public int getFocusedSearchResultHighlightColor() { return (huskFill.get("FocusedSearchResultHighlightColor") instanceof Integer ? (Integer) huskFill.get("FocusedSearchResultHighlightColor") : 0); }
     public int getFocusedSearchResultIndex() { return (huskFill.get("FocusedSearchResultIndex") instanceof Integer ? (Integer) huskFill.get("FocusedSearchResultIndex") : 0); }
     public java.lang.String getFontVariationSettings() { return null; }
@@ -1010,8 +1013,8 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
     public boolean getShiftDrawingOffsetForStartOverhang() { return (huskFill.get("ShiftDrawingOffsetForStartOverhang") instanceof Boolean ? (Boolean) huskFill.get("ShiftDrawingOffsetForStartOverhang") : false); }
     public java.util.Locale getSpellCheckerLocale() { return null; }
     public android.view.inputmethod.TextBoundsInfo getTextBoundsInfo(android.graphics.RectF p0) { return null; }
-    public android.text.TextDirectionHeuristic getTextDirectionHeuristic() { return null; }
-    public android.os.LocaleList getTextLocales() { return null; }
+    public android.text.TextDirectionHeuristic getTextDirectionHeuristic() { return android.text.TextDirectionHeuristics.FIRSTSTRONG_LTR; }
+    public android.os.LocaleList getTextLocales() { return android.os.LocaleList.getDefault(); }
     public android.graphics.drawable.Drawable getTextSelectHandle() { return null; }
     public android.graphics.drawable.Drawable getTextSelectHandleLeft() { return (android.graphics.drawable.Drawable) huskFill.get("TextSelectHandleLeft"); }
     public android.graphics.drawable.Drawable getTextSelectHandleRight() { return (android.graphics.drawable.Drawable) huskFill.get("TextSelectHandleRight"); }

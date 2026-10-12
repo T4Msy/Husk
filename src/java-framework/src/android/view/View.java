@@ -1610,7 +1610,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public int getFadingEdge() { return 0; }
     public int getFadingEdgeLength() { return 0; }
     public boolean getFilterTouchesWhenObscured() { return (huskFill.get("FilterTouchesWhenObscured") instanceof Boolean ? (Boolean) huskFill.get("FilterTouchesWhenObscured") : false); }
-    public void getFocusedRect(android.graphics.Rect p0) {}
+    public void getFocusedRect(android.graphics.Rect p0) { getDrawingRect(p0); }
     public android.graphics.BlendMode getForegroundTintBlendMode() { return (android.graphics.BlendMode) huskFill.get("ForegroundTintBlendMode"); }
     public android.content.res.ColorStateList getForegroundTintList() { return null; }
     public android.graphics.PorterDuff.Mode getForegroundTintMode() { return (android.graphics.PorterDuff.Mode) huskFill.get("ForegroundTintMode"); }

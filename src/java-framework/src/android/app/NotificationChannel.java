@@ -7,7 +7,7 @@ public final class NotificationChannel implements android.os.Parcelable {
     public int getImportance() { return mImportance; } public void setImportance(int i) { mImportance = i; }
     public String getDescription() { return mDesc; } public void setDescription(String d) { mDesc = d; }
     public String getGroup() { return mGroup; } public void setGroup(String g) { mGroup = g; }
-    public void setShowBadge(boolean b) {} public void setSound(android.net.Uri u, android.media.AudioAttributes a) {} public void enableLights(boolean b) {} public void setLightColor(int c) {}
+    public void setShowBadge(boolean b) {} public void setSound(android.net.Uri u, android.media.AudioAttributes a) { mHuskAudio = a; } private android.media.AudioAttributes mHuskAudio; public void enableLights(boolean b) {} public void setLightColor(int c) {}
     public void enableVibration(boolean b) {} public void setVibrationPattern(long[] p) {} public void setLockscreenVisibility(int v) {} public void setBypassDnd(boolean b) {}
     public boolean canShowBadge() { return true; } public android.net.Uri getSound() { return null; } public boolean shouldVibrate() { return false; } public int getLockscreenVisibility() { return 0; }
     public void setAllowBubbles(boolean b) {} public void setBlockable(boolean b) {} public void setConversationId(String p, String c) {}
@@ -51,7 +51,7 @@ public final class NotificationChannel implements android.os.Parcelable {
     public void dump(java.io.PrintWriter p0, java.lang.String p1, boolean p2) {}
     public void dumpDebug(android.util.proto.ProtoOutputStream p0, long p1) {}
     public int getAllowBubbles() { return (huskFill.get("AllowBubbles") instanceof Integer ? (Integer) huskFill.get("AllowBubbles") : 0); }
-    public android.media.AudioAttributes getAudioAttributes() { return null; }
+    public android.media.AudioAttributes getAudioAttributes() { return mHuskAudio != null ? mHuskAudio : new android.media.AudioAttributes.Builder().build(); }
     public java.lang.String getConversationId() { return null; }
     public long getDeletedTimeMs() { return (huskFill.get("DeletedTimeMs") instanceof Long ? (Long) huskFill.get("DeletedTimeMs") : 0L); }
     public long getLastNotificationUpdateTimeMs() { return (huskFill.get("LastNotificationUpdateTimeMs") instanceof Long ? (Long) huskFill.get("LastNotificationUpdateTimeMs") : 0L); }

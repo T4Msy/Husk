@@ -11,7 +11,11 @@ public class Selection {
     public static void setSelection(Spannable t, int start, int stop) {
         int len = t.length();
         start = Math.max(0, Math.min(start, len)); stop = Math.max(0, Math.min(stop, len));
-        t.setSpan(SELECTION_START, start, start, Spanned.SPAN_POINT_POINT);
+        /* as the platform's: nothing when the selection is already there (a TextView whose onSelectionChanged sets the selection
+           it was told about, as WhatsApp's MentionableEntry does, would otherwise recurse), and the start span marked intermediate
+           so watchers hear of the change once, when the end moves */
+        if (getSelectionStart(t) == start && getSelectionEnd(t) == stop) return;
+        t.setSpan(SELECTION_START, start, start, Spanned.SPAN_POINT_POINT | Spanned.SPAN_INTERMEDIATE);
         t.setSpan(SELECTION_END, stop, stop, Spanned.SPAN_POINT_POINT);
     }
     public static final void setSelection(Spannable t, int index) { setSelection(t, index, index); }

@@ -14,13 +14,13 @@ public class InputMethodSubtype {
     public java.lang.String getExtraValue() { return null; }
     public java.lang.String getExtraValueOf(java.lang.String p0) { return null; }
     public int getIconResId() { return 0; }
-    public java.lang.String getLanguageTag() { return null; }
+    public java.lang.String getLanguageTag() { return java.util.Locale.getDefault().toLanguageTag(); }
     public java.lang.CharSequence getLayoutDisplayName(android.content.Context p0, android.content.pm.ApplicationInfo p1) { return null; }
     public java.lang.CharSequence getLayoutLabelNonLocalized() { return null; }
     public int getLayoutLabelResource() { return 0; }
-    public java.lang.String getLocale() { return null; }
+    public java.lang.String getLocale() { return java.util.Locale.getDefault().toString(); }
     public java.util.Locale getLocaleObject() { return null; }
-    public java.lang.String getMode() { return null; }
+    public java.lang.String getMode() { return "keyboard"; }
     public java.lang.CharSequence getNameOverride() { return null; }
     public int getNameResId() { return 0; }
     public java.lang.String getPhysicalKeyboardHintLayoutType() { return null; }
