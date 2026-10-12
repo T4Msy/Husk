@@ -410,11 +410,21 @@ static uintptr_t g_probe[NPROBES]; static bool g_probe_seen[NPROBES];
 static size_t g_heap_bytes, g_heap_blocks, g_big_skipped;
 #define MAX_BLOCK (32u << 20)
 
+/* What each zone's walk saw, for the log (kept in place: nothing may be allocated while the heap is locked). */
+#define MAX_ZONES 32
+static struct { kern_return_t kr; size_t blocks, bytes; } g_zstat[MAX_ZONES];
+static unsigned g_zcur;
+
+/* This process reads its own memory where it is. */
+static kern_return_t self_reader(task_t task, vm_address_t addr, vm_size_t size, void **out) { (void)task; (void)size; *out = (void *)addr; return KERN_SUCCESS; }
+
 static void record(task_t task, void *ctx, unsigned type, vm_range_t *r, unsigned n)
 {
     (void)task; (void)ctx; (void)type;
+    if (g_zcur < MAX_ZONES) g_zstat[g_zcur].blocks += n;
     for (unsigned i = 0; i < n; i++) {
         uintptr_t a = r[i].address; size_t sz = r[i].size;
+        if (g_zcur < MAX_ZONES) g_zstat[g_zcur].bytes += sz;
         for (int k = 0; k < NPROBES; k++) if (g_probe[k] >= a && g_probe[k] < a + sz) g_probe_seen[k] = true;
         if (sz > MAX_BLOCK) { g_big_skipped++; continue; }
         g_heap_blocks++; g_heap_bytes += sz;
@@ -427,7 +437,7 @@ static vm_address_t *g_zones; static unsigned g_nzones;
 static void lock_zones(void)
 {
     g_zones = NULL; g_nzones = 0;
-    if (malloc_get_all_zones(mach_task_self(), NULL, &g_zones, &g_nzones) != KERN_SUCCESS) { g_zones = NULL; g_nzones = 0; return; }
+    if (malloc_get_all_zones(mach_task_self(), self_reader, &g_zones, &g_nzones) != KERN_SUCCESS) { g_zones = NULL; g_nzones = 0; return; }
     for (unsigned i = 0; i < g_nzones; i++) { malloc_zone_t *z = (malloc_zone_t *)g_zones[i]; if (z && z->introspect && z->introspect->force_lock) z->introspect->force_lock(z); }
 }
 
@@ -440,8 +450,11 @@ static bool scan_malloc(void)
 {
     for (unsigned i = 0; i < g_nzones; i++) {
         malloc_zone_t *z = (malloc_zone_t *)g_zones[i];
+        g_zcur = i;
+        if (i < MAX_ZONES) { g_zstat[i].kr = -1; g_zstat[i].blocks = g_zstat[i].bytes = 0; }
         if (!z || z == g_payload || !z->introspect || !z->introspect->enumerator) continue;
-        z->introspect->enumerator(mach_task_self(), NULL, MALLOC_PTR_IN_USE_RANGE_TYPE, (vm_address_t)z, NULL, record);
+        kern_return_t kr = z->introspect->enumerator(mach_task_self(), NULL, MALLOC_PTR_IN_USE_RANGE_TYPE, (vm_address_t)z, self_reader, record);
+        if (i < MAX_ZONES) g_zstat[i].kr = kr;
     }
     for (int k = 0; k < NPROBES; k++) if (!g_probe_seen[k]) return false;
     return true;
@@ -586,9 +599,15 @@ static void collect(const char *why)
     double t3 = now_ms();
     g_count++;
     t_collecting = false;
-    if (!whole) {
-        tl_log_line("gc: the malloc heap walk did not see a block it was shown (%u zones): the collector stays off, nothing was freed", g_nzones);
-        return;
+    if (!whole || g_count <= 2) {
+        if (!whole) tl_log_line("gc: the malloc heap walk did not see a block it was shown (48 B %s, 3000 B %s, 300000 B %s): the collector stays off, nothing was freed",
+                                g_probe_seen[0] ? "seen" : "MISSED", g_probe_seen[1] ? "seen" : "MISSED", g_probe_seen[2] ? "seen" : "MISSED");
+        for (unsigned i = 0; i < g_nzones && i < MAX_ZONES; i++) {
+            malloc_zone_t *z = (malloc_zone_t *)g_zones[i];
+            tl_log_line("gc:   zone %u %s%s: walk %d, %zu blocks, %.1f MiB", i, z && z->zone_name ? z->zone_name : "?", z == g_payload ? " (payloads, not walked)" : "",
+                        g_zstat[i].kr, g_zstat[i].blocks, g_zstat[i].bytes / 1048576.0);
+        }
+        if (!whole) return;
     }
     tl_log_line("gc: #%u (%s) freed %zu of %zu objects (%.1f MiB); %zu live (%.1f MiB); paused %.1f ms (stop %.1f, mark %.1f), sweep %.1f ms; "
                 "scanned %.1f MiB (%zu threads' stacks %.1f MiB, %zu heap blocks %.1f MiB, %zu big skipped); next after %.0f MiB; %zu MiB left",
@@ -608,7 +627,7 @@ static void maybe_collect(void)
     atomic_flag_clear(&g_busy);
 }
 
-static void maybe_collect_low(void)
+static void __attribute__((unused)) maybe_collect_low(void)
 {
     if (atomic_load(&g_off)) return;
     if (atomic_flag_test_and_set(&g_busy)) return;
