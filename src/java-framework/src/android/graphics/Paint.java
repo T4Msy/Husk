@@ -134,8 +134,9 @@ public class Paint {
     /** Husk: the blend mode number (PorterDuff.Mode's; 3 = SRC_OVER). */
     public int huskXfer() { return mP[P_XFER]; }
     public Xfermode setXfermode(Xfermode x) { mXfermode = x; mP[P_XFER] = x == null ? 3 : x.mode; return x; }
-    public void setBlendMode(BlendMode m) { mP[P_XFER] = m == null ? 3 : m.n; }
-    public BlendMode getBlendMode() { return null; }
+    private BlendMode mBlend = BlendMode.SRC_OVER;
+    public void setBlendMode(BlendMode m) { mP[P_XFER] = m == null ? 3 : m.n; mBlend = m == null ? BlendMode.SRC_OVER : m; }
+    public BlendMode getBlendMode() { return mBlend; }
     public PathEffect getPathEffect() { return mPathEffect; }
     public PathEffect setPathEffect(PathEffect e) { mPathEffect = e; return e; }
     public MaskFilter getMaskFilter() { return mMaskFilter; }

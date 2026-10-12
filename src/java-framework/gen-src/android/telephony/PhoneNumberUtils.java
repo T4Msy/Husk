@@ -25,13 +25,27 @@ public class PhoneNumberUtils {
     public static java.lang.String cdmaCheckAndProcessPlusCodeByNumberFormat(java.lang.String p0, int p1, int p2) { return null; }
     public static java.lang.String cdmaCheckAndProcessPlusCodeForSms(java.lang.String p0) { return null; }
     public static boolean compare(android.content.Context p0, java.lang.String p1, java.lang.String p2) { return false; }
-    public static boolean compare(java.lang.String p0, java.lang.String p1) { return false; }
+    /* the platform's loose comparison, as WhatsApp's contact matching uses it: the last digits that matter, separators ignored */
+    public static boolean compare(java.lang.String a, java.lang.String b) {
+        if (a == null || b == null) return a == b;
+        String x = stripSeparators(a), y = stripSeparators(b);
+        if (x.equals(y)) return true;
+        int n = Math.min(7, Math.min(x.length(), y.length()));
+        if (n < 7) return false;
+        return x.regionMatches(x.length() - n, y, y.length() - n, n);
+    }
     public static boolean compare(java.lang.String p0, java.lang.String p1, boolean p2) { return false; }
     public static boolean compareLoosely(java.lang.String p0, java.lang.String p1) { return false; }
     public static boolean compareStrictly(java.lang.String p0, java.lang.String p1) { return false; }
     public static boolean compareStrictly(java.lang.String p0, java.lang.String p1, boolean p2) { return false; }
     public static java.lang.String convertAndStrip(java.lang.String p0) { return null; }
-    public static java.lang.String convertKeypadLettersToDigits(java.lang.String p0) { return null; }
+    public static java.lang.String convertKeypadLettersToDigits(java.lang.String s) {
+        if (s == null) return null;
+        final String keys = "22233344455566677778889999";
+        StringBuilder b = new StringBuilder(s.length());
+        for (char c : s.toCharArray()) { char u = Character.toUpperCase(c); b.append(u >= 'A' && u <= 'Z' ? keys.charAt(u - 'A') : c); }
+        return b.toString();
+    }
     public static java.lang.String convertPreDial(java.lang.String p0) { return null; }
     public static android.net.Uri convertSipUriToTelUri(android.net.Uri p0) { return null; }
     public static java.lang.String convertToEmergencyNumber(android.content.Context p0, java.lang.String p1) { return null; }
@@ -58,12 +72,12 @@ public class PhoneNumberUtils {
     public static boolean isDialable(char p0) { return false; }
     public static boolean isEmergencyNumber(int p0, java.lang.String p1) { return false; }
     public static boolean isEmergencyNumber(java.lang.String p0) { return false; }
-    public static boolean isGlobalPhoneNumber(java.lang.String p0) { return false; }
+    public static boolean isGlobalPhoneNumber(java.lang.String s) { return s != null && !s.isEmpty() && s.matches("[\\+]?[0-9.-]+"); }
     public static boolean isISODigit(char p0) { return false; }
     public static boolean isInternationalNumber(java.lang.String p0, java.lang.String p1) { return false; }
     public static boolean isLocalEmergencyNumber(android.content.Context p0, java.lang.String p1) { return false; }
     public static boolean isNanp(java.lang.String p0) { return false; }
-    public static boolean isNonSeparator(char p0) { return false; }
+    public static boolean isNonSeparator(char c) { return (c >= '0' && c <= '9') || c == '*' || c == '#' || c == '+' || c == 'N' || c == ';' || c == ','; }
     public static boolean isReallyDialable(char p0) { return false; }
     public static boolean isStartsPostDial(char p0) { return false; }
     public static boolean isUriNumber(java.lang.String p0) { return false; }
@@ -80,7 +94,12 @@ public class PhoneNumberUtils {
     public static java.lang.String replaceUnicodeDigits(java.lang.String p0) { return null; }
     public static void setMinMatchForTest(int p0) {}
     public static java.lang.String stringFromStringAndTOA(java.lang.String p0, int p1) { return null; }
-    public static java.lang.String stripSeparators(java.lang.String p0) { return null; }
+    public static java.lang.String stripSeparators(java.lang.String s) {
+        if (s == null) return null;
+        StringBuilder b = new StringBuilder(s.length());
+        for (char c : s.toCharArray()) { int d = Character.digit(c, 10); if (d != -1) b.append(d); else if (isNonSeparator(c)) b.append(c); }
+        return b.toString();
+    }
     public static java.lang.String toCallerIDMinMatch(java.lang.String p0) { return null; }
     public static int toaFromString(java.lang.String p0) { return 0; }
     public static java.lang.CharSequence ttsSpanAsPhoneNumber(java.lang.CharSequence p0) { return null; }

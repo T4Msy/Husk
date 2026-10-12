@@ -13,6 +13,13 @@ public class ThumbnailUtils {
     public static android.graphics.Bitmap createImageThumbnail(java.lang.String p0, int p1) { return null; }
     public static android.graphics.Bitmap createVideoThumbnail(java.io.File p0, android.util.Size p1, android.os.CancellationSignal p2) { return null; }
     public static android.graphics.Bitmap createVideoThumbnail(java.lang.String p0, int p1) { return null; }
-    public static android.graphics.Bitmap extractThumbnail(android.graphics.Bitmap p0, int p1, int p2) { return null; }
-    public static android.graphics.Bitmap extractThumbnail(android.graphics.Bitmap p0, int p1, int p2, int p3) { return null; }
+    /* the platform's: scaled to cover w x h, then the centre cut out */
+    public static android.graphics.Bitmap extractThumbnail(android.graphics.Bitmap src, int w, int h) {
+        if (src == null || w <= 0 || h <= 0) return null;
+        float s = Math.max((float) w / src.getWidth(), (float) h / src.getHeight());
+        int sw = Math.max(w, Math.round(src.getWidth() * s)), sh = Math.max(h, Math.round(src.getHeight() * s));
+        android.graphics.Bitmap scaled = android.graphics.Bitmap.createScaledBitmap(src, sw, sh, true);
+        return android.graphics.Bitmap.createBitmap(scaled, (sw - w) / 2, (sh - h) / 2, w, h);
+    }
+    public static android.graphics.Bitmap extractThumbnail(android.graphics.Bitmap src, int w, int h, int opts) { return extractThumbnail(src, w, h); }
 }

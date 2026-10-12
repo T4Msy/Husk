@@ -140,6 +140,13 @@ public final class ResInflate {
             return element(r, p, t);
         } catch (RuntimeException e) { throw e; } catch (Exception e) { Resources.NotFoundException n = new Resources.NotFoundException(p.getPositionDescription() + ": " + e); n.initCause(e); throw n; }
     }
+    /** Drawable.createFromXmlInner: the parser is already on the element's start tag. */
+    public static Drawable drawableHere(Resources r, XmlPullParser p, Resources.Theme t) {
+        try {
+            if (p.getEventType() != XmlPullParser.START_TAG) toStart(p);
+            return element(r, p, t);
+        } catch (RuntimeException e) { throw e; } catch (Exception e) { Resources.NotFoundException n = new Resources.NotFoundException(p.getPositionDescription() + ": " + e); n.initCause(e); throw n; }
+    }
     /** The drawable of the element the parser is on (consumes it). */
     static Drawable element(Resources r, XmlPullParser p, Resources.Theme t) throws Exception {
         String name = p.getName();

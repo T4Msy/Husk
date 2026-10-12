@@ -1,6 +1,8 @@
 package android.content;
 
 public abstract class BroadcastReceiver {
+    /** The package that sent the broadcast being handled, when the platform knows it: never here (the app sends its own). */
+    public String getSentFromPackage() { return null; }
     public static class PendingResult {
         public final void setResultCode(int c) {} public final int getResultCode() { return 0; }
         public final void setResultData(String d) {} public final String getResultData() { return null; }

@@ -239,7 +239,14 @@ public class ContentResolver {
     public static void validateSyncExtrasBundle(android.os.Bundle p0) {}
     public static android.content.ContentResolver wrap(android.content.ContentProvider p0) { return null; }
     public static android.content.ContentResolver wrap(android.content.ContentProviderClient p0) { return null; }
-    public android.content.ContentProviderResult[] applyBatch(java.lang.String p0, java.util.ArrayList p1) { return null; }
+    /* the provider of that authority applies them; with none (the platform's own, as Contacts), nothing changes: one empty result each */
+    public android.content.ContentProviderResult[] applyBatch(java.lang.String authority, java.util.ArrayList ops) throws android.os.RemoteException, OperationApplicationException {
+        ContentProvider p = byAuthority(authority);
+        if (p != null) return p.applyBatch((java.util.ArrayList<ContentProviderOperation>) ops);
+        ContentProviderResult[] r = new ContentProviderResult[ops.size()];
+        for (int i = 0; i < r.length; i++) r[i] = new ContentProviderResult(0);
+        return r;
+    }
     public void cancelSync(android.net.Uri p0) {}
     public android.net.Uri canonicalizeOrElse(android.net.Uri p0) { return null; }
     public int checkUriPermission(android.net.Uri p0, int p1, int p2) { return 0; }

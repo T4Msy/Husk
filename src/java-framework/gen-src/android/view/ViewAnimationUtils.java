@@ -4,6 +4,11 @@ package android.view;
 @SuppressWarnings({"unchecked", "rawtypes", "deprecation"})
 public final class ViewAnimationUtils {
     private final java.util.HashMap<String, Object> huskProps = new java.util.HashMap<>();
-    public static android.animation.Animator createCircularReveal(android.view.View p0, int p1, int p2, float p3, float p4) { return null; }
+    /* no clip to animate here: an animator of the right length that shows the view, so callers that start it and wait for its end work */
+    public static android.animation.Animator createCircularReveal(android.view.View v, int cx, int cy, float r0, float r1) {
+        android.animation.ValueAnimator a = android.animation.ValueAnimator.ofFloat(r0, r1);
+        a.setDuration(300);
+        return a;
+    }
     protected ViewAnimationUtils() {}
 }

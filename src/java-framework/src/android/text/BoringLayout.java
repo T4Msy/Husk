@@ -12,6 +12,9 @@ public class BoringLayout extends Layout implements TextUtils.EllipsizeCallback 
         super(source, paint, outerwidth, align, mult, add);
         mInner = new StaticLayout(source, 0, source.length(), paint, outerwidth, align, mult, add, includePad, ellipsize, ellipsizedWidth);
     }
+    public BoringLayout(CharSequence source, TextPaint paint, int outerwidth, Alignment align, float mult, float add, Metrics metrics, boolean includePad, TextUtils.TruncateAt ellipsize, int ellipsizedWidth, boolean useFallbackLineSpacing) {
+        this(source, paint, outerwidth, align, mult, add, metrics, includePad, ellipsize, ellipsizedWidth);
+    }
     public static BoringLayout make(CharSequence source, TextPaint paint, int outerwidth, Alignment align, float mult, float add, Metrics metrics, boolean includePad) { return new BoringLayout(source, paint, outerwidth, align, mult, add, metrics, includePad); }
     public static BoringLayout make(CharSequence source, TextPaint paint, int outerwidth, Alignment align, float mult, float add, Metrics metrics, boolean includePad, TextUtils.TruncateAt ellipsize, int ellipsizedWidth) { return new BoringLayout(source, paint, outerwidth, align, mult, add, metrics, includePad, ellipsize, ellipsizedWidth); }
     public BoringLayout replaceOrMake(CharSequence source, TextPaint paint, int outerwidth, Alignment align, float mult, float add, Metrics metrics, boolean includePad) { return make(source, paint, outerwidth, align, mult, add, metrics, includePad); }

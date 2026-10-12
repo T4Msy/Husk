@@ -1172,6 +1172,12 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public android.view.inputmethod.InputConnection onCreateInputConnection(android.view.inputmethod.EditorInfo o) { return null; }
     public boolean checkInputConnectionProxy(View v) { return false; }
     public void cancelPendingInputEvents() { removeCallbacks(mPendingLongPress); mPrivateFlags &= ~PFLAG_PREPRESSED; }
+    /** A long press waiting to fire does not (a touch that turned into a drag or a scroll). */
+    public void cancelLongPress() { removeCallbacks(mPendingLongPress); }
+    /** When this frame's drawing started, as animations measure it. */
+    public long getDrawingTime() { return android.view.animation.AnimationUtils.currentAnimationTimeMillis(); }
+    public ViewParent getParentForAccessibility() { return getParent(); }
+    public int getSolidColor() { return 0; }
     public void setPointerIcon(PointerIcon p) {}
     public PointerIcon getPointerIcon() { return null; }
     public PointerIcon onResolvePointerIcon(MotionEvent e, int i) { return null; }

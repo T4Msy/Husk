@@ -1476,6 +1476,17 @@ static bool invoke_regs(dvm_method *caller, int kind, uint32_t midx, int count, 
     }
     if (!target) {
         if (r->hm) { *result = tl_jni_invoke(self, r->hm, kind == 2 || kind == 1, params); return !tl_jni_pending(); }
+        /* A method of the Android framework that Husk's does not have (the platform grows them every release): an app built
+           against a newer SDK reaches it, and on Android it is there. Answer as an empty one would, and say so, rather than end
+           the app in a NoSuchMethodError (WhatsApp's chat list calls View.cancelLongPress on every scroll). */
+        for (tl_jclass *k = r->cls; k; k = k->super) {
+            if (strncmp(k->name, "android/", 8) != 0 || !strncmp(k->name, "android/support/", 16)) continue;
+            static atomic_int told;
+            if (atomic_fetch_add(&told, 1) < 200) tl_log_line("dvm: Android has %s.%s%s, Husk's framework does not: answering %s", r->cls->name, r->name, r->sig,
+                                                              r->shorty[0] == 'V' ? "nothing" : r->shorty[0] == 'L' ? "null" : "zero");
+            result->j = 0;
+            return true;
+        }
         return dvm_throw("java/lang/NoSuchMethodError", "%s.%s%s", r->cls->name, r->name, r->sig);
     }
     if (g_dvm_trace >= 2) tl_log_line("dvm: -> %s.%s%s", target->cls->name, target->name, target->sig);
@@ -2349,7 +2360,7 @@ bool tl_dvm_load_natives(const char *libdir)
     }
     dvm_current_thread();
     g_core_up = true;
-    tl_log_line("dvm: Husk translation layer, T4Msy build gb6");
+    tl_log_line("dvm: Husk translation layer, T4Msy build gb7");
     return ok;
 }
 

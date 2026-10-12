@@ -65,7 +65,11 @@ public abstract class ContentProvider implements ComponentCallbacks2 {
     protected final void setAuthorities(String a) { mAuthority = a; }
     public final String getAuthority() { return mAuthority; }
     public final boolean isTemporary() { return false; }
-    public ContentProviderResult[] applyBatch(java.util.ArrayList<ContentProviderOperation> ops) throws OperationApplicationException { return new ContentProviderResult[0]; }
+    public ContentProviderResult[] applyBatch(java.util.ArrayList<ContentProviderOperation> ops) throws OperationApplicationException {
+        ContentProviderResult[] r = new ContentProviderResult[ops.size()];
+        for (int i = 0; i < r.length; i++) r[i] = ops.get(i).apply(this, r, i);
+        return r;
+    }
     public void dump(java.io.FileDescriptor fd, java.io.PrintWriter w, String[] args) {}
     public final void restoreCallingIdentity(CallingIdentity token) {}
     public final CallingIdentity clearCallingIdentity() { return null; }
@@ -91,7 +95,7 @@ public abstract class ContentProvider implements ComponentCallbacks2 {
     public static boolean isAuthorityRedirectedForCloneProfile(java.lang.String p0) { return false; }
     public static android.net.Uri maybeAddUserId(android.net.Uri p0, int p1) { return null; }
     public static boolean uriHasUserId(android.net.Uri p0) { return false; }
-    public android.content.ContentProviderResult[] applyBatch(java.lang.String p0, java.util.ArrayList p1) { return null; }
+    public android.content.ContentProviderResult[] applyBatch(java.lang.String authority, java.util.ArrayList ops) throws OperationApplicationException { return applyBatch((java.util.ArrayList<ContentProviderOperation>) ops); }
     public int checkUriPermission(android.net.Uri p0, int p1, int p2) { return 0; }
     protected int enforceReadPermissionInner(android.net.Uri p0, android.content.AttributionSource p1) { return 0; }
     protected int enforceWritePermissionInner(android.net.Uri p0, android.content.AttributionSource p1) { return 0; }

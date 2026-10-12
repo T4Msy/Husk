@@ -52,11 +52,15 @@ public final class DocumentsContract {
     public static final java.lang.String QUERY_ARG_MIME_TYPES = "android:query-arg-mime-types";
     public static android.net.Uri buildBaseDocumentUri(java.lang.String p0) { return null; }
     public static android.net.Uri buildChildDocumentsUri(java.lang.String p0, java.lang.String p1) { return null; }
-    public static android.net.Uri buildChildDocumentsUriUsingTree(android.net.Uri p0, java.lang.String p1) { return null; }
+    public static android.net.Uri buildChildDocumentsUriUsingTree(android.net.Uri tree, java.lang.String doc) {
+        return new android.net.Uri.Builder().scheme("content").authority(tree.getAuthority()).appendPath("tree").appendPath(getTreeDocumentId(tree)).appendPath("document").appendPath(doc).appendPath("children").build();
+    }
     public static android.net.Uri buildDocumentUri(java.lang.String p0, java.lang.String p1) { return null; }
     public static android.net.Uri buildDocumentUriAsUser(java.lang.String p0, java.lang.String p1, android.os.UserHandle p2) { return null; }
     public static android.net.Uri buildDocumentUriMaybeUsingTree(android.net.Uri p0, java.lang.String p1) { return null; }
-    public static android.net.Uri buildDocumentUriUsingTree(android.net.Uri p0, java.lang.String p1) { return null; }
+    public static android.net.Uri buildDocumentUriUsingTree(android.net.Uri tree, java.lang.String doc) {
+        return new android.net.Uri.Builder().scheme("content").authority(tree.getAuthority()).appendPath("tree").appendPath(getTreeDocumentId(tree)).appendPath("document").appendPath(doc).build();
+    }
     public static android.net.Uri buildRecentDocumentsUri(java.lang.String p0, java.lang.String p1) { return null; }
     public static android.net.Uri buildRootUri(java.lang.String p0, java.lang.String p1) { return null; }
     public static android.net.Uri buildRootsUri(java.lang.String p0) { return null; }
@@ -69,17 +73,30 @@ public final class DocumentsContract {
     public static boolean deleteDocument(android.content.ContentResolver p0, android.net.Uri p1) { return false; }
     public static void ejectRoot(android.content.ContentResolver p0, android.net.Uri p1) {}
     public static android.provider.DocumentsContract.Path findDocumentPath(android.content.ContentResolver p0, android.net.Uri p1) { return null; }
-    public static java.lang.String getDocumentId(android.net.Uri p0) { return null; }
+    public static java.lang.String getDocumentId(android.net.Uri u) {
+        java.util.List<String> p = u.getPathSegments();
+        if (p.size() >= 2 && "document".equals(p.get(0))) return p.get(1);
+        if (p.size() >= 4 && "tree".equals(p.get(0)) && "document".equals(p.get(2))) return p.get(3);
+        throw new IllegalArgumentException("Invalid URI: " + u);
+    }
     public static android.os.Bundle getDocumentMetadata(android.content.ContentResolver p0, android.net.Uri p1) { return null; }
     public static android.graphics.Bitmap getDocumentThumbnail(android.content.ContentResolver p0, android.net.Uri p1, android.graphics.Point p2, android.os.CancellationSignal p3) { return null; }
     public static java.lang.String[] getHandledQueryArguments(android.os.Bundle p0) { return null; }
     public static java.lang.String getRootId(android.net.Uri p0) { return null; }
     public static java.lang.String getSearchDocumentsQuery(android.net.Uri p0) { return null; }
     public static java.lang.String getSearchDocumentsQuery(android.os.Bundle p0) { return null; }
-    public static java.lang.String getTreeDocumentId(android.net.Uri p0) { return null; }
+    public static java.lang.String getTreeDocumentId(android.net.Uri u) {
+        java.util.List<String> p = u.getPathSegments();
+        if (p.size() >= 2 && "tree".equals(p.get(0))) return p.get(1);
+        throw new IllegalArgumentException("Invalid URI: " + u);
+    }
     public static boolean isChildDocument(android.content.ContentResolver p0, android.net.Uri p1, android.net.Uri p2) { return false; }
     public static boolean isContentUri(android.net.Uri p0) { return false; }
-    public static boolean isDocumentUri(android.content.Context p0, android.net.Uri p1) { return false; }
+    public static boolean isDocumentUri(android.content.Context c, android.net.Uri u) {
+        if (u == null || !"content".equals(u.getScheme())) return false;
+        java.util.List<String> p = u.getPathSegments();
+        return (p.size() == 2 && "document".equals(p.get(0))) || (p.size() == 4 && "tree".equals(p.get(0)) && "document".equals(p.get(2)));
+    }
     public static boolean isManageMode(android.net.Uri p0) { return false; }
     public static boolean isRootUri(android.content.Context p0, android.net.Uri p1) { return false; }
     public static boolean isRootsUri(android.content.Context p0, android.net.Uri p1) { return false; }

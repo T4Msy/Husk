@@ -61,7 +61,7 @@ public final class PendingIntent implements android.os.Parcelable {
     public static android.os.Parcelable.Creator CREATOR;
     public static final int FLAG_MUTABLE_UNAUDITED = 33554432;
     public static final long PENDING_INTENT_OPTIONS_CHECK = 320664730L;
-    public static android.app.PendingIntent getActivities(android.content.Context p0, int p1, android.content.Intent[] p2, int p3, android.os.Bundle p4) { return null; }
+    public static android.app.PendingIntent getActivities(android.content.Context c, int req, android.content.Intent[] i, int flags, android.os.Bundle o) { return getActivities(c, req, i, flags); }
     public static android.app.PendingIntent getActivitiesAsUser(android.content.Context p0, int p1, android.content.Intent[] p2, int p3, android.os.Bundle p4, android.os.UserHandle p5) { return null; }
     public static android.app.PendingIntent getActivityAsUser(android.content.Context p0, int p1, android.content.Intent p2, int p3, android.os.Bundle p4, android.os.UserHandle p5) { return null; }
     public static android.app.PendingIntent getBroadcastAsUser(android.content.Context p0, int p1, android.content.Intent p2, int p3, android.os.UserHandle p4) { return null; }
