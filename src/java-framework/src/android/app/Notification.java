@@ -42,16 +42,33 @@ public class Notification implements android.os.Parcelable {
     public static class Action implements android.os.Parcelable {
         public interface Extender { android.app.Notification.Action.Builder extend(android.app.Notification.Action.Builder b); }
         public int icon; public CharSequence title; public PendingIntent actionIntent;
-        public Action(int icon, CharSequence title, PendingIntent intent) { this.icon = icon; this.title = title; actionIntent = intent; }
-        public Bundle getExtras() { return new Bundle(); } public Icon getIcon() { return null; } public RemoteInput[] getRemoteInputs() { return null; }
-        public boolean getAllowGeneratedReplies() { return false; } public int getSemanticAction() { return 0; } public boolean isContextual() { return false; } public boolean isAuthenticationRequired() { return false; }
+        private Icon mIcon; private Bundle mExtras = new Bundle(); private RemoteInput[] mRemoteInputs; private boolean mAllowReplies = true, mContextual, mAuth;
+        private int mSemantic;
+        public Action(int icon, CharSequence title, PendingIntent intent) { this.icon = icon; this.title = title; actionIntent = intent; mIcon = icon != 0 ? Icon.createWithResource("", icon) : null; }
+        public Bundle getExtras() { return mExtras; } public Icon getIcon() { return mIcon; } public RemoteInput[] getRemoteInputs() { return mRemoteInputs; }
+        public boolean getAllowGeneratedReplies() { return mAllowReplies; } public int getSemanticAction() { return mSemantic; } public boolean isContextual() { return mContextual; }
+        public boolean isAuthenticationRequired() { return mAuth; }
         public int describeContents() { return 0; }
+        public void writeToParcel(android.os.Parcel d, int f) {}
+        public Action clone() { Action a = new Action(icon, title, actionIntent); a.mIcon = mIcon; a.mExtras = new Bundle(mExtras); a.mRemoteInputs = mRemoteInputs; a.mAllowReplies = mAllowReplies; a.mSemantic = mSemantic; a.mContextual = mContextual; a.mAuth = mAuth; return a; }
         public static final class Builder {
-            private final int i; private final CharSequence t; private final PendingIntent p;
-            public Builder(int icon, CharSequence title, PendingIntent intent) { i = icon; t = title; p = intent; } public Builder(Icon icon, CharSequence title, PendingIntent intent) { this(0, title, intent); } public Builder(Action a) { this(a.icon, a.title, a.actionIntent); }
-            public Builder addExtras(Bundle b) { return this; } public Builder addRemoteInput(RemoteInput r) { return this; } public Builder setAllowGeneratedReplies(boolean b) { return this; }
-            public Builder setSemanticAction(int a) { return this; } public Builder setContextual(boolean c) { return this; } public Builder setAuthenticationRequired(boolean b) { return this; }
-            public Builder extend(Action.Extender e) { return e != null ? e.extend(this) : this; } public Bundle getExtras() { return new Bundle(); } public Action build() { return new Action(i, t, p); }
+            private final int i; private final CharSequence t; private final PendingIntent p; private Icon mIcon;
+            private final Bundle mExtras = new Bundle(); private final java.util.ArrayList<RemoteInput> mInputs = new java.util.ArrayList<>();
+            private boolean mAllowReplies = true, mContextual, mAuth; private int mSemantic;
+            public Builder(int icon, CharSequence title, PendingIntent intent) { i = icon; t = title; p = intent; }
+            public Builder(Icon icon, CharSequence title, PendingIntent intent) { this(icon != null && icon.getType() == Icon.TYPE_RESOURCE ? icon.getResId() : 0, title, intent); mIcon = icon; }
+            public Builder(Action a) { this(a.icon, a.title, a.actionIntent); mIcon = a.mIcon; mExtras.putAll(a.mExtras); if (a.mRemoteInputs != null) java.util.Collections.addAll(mInputs, a.mRemoteInputs); mAllowReplies = a.mAllowReplies; mSemantic = a.mSemantic; mContextual = a.mContextual; mAuth = a.mAuth; }
+            public Builder addExtras(Bundle b) { if (b != null) mExtras.putAll(b); return this; } public Builder addRemoteInput(RemoteInput r) { if (r != null) mInputs.add(r); return this; }
+            public Builder setAllowGeneratedReplies(boolean b) { mAllowReplies = b; return this; }
+            public Builder setSemanticAction(int a) { mSemantic = a; return this; } public Builder setContextual(boolean c) { mContextual = c; return this; } public Builder setAuthenticationRequired(boolean b) { mAuth = b; return this; }
+            public Builder extend(Action.Extender e) { return e != null ? e.extend(this) : this; } public Bundle getExtras() { return mExtras; }
+            public Action build() {
+                Action a = new Action(i, t, p);
+                if (mIcon != null) a.mIcon = mIcon;
+                a.mExtras = mExtras; a.mRemoteInputs = mInputs.isEmpty() ? null : mInputs.toArray(new RemoteInput[0]);
+                a.mAllowReplies = mAllowReplies; a.mSemantic = mSemantic; a.mContextual = mContextual; a.mAuth = mAuth;
+                return a;
+            }
         }
         // ---- generated by tools/compat/fillmembers.py (Action): the platform's members this class does not write (signatures only)
         public static android.os.Parcelable.Creator CREATOR;
@@ -69,42 +86,46 @@ public class Notification implements android.os.Parcelable {
         public static final int SEMANTIC_ACTION_THUMBS_DOWN = 9;
         public static final int SEMANTIC_ACTION_THUMBS_UP = 8;
         public static final int SEMANTIC_ACTION_UNMUTE = 7;
-        public android.app.RemoteInput[] getDataOnlyRemoteInputs() { return null; }
+        public android.app.RemoteInput[] getDataOnlyRemoteInputs() {
+            if (mRemoteInputs == null) return null;
+            java.util.ArrayList<RemoteInput> r = new java.util.ArrayList<>();
+            for (RemoteInput i : mRemoteInputs) if (i.isDataOnly()) r.add(i);
+            return r.isEmpty() ? null : r.toArray(new RemoteInput[0]);
+        }
         // ---- end of generated members (Action)
     }
-    public static final class BubbleMetadata { public static final class Builder { public Builder() {} public Builder(PendingIntent p, Icon i) {} public Builder(String s) {} public Builder setDesiredHeight(int h) { return this; } public Builder setAutoExpandBubble(boolean b) { return this; } public Builder setSuppressNotification(boolean b) { return this; } public BubbleMetadata build() { return new BubbleMetadata(); }
-        // ---- generated by tools/compat/fillmembers.py (BubbleMetadata.Builder): the platform's members this class does not write (signatures only)
-        public android.app.Notification.BubbleMetadata.Builder setDeleteIntent(android.app.PendingIntent p0) { return this; }
-        public android.app.Notification.BubbleMetadata.Builder setDesiredHeightResId(int p0) { return this; }
-        public android.app.Notification.BubbleMetadata.Builder setFlag(int p0, boolean p1) { return this; }
-        public android.app.Notification.BubbleMetadata.Builder setIcon(android.graphics.drawable.Icon p0) { return this; }
-        public android.app.Notification.BubbleMetadata.Builder setIntent(android.app.PendingIntent p0) { return this; }
-        public android.app.Notification.BubbleMetadata.Builder setSuppressableBubble(boolean p0) { return this; }
-        // ---- end of generated members (BubbleMetadata.Builder)
-    }
-        // ---- generated by tools/compat/fillmembers.py (BubbleMetadata): the platform's members this class does not write (signatures only)
-        private final java.util.HashMap<String, Object> huskFill = new java.util.HashMap<>();
+    public static final class BubbleMetadata implements android.os.Parcelable {
         public static android.os.Parcelable.Creator CREATOR;
-        public static final int FLAG_AUTO_EXPAND_BUBBLE = 1;
-        public static final int FLAG_SUPPRESSABLE_BUBBLE = 4;
-        public static final int FLAG_SUPPRESS_BUBBLE = 8;
-        public static final int FLAG_SUPPRESS_NOTIFICATION = 2;
+        public static final int FLAG_AUTO_EXPAND_BUBBLE = 1, FLAG_SUPPRESS_NOTIFICATION = 2, FLAG_SUPPRESSABLE_BUBBLE = 4, FLAG_SUPPRESS_BUBBLE = 8;
+        private PendingIntent mIntent, mDelete; private Icon mIcon; private String mShortcut; private int mHeight, mHeightRes, mFlags;
+        public static final class Builder {
+            private final BubbleMetadata m = new BubbleMetadata();
+            public Builder() {}
+            public Builder(PendingIntent p, Icon i) { m.mIntent = p; m.mIcon = i; }
+            public Builder(String shortcutId) { m.mShortcut = shortcutId; }
+            public Builder setIntent(PendingIntent p) { m.mIntent = p; return this; } public Builder setIcon(Icon i) { m.mIcon = i; return this; }
+            public Builder setDeleteIntent(PendingIntent p) { m.mDelete = p; return this; }
+            public Builder setDesiredHeight(int h) { m.mHeight = h; m.mHeightRes = 0; return this; } public Builder setDesiredHeightResId(int r) { m.mHeightRes = r; m.mHeight = 0; return this; }
+            public Builder setFlag(int f, boolean v) { if (v) m.mFlags |= f; else m.mFlags &= ~f; return this; }
+            public Builder setAutoExpandBubble(boolean b) { return setFlag(FLAG_AUTO_EXPAND_BUBBLE, b); }
+            public Builder setSuppressNotification(boolean b) { return setFlag(FLAG_SUPPRESS_NOTIFICATION, b); }
+            public Builder setSuppressableBubble(boolean b) { return setFlag(FLAG_SUPPRESSABLE_BUBBLE, b); }
+            public BubbleMetadata build() {
+                BubbleMetadata r = new BubbleMetadata();
+                r.mIntent = m.mIntent; r.mDelete = m.mDelete; r.mIcon = m.mIcon; r.mShortcut = m.mShortcut; r.mHeight = m.mHeight; r.mHeightRes = m.mHeightRes; r.mFlags = m.mFlags;
+                return r;
+            }
+        }
         public int describeContents() { return 0; }
-        public boolean getAutoExpandBubble() { return false; }
-        public android.app.PendingIntent getDeleteIntent() { return null; }
-        public int getDesiredHeight() { return 0; }
-        public int getDesiredHeightResId() { return 0; }
-        public int getFlags() { return (huskFill.get("Flags") instanceof Integer ? (Integer) huskFill.get("Flags") : 0); }
-        public android.graphics.drawable.Icon getIcon() { return null; }
-        public android.app.PendingIntent getIntent() { return null; }
-        public java.lang.String getShortcutId() { return null; }
-        public boolean isBubbleSuppressable() { return false; }
-        public boolean isBubbleSuppressed() { return false; }
-        public boolean isNotificationSuppressed() { return false; }
-        public void setFlags(int p0) { huskFill.put("Flags", Integer.valueOf(p0)); }
-        public void setSuppressBubble(boolean p0) {}
-        public void writeToParcel(android.os.Parcel p0, int p1) {}
-        // ---- end of generated members (BubbleMetadata)
+        public void writeToParcel(android.os.Parcel p, int f) {}
+        public boolean getAutoExpandBubble() { return (mFlags & FLAG_AUTO_EXPAND_BUBBLE) != 0; }
+        public boolean isNotificationSuppressed() { return (mFlags & FLAG_SUPPRESS_NOTIFICATION) != 0; }
+        public boolean isBubbleSuppressable() { return (mFlags & FLAG_SUPPRESSABLE_BUBBLE) != 0; }
+        public boolean isBubbleSuppressed() { return (mFlags & FLAG_SUPPRESS_BUBBLE) != 0; }
+        public void setSuppressBubble(boolean b) { if (b) mFlags |= FLAG_SUPPRESS_BUBBLE; else mFlags &= ~FLAG_SUPPRESS_BUBBLE; }
+        public PendingIntent getIntent() { return mIntent; } public PendingIntent getDeleteIntent() { return mDelete; } public Icon getIcon() { return mIcon; }
+        public String getShortcutId() { return mShortcut; } public int getDesiredHeight() { return mHeight; } public int getDesiredHeightResId() { return mHeightRes; }
+        public int getFlags() { return mFlags; } public void setFlags(int f) { mFlags = f; }
     }
     public abstract static class Style {
         public void setBuilder(Builder b) { if (mBuilder != b) { mBuilder = b; if (b != null) b.setStyle(this); } }
@@ -356,10 +377,10 @@ public class Notification implements android.os.Parcelable {
         public static android.app.Notification.Builder recoverBuilder(android.content.Context p0, android.app.Notification p1) { return null; }
         public android.app.Notification buildInto(android.app.Notification p0) { return null; }
         public android.app.Notification buildUnstyled() { return null; }
-        public android.widget.RemoteViews createBigContentView() { return null; }
+        public android.widget.RemoteViews createBigContentView() { return n.bigContentView != null ? n.bigContentView : new android.widget.RemoteViews(mContext != null ? mContext.getPackageName() : "", 0); }
         public android.widget.RemoteViews createCompactHeadsUpContentView() { return null; }
-        public android.widget.RemoteViews createContentView() { return null; }
-        public android.widget.RemoteViews createHeadsUpContentView() { return null; }
+        public android.widget.RemoteViews createContentView() { return n.contentView != null ? n.contentView : new android.widget.RemoteViews(mContext != null ? mContext.getPackageName() : "", 0); }
+        public android.widget.RemoteViews createHeadsUpContentView() { return n.headsUpContentView != null ? n.headsUpContentView : new android.widget.RemoteViews(mContext != null ? mContext.getPackageName() : "", 0); }
         public java.lang.CharSequence ensureColorSpanContrastOrStripStyling(java.lang.CharSequence p0, int p1) { return null; }
         public int getBackgroundColor(boolean p0) { return 0; }
         public android.app.Notification.Colors getColors(boolean p0) { return null; }
@@ -514,7 +535,7 @@ public class Notification implements android.os.Parcelable {
     public java.util.List getContextualActions() { return new java.util.ArrayList(); }
     public java.lang.Class getNotificationStyle() { return null; }
     public int getProgressState() { return 0; }
-    public java.lang.CharSequence getSettingsText() { return null; }
+    public java.lang.CharSequence getSettingsText() { return extras != null ? extras.getCharSequence("android.settingsText") : null; }
     public java.lang.String getShortCriticalText() { return null; }
     public java.lang.CharSequence getSummarizedContent() { return null; }
     public long getTimeout() { return 0L; }

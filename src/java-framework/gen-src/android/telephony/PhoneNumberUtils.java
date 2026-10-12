@@ -58,7 +58,8 @@ public class PhoneNumberUtils {
     public static void formatNanpNumber(android.text.Editable p0) {}
     public static java.lang.String formatNumber(java.lang.String p0) { return null; }
     public static java.lang.String formatNumber(java.lang.String p0, int p1) { return null; }
-    public static java.lang.String formatNumber(java.lang.String p0, java.lang.String p1) { return null; }
+    /* no libphonenumber here: the number as given, which is what the platform answers when it cannot format one */
+    public static java.lang.String formatNumber(java.lang.String n, java.lang.String iso) { return n; }
     public static java.lang.String formatNumber(java.lang.String p0, java.lang.String p1, java.lang.String p2) { return null; }
     public static void formatNumber(android.text.Editable p0, int p1) {}
     public static java.lang.String formatNumberToE164(java.lang.String p0, java.lang.String p1) { return null; }

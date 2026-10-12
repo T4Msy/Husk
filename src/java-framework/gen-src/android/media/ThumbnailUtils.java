@@ -9,9 +9,24 @@ public class ThumbnailUtils {
     public ThumbnailUtils() {}
     public static android.graphics.Bitmap createAudioThumbnail(java.io.File p0, android.util.Size p1, android.os.CancellationSignal p2) { return null; }
     public static android.graphics.Bitmap createAudioThumbnail(java.lang.String p0, int p1) { return null; }
-    public static android.graphics.Bitmap createImageThumbnail(java.io.File p0, android.util.Size p1, android.os.CancellationSignal p2) { return null; }
-    public static android.graphics.Bitmap createImageThumbnail(java.lang.String p0, int p1) { return null; }
-    public static android.graphics.Bitmap createVideoThumbnail(java.io.File p0, android.util.Size p1, android.os.CancellationSignal p2) { return null; }
+    /* the platform's: decoded at about the size asked, then cut to it; an IOException when the file is not an image */
+    public static android.graphics.Bitmap createImageThumbnail(java.io.File f, android.util.Size size, android.os.CancellationSignal signal) throws java.io.IOException {
+        android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+        android.graphics.BitmapFactory.decodeFile(f.getPath(), o);
+        if (o.outWidth <= 0 || o.outHeight <= 0) throw new java.io.IOException("not an image: " + f);
+        int sample = 1;
+        while (o.outWidth / (sample * 2) >= size.getWidth() && o.outHeight / (sample * 2) >= size.getHeight()) sample *= 2;
+        o = new android.graphics.BitmapFactory.Options(); o.inSampleSize = sample;
+        android.graphics.Bitmap b = android.graphics.BitmapFactory.decodeFile(f.getPath(), o);
+        if (b == null) throw new java.io.IOException("could not decode " + f);
+        return extractThumbnail(b, size.getWidth(), size.getHeight());
+    }
+    public static android.graphics.Bitmap createImageThumbnail(java.lang.String path, int kind) {
+        int s = kind == 3 /* MICRO_KIND */ ? 96 : 512;
+        try { return createImageThumbnail(new java.io.File(path), new android.util.Size(s, kind == 3 ? 96 : 384), null); } catch (java.io.IOException e) { return null; }
+    }
+    public static android.graphics.Bitmap createVideoThumbnail(java.io.File f, android.util.Size size, android.os.CancellationSignal signal) throws java.io.IOException { throw new java.io.IOException("no frame extractor for " + f); }
     public static android.graphics.Bitmap createVideoThumbnail(java.lang.String p0, int p1) { return null; }
     /* the platform's: scaled to cover w x h, then the centre cut out */
     public static android.graphics.Bitmap extractThumbnail(android.graphics.Bitmap src, int w, int h) {
