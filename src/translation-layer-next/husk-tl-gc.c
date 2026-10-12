@@ -12,6 +12,7 @@
 #include <string.h>
 #include <sys/mman.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "husk-tl-jni.h"
 #include "husk-tl-bionic.h"
@@ -460,6 +461,87 @@ static bool scan_malloc(void)
     return true;
 }
 
+/* When a zone cannot be walked (an allocator that does not implement it, as a jemalloc zone some libraries install): every
+   writable page the process has in memory is scanned instead -- all of malloc's whatever its kind, and every anonymous mapping.
+   Left out: the payload zone's regions (payloads are reached through their objects), the mark stack, graphics memory, and
+   mappings too big to be a heap (the JIT region). Pages not in memory hold nothing and are not touched. */
+#define MAX_EXCL 8192
+static struct { uintptr_t lo, hi; } g_excl[MAX_EXCL];
+static int g_nexcl;
+static size_t g_region_bytes;
+static bool g_region_mode;
+
+static void payload_regions(task_t task, void *ctx, unsigned type, vm_range_t *r, unsigned n)
+{
+    (void)task; (void)ctx; (void)type;
+    for (unsigned i = 0; i < n && g_nexcl < MAX_EXCL; i++) { g_excl[g_nexcl].lo = r[i].address; g_excl[g_nexcl].hi = r[i].address + r[i].size; g_nexcl++; }
+}
+
+static void probe_check(uintptr_t a, uintptr_t e) { for (int k = 0; k < NPROBES; k++) if (g_probe[k] >= a && g_probe[k] < e) g_probe_seen[k] = true; }
+
+/* [a, e) less the exclusions, page by page where the page is in memory */
+static void scan_resident(uintptr_t a, uintptr_t e)
+{
+    static char vec[65536];
+    const uintptr_t pg = (uintptr_t)getpagesize();
+    while (a < e) {
+        uintptr_t chunk_end = e;
+        if ((chunk_end - a) / pg > sizeof(vec)) chunk_end = a + sizeof(vec) * pg;
+        if (mincore((void *)a, chunk_end - a, (void *)vec) != 0) { a = chunk_end; continue; }
+        for (uintptr_t p = a; p < chunk_end; p += pg) {
+            if (!(vec[(p - a) / pg] & 1)) continue;
+            uintptr_t pe = p + pg;
+            bool skip = false;
+            for (int x = 0; x < g_nexcl && !skip; x++) if (p < g_excl[x].hi && pe > g_excl[x].lo) {
+                /* partly excluded: the parts outside */
+                if (p < g_excl[x].lo) { probe_check(p, g_excl[x].lo); scan_range((const void *)p, (const void *)g_excl[x].lo); g_region_bytes += g_excl[x].lo - p; }
+                if (pe > g_excl[x].hi) { probe_check(g_excl[x].hi, pe); scan_range((const void *)g_excl[x].hi, (const void *)pe); g_region_bytes += pe - g_excl[x].hi; }
+                skip = true;
+            }
+            if (skip) continue;
+            probe_check(p, pe);
+            g_region_bytes += pg;
+            scan_range((const void *)p, (const void *)pe);
+        }
+        a = chunk_end;
+    }
+}
+
+static bool skip_tag(unsigned tag)
+{
+    switch (tag) {
+    case 21:  /* IOKit */
+    case 51:  /* CoreAnimation layer backing */
+    case 52:  /* CGImage */
+    case 78:  /* GPU (IOAccelerator) */
+    case 89:  /* IOSurface */
+        return true;
+    default: return false;
+    }
+}
+
+static bool scan_all_writable(void)
+{
+    g_region_mode = true;
+    g_nexcl = 0;
+    if (g_payload && g_payload->introspect && g_payload->introspect->enumerator)
+        g_payload->introspect->enumerator(mach_task_self(), NULL, MALLOC_PTR_REGION_RANGE_TYPE, (vm_address_t)g_payload, self_reader, payload_regions);
+    if (g_nexcl < MAX_EXCL) { g_excl[g_nexcl].lo = (uintptr_t)g_stack; g_excl[g_nexcl].hi = (uintptr_t)g_stack + g_stack_cap * sizeof(uintptr_t); g_nexcl++; }
+    for (int k = 0; k < NPROBES; k++) g_probe_seen[k] = false;
+    vm_address_t addr = 0; natural_t depth = 0;
+    for (int guard = 0; guard < 200000; guard++) {
+        vm_size_t size = 0;
+        vm_region_submap_info_data_64_t info; mach_msg_type_number_t cnt = VM_REGION_SUBMAP_INFO_COUNT_64;
+        if (vm_region_recurse_64(mach_task_self(), &addr, &size, &depth, (vm_region_recurse_info_t)&info, &cnt) != KERN_SUCCESS) break;
+        if (info.is_submap) { depth++; continue; }
+        if ((info.protection & (VM_PROT_READ | VM_PROT_WRITE)) == (VM_PROT_READ | VM_PROT_WRITE) && size <= (256u << 20) && !skip_tag(info.user_tag))
+            scan_resident(addr, addr + size);
+        addr += size;
+    }
+    for (int k = 0; k < NPROBES; k++) if (!g_probe_seen[k]) return false;
+    return true;
+}
+
 /* ------------------------------------------------------------------ sweeping */
 
 static size_t g_live_bytes;
@@ -570,7 +652,8 @@ static void collect(const char *why)
     scan_own_stack();
     scan_image_data();
     tl_ld_each_writable(scan_guest_cb, NULL);
-    bool whole = scan_malloc();
+    g_region_mode = false; g_region_bytes = 0;
+    bool whole = scan_malloc() || scan_all_writable();
     drain();
     double t2 = now_ms();
 
@@ -600,6 +683,8 @@ static void collect(const char *why)
     g_count++;
     t_collecting = false;
     if (!whole || g_count <= 2) {
+        if (g_region_mode) tl_log_line("gc:   a zone could not be walked: every writable page in memory was scanned instead (%.1f MiB, %d ranges left out)%s",
+                                       g_region_bytes / 1048576.0, g_nexcl, whole ? "" : " -- and still did not find every probe");
         if (!whole) tl_log_line("gc: the malloc heap walk did not see a block it was shown (48 B %s, 3000 B %s, 300000 B %s): the collector stays off, nothing was freed",
                                 g_probe_seen[0] ? "seen" : "MISSED", g_probe_seen[1] ? "seen" : "MISSED", g_probe_seen[2] ? "seen" : "MISSED");
         for (unsigned i = 0; i < g_nzones && i < MAX_ZONES; i++) {
@@ -610,10 +695,10 @@ static void collect(const char *why)
         if (!whole) return;
     }
     tl_log_line("gc: #%u (%s) freed %zu of %zu objects (%.1f MiB); %zu live (%.1f MiB); paused %.1f ms (stop %.1f, mark %.1f), sweep %.1f ms; "
-                "scanned %.1f MiB (%zu threads' stacks %.1f MiB, %zu heap blocks %.1f MiB, %zu big skipped); next after %.0f MiB; %zu MiB left",
+                "scanned %.1f MiB (%zu threads' stacks %.1f MiB, %zu heap blocks %.1f MiB, %zu big skipped); next after %.0f MiB; %zu MiB left%s",
                 g_count, why, freed, before, freed_bytes / 1048576.0, live, g_live_bytes / 1048576.0, t2 - t0, t1 - t0, t2 - t1, t3 - t2,
                 g_scanned / 1048576.0, (size_t)g_nsusp, g_stack_bytes / 1048576.0, g_heap_blocks, g_heap_bytes / 1048576.0, g_big_skipped,
-                g_threshold / 1048576.0, mem_left() >> 20);
+                g_threshold / 1048576.0, mem_left() >> 20, g_region_mode ? "; roots by page scan" : "");
 }
 
 /* One thread collects; the others go on (the next allocation past the threshold asks again). */
