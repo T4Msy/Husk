@@ -489,6 +489,9 @@ public class Resources {
                         else if (r.type == TypedValue.TYPE_ATTRIBUTE && useTheme) { TypedValue t2 = new TypedValue(); if (resolveAttribute(r.data, t2, true)) { v.setTo(t2); v.resourceId = t2.resourceId != 0 ? t2.resourceId : ref; } }
                         else { v.setTo(r); v.resourceId = r.resourceId != 0 ? r.resourceId : ref; }
                     } else v.resourceId = ref;
+                    /* a reference that resolves to @null in this configuration (WhatsApp's colors defined only for night mode) is
+                       no value at all, as ART's ApplyStyle turns it back to TYPE_NULL after following it */
+                    if (v.type == TypedValue.TYPE_REFERENCE && v.data == 0) continue;
                 }
                 a.set(k, v);
             }
