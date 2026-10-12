@@ -594,7 +594,7 @@ static void collect(const char *why)
     /* blocks of each size class the heap walk must find, or it is not seeing the whole heap */
     static const size_t probe_size[NPROBES] = { 48, 3000, 300000 };
     void *probe[NPROBES];
-    for (int k = 0; k < NPROBES; k++) { probe[k] = malloc(probe_size[k]); if (probe[k]) memset(probe[k], 0x5a, 64); }   /* written: a page never touched is not in memory, and a page scan rightly skips it */
+    for (int k = 0; k < NPROBES; k++) { probe[k] = malloc(probe_size[k]); if (probe[k]) memset(probe[k], 0x5a, 32); }   /* 32: within the smallest (48 B) */   /* written: a page never touched is not in memory, and a page scan rightly skips it */
     double t0 = now_ms();
     pthread_mutex_lock(&g_heap);
     size_t before = g_cells;
