@@ -625,7 +625,7 @@ static void collect(const char *why)
     /* blocks of each size class the heap walk must find, or it is not seeing the whole heap */
     static const size_t probe_size[NPROBES] = { 48, 3000, 300000 };
     void *probe[NPROBES];
-    for (int k = 0; k < NPROBES; k++) probe[k] = malloc(probe_size[k]);
+    for (int k = 0; k < NPROBES; k++) { probe[k] = malloc(probe_size[k]); if (probe[k]) memset(probe[k], 0x5a, 64); }   /* written: a page never touched is not in memory, and a page scan rightly skips it */
     double t0 = now_ms();
     pthread_mutex_lock(&g_heap);
     size_t before = g_cells;
@@ -657,6 +657,7 @@ static void collect(const char *why)
     drain();
     double t2 = now_ms();
 
+    int nthreads = g_nsusp;
     start_world();
     unlock_zones();
 
@@ -697,7 +698,7 @@ static void collect(const char *why)
     tl_log_line("gc: #%u (%s) freed %zu of %zu objects (%.1f MiB); %zu live (%.1f MiB); paused %.1f ms (stop %.1f, mark %.1f), sweep %.1f ms; "
                 "scanned %.1f MiB (%zu threads' stacks %.1f MiB, %zu heap blocks %.1f MiB, %zu big skipped); next after %.0f MiB; %zu MiB left%s",
                 g_count, why, freed, before, freed_bytes / 1048576.0, live, g_live_bytes / 1048576.0, t2 - t0, t1 - t0, t2 - t1, t3 - t2,
-                g_scanned / 1048576.0, (size_t)g_nsusp, g_stack_bytes / 1048576.0, g_heap_blocks, g_heap_bytes / 1048576.0, g_big_skipped,
+                g_scanned / 1048576.0, (size_t)nthreads, g_stack_bytes / 1048576.0, g_heap_blocks, g_heap_bytes / 1048576.0, g_big_skipped,
                 g_threshold / 1048576.0, mem_left() >> 20, g_region_mode ? "; roots by page scan" : "");
 }
 
