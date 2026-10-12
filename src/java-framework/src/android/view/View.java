@@ -197,6 +197,12 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
         if (attrs == null && defStyleAttr == 0 && defStyleRes == 0) return;
         TypedArray a = c.obtainStyledAttributes(attrs, husk.S.View, defStyleAttr, defStyleRes);
         try { readViewAttributes(a); } finally { a.recycle(); }
+        if (attrs != null) {
+            // android:transitionName is outside husk.S.View; shared-element transitions look views up by it
+            int ref = attrs.getAttributeResourceValue("http://schemas.android.com/apk/res/android", "transitionName", 0);
+            if (ref != 0) { try { mTransitionName = c.getResources().getString(ref); } catch (RuntimeException e) {} }
+            else { String tn = attrs.getAttributeValue("http://schemas.android.com/apk/res/android", "transitionName"); if (tn != null) mTransitionName = tn; }
+        }
     }
     private void readViewAttributes(TypedArray a) {
         int pad = -1, pl = -1, pt = -1, pr = -1, pb = -1, ph = -1, pv = -1, ps = Integer.MIN_VALUE, pe = Integer.MIN_VALUE;
