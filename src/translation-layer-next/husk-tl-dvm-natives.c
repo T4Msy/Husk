@@ -677,10 +677,18 @@ NAT(Thread_nativeCreate)
     dvm_field *pf = s->thread ? thread_peer(s->thread) : NULL;
     if (pf) dvm_slots(s->thread)[pf->slot].j = (int64_t)(uintptr_t)s->thread;     /* alive from here (before it runs: start() then isAlive() is true) */
     pthread_attr_t at; pthread_attr_init(&at);
-    pthread_attr_setstacksize(&at, 32u << 20);
+    /* 8 MB: an app's pools make dozens of threads, and iOS gives an app far less address space than Android does (32 MB each ran
+       it out); the interpreter throws StackOverflowError before a thread's stack runs out */
+    pthread_attr_setstacksize(&at, 8u << 20);
     pthread_attr_setdetachstate(&at, PTHREAD_CREATE_DETACHED);
     pthread_t th;
-    if (pthread_create(&th, &at, thread_main, s) != 0) { free(s); return dvm_throw("java/lang/OutOfMemoryError", "pthread_create"); }
+    int err = pthread_create(&th, &at, thread_main, s);
+    if (err) { tl_gc_collect("thread start failed"); err = pthread_create(&th, &at, thread_main, s); }
+    if (err) {
+        free(s);
+        tl_log_line("dvm: pthread_create failed (%s)", strerror(err));
+        return dvm_throw("java/lang/OutOfMemoryError", "pthread_create: %s", strerror(err));
+    }
     return true;
 }
 
