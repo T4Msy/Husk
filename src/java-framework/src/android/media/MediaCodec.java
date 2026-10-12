@@ -54,6 +54,7 @@ public final class MediaCodec {
     private final boolean mVideo;
     private long mNative;
     private int mState = ST_UNINITIALIZED, mGeneration, mScaling = VIDEO_SCALING_MODE_SCALE_TO_FIT;
+    private int mRotation;                                          /* the format's rotation-degrees, applied when drawing to the Surface as Android's codecs do */
     private final Object mLock = new Object();
     private Surface mSurface;
     private MediaFormat mInputFormat, mOutputFormat;
@@ -85,7 +86,7 @@ public final class MediaCodec {
     public static MediaCodec createDecoderByType(String type) throws IOException {
         if (type == null) throw new NullPointerException();
         for (MediaCodecInfo i : MediaCodecList.infos()) for (String t : i.getSupportedTypes()) if (t.equalsIgnoreCase(type)) return new MediaCodec(i.getName(), t);
-        throw new IOException("Failed to create a decoder for " + type + " (Husk decodes H.264, HEVC, AAC and MP3)");
+        throw new IOException("Failed to create a decoder for " + type + " (Husk decodes H.264, HEVC, AAC, MP3 and Opus)");
     }
     public static MediaCodec createEncoderByType(String type) throws IOException { throw new IOException("Husk has no " + type + " encoder"); }
     public static Surface createPersistentInputSurface() { throw new IllegalArgumentException("Husk has no encoders"); }
@@ -112,6 +113,7 @@ public final class MediaCodec {
             mInputs = new ByteBuffer[INPUTS];
             for (int i = 0; i < INPUTS; i++) mInputs[i] = ByteBuffer.allocateDirect(max).order(ByteOrder.nativeOrder());
             if (mVideo) {
+                mRotation = ((f.getInteger(MediaFormat.KEY_ROTATION, 0) % 360) + 360) % 360;
                 int s = husk.MediaCodecNative.size(mNative);
                 mOutW = s > 0 ? s >>> 16 : w; mOutH = s > 0 ? s & 0xffff : h;
                 mOutputFormat = videoFormat(mOutW, mOutH);
@@ -296,14 +298,23 @@ public final class MediaCodec {
         if (c == null) return;
         try {
             int cw = c.getWidth(), ch = c.getHeight();
+            boolean swap = mRotation == 90 || mRotation == 270;
+            int vw = swap ? mOutH : mOutW, vh = swap ? mOutW : mOutH;    /* the picture as shown */
             Rect dst = new Rect(0, 0, cw, ch);
             if (mScaling == VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING) {
-                float sc = Math.max((float) cw / mOutW, (float) ch / mOutH);
-                int w = Math.round(mOutW * sc), h = Math.round(mOutH * sc);
+                float sc = Math.max((float) cw / vw, (float) ch / vh);
+                int w = Math.round(vw * sc), h = Math.round(vh * sc);
                 dst.set((cw - w) / 2, (ch - h) / 2, (cw + w) / 2, (ch + h) / 2);
             }
             c.drawColor(0xFF000000);
-            c.drawBitmap(mFrame, null, dst, mPaint);
+            if (mRotation == 0) c.drawBitmap(mFrame, null, dst, mPaint);
+            else {
+                int w = swap ? dst.height() : dst.width(), h = swap ? dst.width() : dst.height();
+                c.save();
+                c.translate(dst.exactCenterX(), dst.exactCenterY()); c.rotate(mRotation);
+                c.drawBitmap(mFrame, null, new Rect(-w / 2, -h / 2, -w / 2 + w, -h / 2 + h), mPaint);
+                c.restore();
+            }
         } finally { s.unlockCanvasAndPost(c); }
         OnFrameRenderedListener l = mRendered;
         if (l != null) {

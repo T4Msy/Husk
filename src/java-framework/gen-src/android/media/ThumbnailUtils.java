@@ -26,8 +26,19 @@ public class ThumbnailUtils {
         int s = kind == 3 /* MICRO_KIND */ ? 96 : 512;
         try { return createImageThumbnail(new java.io.File(path), new android.util.Size(s, kind == 3 ? 96 : 384), null); } catch (java.io.IOException e) { return null; }
     }
-    public static android.graphics.Bitmap createVideoThumbnail(java.io.File f, android.util.Size size, android.os.CancellationSignal signal) throws java.io.IOException { throw new java.io.IOException("no frame extractor for " + f); }
-    public static android.graphics.Bitmap createVideoThumbnail(java.lang.String p0, int p1) { return null; }
+    /* the platform's: the file's representative frame, decoded no larger than needed, then cut to the size */
+    public static android.graphics.Bitmap createVideoThumbnail(java.io.File f, android.util.Size size, android.os.CancellationSignal signal) throws java.io.IOException {
+        android.graphics.Bitmap b;
+        try (MediaMetadataRetriever r = new MediaMetadataRetriever()) {
+            r.setDataSource(f.getPath());
+            b = r.getScaledFrameAtTime(-1, MediaMetadataRetriever.OPTION_CLOSEST_SYNC, Math.max(size.getWidth(), size.getHeight()) * 2, Math.max(size.getWidth(), size.getHeight()) * 2);
+        } catch (RuntimeException e) { throw new java.io.IOException("not a video: " + f + " (" + e.getMessage() + ")"); }
+        if (b == null) throw new java.io.IOException("no frame in " + f);
+        return extractThumbnail(b, size.getWidth(), size.getHeight());
+    }
+    public static android.graphics.Bitmap createVideoThumbnail(java.lang.String path, int kind) {
+        try { return createVideoThumbnail(new java.io.File(path), kind == 3 /* MICRO_KIND */ ? new android.util.Size(96, 96) : new android.util.Size(512, 384), null); } catch (java.io.IOException e) { return null; }
+    }
     /* the platform's: scaled to cover w x h, then the centre cut out */
     public static android.graphics.Bitmap extractThumbnail(android.graphics.Bitmap src, int w, int h) {
         if (src == null || w <= 0 || h <= 0) return null;
