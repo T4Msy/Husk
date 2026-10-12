@@ -2077,8 +2077,42 @@ NAT(System_load)
     return !tl_jni_pending();
 }
 
+/* Class.isInstance / isAssignableFrom: from the classes themselves. libcore's walk the mirrors' superClass fields, which are
+ * filled when a mirror is first looked into -- one looked into while its class was still being linked kept a null superClass,
+ * and every subclass then failed the check (an AtomicIntegerFieldUpdater on a coroutine Mutex threw ClassCastException). */
+NAT(Class_isInstance)
+{
+    jobj *o = a[0].l;
+    *ret = Z(o && self && self->kind == TL_K_CLASS && dvm_instance_of(o, self->klass.jc));
+    return true;
+}
+NAT(Class_isAssignableFrom)
+{
+    jobj *c = a[0].l;
+    if (!c) return npe("cls");
+    *ret = Z(self && self->kind == TL_K_CLASS && c->kind == TL_K_CLASS && dvm_assignable(c->klass.jc, self->klass.jc));
+    return true;
+}
+
+/* and getSuperclass, which reads the same field */
+NAT(Class_getSuperclass)
+{
+    (void)a;
+    *ret = L(NULL);
+    if (!self || self->kind != TL_K_CLASS) return true;
+    tl_jclass *jc = self->klass.jc;
+    dvm_class *c = dvm_class_of(jc);
+    if ((c && ((c->flags & 0x200) || c->prim)) || !strcmp(jc->name, "java/lang/Object")) return true;
+    if (jc->name[0] == '[') { *ret = L(tl_jni_class("java/lang/Object")->mirror); return true; }
+    if (jc->super) *ret = L(jc->super->mirror);
+    return true;
+}
+
 dvm_native_fn dvm_fast_path(const char *cls, const char *name, const char *sig)
 {
+    if (!strcmp(cls, "java/lang/Class") && !strcmp(name, "getSuperclass") && !strcmp(sig, "()Ljava/lang/Class;")) return Class_getSuperclass;
+    if (!strcmp(cls, "java/lang/Class") && !strcmp(name, "isInstance") && !strcmp(sig, "(Ljava/lang/Object;)Z")) return Class_isInstance;
+    if (!strcmp(cls, "java/lang/Class") && !strcmp(name, "isAssignableFrom") && !strcmp(sig, "(Ljava/lang/Class;)Z")) return Class_isAssignableFrom;
     if (!strcmp(cls, "java/lang/Object") && !strcmp(name, "getClass") && !strcmp(sig, "()Ljava/lang/Class;")) return Object_getClass;
     if (!strcmp(cls, "java/lang/System") && !strcmp(name, "loadLibrary") && !strcmp(sig, "(Ljava/lang/String;)V")) return System_loadLibrary;
     if (!strcmp(cls, "java/lang/System") && !strcmp(name, "load") && !strcmp(sig, "(Ljava/lang/String;)V")) return System_load;
