@@ -175,6 +175,8 @@ jobs:
           "$RUNNER_TEMP/jadx/bin/jadx" --single-class X.0oM --single-class-output "$RUNNER_TEMP/dec-X.0oM.java" --show-bad-code -q "$RUNNER_TEMP/apk/com.whatsapp.apk" 2>&1 | tail -3
           echo "---- X.0oM"; grep -n "class \|FieldUpdater\|volatile\| Clj(\|newUpdater" "$RUNNER_TEMP/dec-X.0oM.java" | head -40
           L=$(grep -n " Clj(" "$RUNNER_TEMP/dec-X.0oM.java" | head -1 | cut -d: -f1); [ -n "$L" ] && sed -n "$((L-2)),$((L+20))p" "$RUNNER_TEMP/dec-X.0oM.java"
+          # the declarations only (class, updater fields), for the results branch
+          mkdir -p "$RUNNER_TEMP/out"; grep -n "class \|FieldUpdater\|volatile" "$RUNNER_TEMP/dec-X.0oM.java" | head -20 > "$RUNNER_TEMP/out/x0oM-declarations.txt" || true
       - name: Run WhatsApp in javaapp-test (Husk's Java runtime on this Mac, 120 s)
         run: |
           set +e
