@@ -405,64 +405,16 @@ static void scan_image_data(void) { for (int i = 0; i < g_ndata; i++) scan_range
 
 static void scan_guest_cb(const void *start, size_t len, void *user) { (void)user; scan_range(start, (const char *)start + len); }
 
-/* Every block in use in every malloc zone but the payloads'. */
+/* Blocks the scan must find before anything is freed. */
 #define NPROBES 3
 static uintptr_t g_probe[NPROBES]; static bool g_probe_seen[NPROBES];
-static size_t g_heap_bytes, g_heap_blocks, g_big_skipped;
-#define MAX_BLOCK (32u << 20)
-
-/* What each zone's walk saw, for the log (kept in place: nothing may be allocated while the heap is locked). */
-#define MAX_ZONES 32
-static struct { kern_return_t kr; size_t blocks, bytes; } g_zstat[MAX_ZONES];
-static unsigned g_zcur;
 
 /* This process reads its own memory where it is. */
 static kern_return_t self_reader(task_t task, vm_address_t addr, vm_size_t size, void **out) { (void)task; (void)size; *out = (void *)addr; return KERN_SUCCESS; }
 
-static void record(task_t task, void *ctx, unsigned type, vm_range_t *r, unsigned n)
-{
-    (void)task; (void)ctx; (void)type;
-    if (g_zcur < MAX_ZONES) g_zstat[g_zcur].blocks += n;
-    for (unsigned i = 0; i < n; i++) {
-        uintptr_t a = r[i].address; size_t sz = r[i].size;
-        if (g_zcur < MAX_ZONES) g_zstat[g_zcur].bytes += sz;
-        for (int k = 0; k < NPROBES; k++) if (g_probe[k] >= a && g_probe[k] < a + sz) g_probe_seen[k] = true;
-        if (sz > MAX_BLOCK) { g_big_skipped++; continue; }
-        g_heap_blocks++; g_heap_bytes += sz;
-        scan_range((const void *)a, (const void *)(a + sz));
-    }
-}
-
-static vm_address_t *g_zones; static unsigned g_nzones;
-
-static void lock_zones(void)
-{
-    g_zones = NULL; g_nzones = 0;
-    if (malloc_get_all_zones(mach_task_self(), self_reader, &g_zones, &g_nzones) != KERN_SUCCESS) { g_zones = NULL; g_nzones = 0; return; }
-    for (unsigned i = 0; i < g_nzones; i++) { malloc_zone_t *z = (malloc_zone_t *)g_zones[i]; if (z && z->introspect && z->introspect->force_lock) z->introspect->force_lock(z); }
-}
-
-static void unlock_zones(void)
-{
-    for (unsigned i = g_nzones; i-- > 0;) { malloc_zone_t *z = (malloc_zone_t *)g_zones[i]; if (z && z->introspect && z->introspect->force_unlock) z->introspect->force_unlock(z); }
-}
-
-static bool scan_malloc(void)
-{
-    for (unsigned i = 0; i < g_nzones; i++) {
-        malloc_zone_t *z = (malloc_zone_t *)g_zones[i];
-        g_zcur = i;
-        if (i < MAX_ZONES) { g_zstat[i].kr = -1; g_zstat[i].blocks = g_zstat[i].bytes = 0; }
-        if (!z || z == g_payload || !z->introspect || !z->introspect->enumerator) continue;
-        kern_return_t kr = z->introspect->enumerator(mach_task_self(), NULL, MALLOC_PTR_IN_USE_RANGE_TYPE, (vm_address_t)z, self_reader, record);
-        if (i < MAX_ZONES) g_zstat[i].kr = kr;
-    }
-    for (int k = 0; k < NPROBES; k++) if (!g_probe_seen[k]) return false;
-    return true;
-}
-
-/* When a zone cannot be walked (an allocator that does not implement it, as a jemalloc zone some libraries install): every
-   writable page the process has in memory is scanned instead -- all of malloc's whatever its kind, and every anonymous mapping.
+/* The roots in memory: every writable page the process has in memory -- all of malloc's, whatever allocator made it (walking
+   the zones needs their locks, and a jemalloc zone some processes have resets itself when unlocked that way), every anonymous
+   mapping, every thread-local block.
    Left out: the payload zone's regions (payloads are reached through their objects), the mark stack, graphics memory, and
    mappings too big to be a heap (the JIT region). Pages not in memory hold nothing and are not touched. */
 #define MAX_EXCL 8192
@@ -629,11 +581,13 @@ static void collect(const char *why)
     double t0 = now_ms();
     pthread_mutex_lock(&g_heap);
     size_t before = g_cells;
-    g_scanned = 0; g_stack_bytes = 0; g_heap_bytes = 0; g_heap_blocks = 0; g_big_skipped = 0;
+    g_scanned = 0; g_stack_bytes = 0;
     for (int k = 0; k < NPROBES; k++) { g_probe[k] = (uintptr_t)probe[k]; g_probe_seen[k] = false; }
     g_sp = 0; g_overflow = false;
 
-    lock_zones();
+    /* only the collector's own zone is locked (its regions are read below): other allocators' fork hooks are not for this --
+       a jemalloc zone's force_unlock resets the allocator, which corrupted the heap */
+    if (g_payload && g_payload->introspect && g_payload->introspect->force_lock) g_payload->introspect->force_lock(g_payload);
     stop_world();
     double t1 = now_ms();
 
@@ -653,13 +607,13 @@ static void collect(const char *why)
     scan_image_data();
     tl_ld_each_writable(scan_guest_cb, NULL);
     g_region_mode = false; g_region_bytes = 0;
-    bool whole = scan_malloc() || scan_all_writable();
+    bool whole = scan_all_writable();
     drain();
     double t2 = now_ms();
 
     int nthreads = g_nsusp;
     start_world();
-    unlock_zones();
+    if (g_payload && g_payload->introspect && g_payload->introspect->force_unlock) g_payload->introspect->force_unlock(g_payload);
 
     size_t freed = 0, freed_bytes = 0;
     if (whole) freed = sweep(&freed_bytes);
@@ -687,22 +641,17 @@ static void collect(const char *why)
     g_count++;
     t_collecting = false;
     if (!whole || g_count <= 2) {
-        if (g_region_mode) tl_log_line("gc:   a zone could not be walked: every writable page in memory was scanned instead (%.1f MiB, %d ranges left out)%s",
-                                       g_region_bytes / 1048576.0, g_nexcl, whole ? "" : " -- and still did not find every probe");
-        if (!whole) tl_log_line("gc: the malloc heap walk did not see a block it was shown (48 B %s, 3000 B %s, 300000 B %s): the collector stays off, nothing was freed",
+        tl_log_line("gc:   roots: every writable page in memory (%.1f MiB, %d payload ranges left out)%s",
+                    g_region_bytes / 1048576.0, g_nexcl, whole ? "" : " -- and it did not find every probe");
+        if (!whole) tl_log_line("gc: the page scan did not see a block it was shown (48 B %s, 3000 B %s, 300000 B %s): the collector stays off, nothing was freed",
                                 g_probe_seen[0] ? "seen" : "MISSED", g_probe_seen[1] ? "seen" : "MISSED", g_probe_seen[2] ? "seen" : "MISSED");
-        for (unsigned i = 0; i < g_nzones && i < MAX_ZONES; i++) {
-            malloc_zone_t *z = (malloc_zone_t *)g_zones[i];
-            tl_log_line("gc:   zone %u %s%s: walk %d, %zu blocks, %.1f MiB", i, z && z->zone_name ? z->zone_name : "?", z == g_payload ? " (payloads, not walked)" : "",
-                        g_zstat[i].kr, g_zstat[i].blocks, g_zstat[i].bytes / 1048576.0);
-        }
         if (!whole) return;
     }
     tl_log_line("gc: #%u (%s) freed %zu of %zu objects (%.1f MiB); %zu live (%.1f MiB); paused %.1f ms (stop %.1f, mark %.1f), sweep %.1f ms; "
-                "scanned %.1f MiB (%zu threads' stacks %.1f MiB, %zu heap blocks %.1f MiB, %zu big skipped); next after %.0f MiB; %zu MiB left%s",
+                "scanned %.1f MiB (%zu threads' stacks %.1f MiB, pages %.1f MiB); next after %.0f MiB; %zu MiB left",
                 g_count, why, freed, before, freed_bytes / 1048576.0, live, g_live_bytes / 1048576.0, t2 - t0, t1 - t0, t2 - t1, t3 - t2,
-                g_scanned / 1048576.0, (size_t)nthreads, g_stack_bytes / 1048576.0, g_heap_blocks, g_heap_bytes / 1048576.0, g_big_skipped,
-                g_threshold / 1048576.0, mem_left() >> 20, g_region_mode ? "; roots by page scan" : "");
+                g_scanned / 1048576.0, (size_t)nthreads, g_stack_bytes / 1048576.0, g_region_bytes / 1048576.0,
+                g_threshold / 1048576.0, mem_left() >> 20);
 }
 
 /* One thread collects; the others go on (the next allocation past the threshold asks again). */
