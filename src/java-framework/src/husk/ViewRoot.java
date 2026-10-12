@@ -137,13 +137,27 @@ public final class ViewRoot implements ViewParent {
     static int screenH() { return Native.screenHeight(); }
 
     // ---- the frame
+    /* Frames drawn back to back for ten seconds mean something animates for good: what asked for the next frame is logged, a few
+       times a run, so a spinner or animator nobody sees can be found from a report. */
+    private static int sBackToBack, sAnimLogs;
+    private static long sLastFrameNs;
     public static void scheduleFrame() {
         if (sScheduled) return;
         sScheduled = true;
+        if (sBackToBack >= 600 && sAnimLogs < 6) {
+            sBackToBack = 0; sAnimLogs++;
+            StackTraceElement[] st = new Throwable().getStackTrace();
+            StringBuilder b = new StringBuilder("frames back to back for 10 s; the next asked for by:");
+            for (int i = 1; i < st.length && i < 16; i++) b.append("\n\tat ").append(st[i]);
+            android.util.Log.i("Husk", b.toString());
+        }
         Choreographer.getMainThreadInstance().postCallback(Choreographer.CALLBACK_TRAVERSAL, ViewRoot::doFrame, null);
     }
     private static void doFrame() {
         sScheduled = false;
+        long t = System.nanoTime();
+        sBackToBack = t - sLastFrameNs < 50_000_000L ? sBackToBack + 1 : 0;
+        sLastFrameNs = t;
         ArrayList<ViewRoot> roots = new ArrayList<>(sRoots);
         for (ViewRoot r : roots) if (!r.mRemoved) r.performLayout();
         for (ViewRoot r : roots) if (!r.mRemoved && r.mObserver.dispatchOnPreDraw()) { scheduleFrame(); }
