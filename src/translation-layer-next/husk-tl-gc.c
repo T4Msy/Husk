@@ -417,7 +417,7 @@ static kern_return_t self_reader(task_t task, vm_address_t addr, vm_size_t size,
    mapping, every thread-local block.
    Left out: the payload zone's regions (payloads are reached through their objects), the mark stack, graphics memory, and
    mappings too big to be a heap (the JIT region). Pages not in memory hold nothing and are not touched. */
-#define MAX_EXCL 8192
+#define MAX_EXCL 32768
 static struct { uintptr_t lo, hi; } g_excl[MAX_EXCL];
 static int g_nexcl;
 static size_t g_region_bytes;
@@ -493,6 +493,8 @@ static bool scan_all_writable(void)
     if (g_payload && g_payload->introspect && g_payload->introspect->enumerator)
         g_payload->introspect->enumerator(mach_task_self(), NULL, MALLOC_PTR_REGION_RANGE_TYPE, (vm_address_t)g_payload, self_reader, payload_regions);
     if (g_nexcl < MAX_EXCL) { g_excl[g_nexcl].lo = (uintptr_t)g_stack; g_excl[g_nexcl].hi = (uintptr_t)g_stack + g_stack_cap * sizeof(uintptr_t); g_nexcl++; }
+    /* the arenas: object headers point at payloads and at no other object (a free cell's link names a free cell) */
+    for (int k = 0; k < g_narenas && g_nexcl < MAX_EXCL; k++) { g_excl[g_nexcl].lo = (uintptr_t)g_arenas[k].base; g_excl[g_nexcl].hi = (uintptr_t)g_arenas[k].base + ARENA_SIZE; g_nexcl++; }
     qsort(g_excl, (size_t)g_nexcl, sizeof(g_excl[0]), excl_cmp);
     for (int k = 0; k < NPROBES; k++) g_probe_seen[k] = false;
     vm_address_t addr = 0; natural_t depth = 0;
