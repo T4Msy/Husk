@@ -122,13 +122,20 @@ jobs:
             build/Husk.tipa
             build/SHA256SUMS.txt
       - name: Release
+        # the release API refuses (403) after many releases in a short time: retried, and a refusal leaves the IPA in the
+        # Husk-ipa artifact rather than failing the build
+        continue-on-error: true
         env: { GH_TOKEN: '${{ github.token }}' }
         run: |
           TAG="husk-main-${GITHUB_SHA::7}-run${GITHUB_RUN_NUMBER}"
           VER="$(plutil -extract CFBundleShortVersionString raw src/app/Husk/Info.plist) ($(plutil -extract CFBundleVersion raw src/app/Husk/Info.plist))"
+          for attempt in 1 2 3; do
           gh release create "$TAG" build/Husk.ipa build/Husk.tipa build/SHA256SUMS.txt --prerelease --target "$GITHUB_SHA" \
             --title "Husk $VER custom build (Leviidev/Husk main ${GITHUB_SHA::7})" \
-            --notes "Unofficial build of Husk from upstream main at ${GITHUB_SHA}, with its Java runtime bundled. QEMU, ANGLE and MoltenVK are taken unchanged from the official 1.1.0 IPA. Workflow run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            --notes "Unofficial build of Husk from upstream main at ${GITHUB_SHA}, with its Java runtime bundled. QEMU, ANGLE and MoltenVK are taken unchanged from the official 1.1.0 IPA. Workflow run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" && exit 0
+          echo "release attempt $attempt refused; waiting"; sleep 90
+          done
+          exit 1
 
   whatsapp-probe:
     name: WhatsApp on the translation layer (Mac harness)
