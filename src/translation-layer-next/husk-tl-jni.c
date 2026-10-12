@@ -11,6 +11,7 @@
 
 #include "husk-tl-bionic.h"
 #include "husk-tl-dexindex.h"
+#include "husk-tl-gc.h"
 #include "husk-tl-va.h"
 
 /* ---------------------------------------------------------------- types */
@@ -37,7 +38,7 @@ static uint32_t hash_str(const char *s) { uint32_t h = 2166136261u; while (*s) {
 
 static jobj *obj_alloc(uint8_t kind, tl_jclass *cls)
 {
-    jobj *o = calloc(1, sizeof(*o));
+    jobj *o = tl_gc_alloc_cell();
     o->refs = 1;
     o->kind = kind;
     o->cls = cls;
@@ -60,7 +61,7 @@ void tl_jni_unref(jobj *o)
     default: break;
     }
     free(o->fields);
-    free(o);
+    tl_gc_free_cell(o);
 }
 
 static tl_jclass *find_class_locked(const char *name)
@@ -153,7 +154,7 @@ jobj *tl_jni_new_object(tl_jclass *cls)
     jobj *o = obj_alloc(TL_K_OBJECT, cls);
     if (tl_dvm && cls && cls->dvm) {
         uint32_t n = tl_dvm->instance_slots(cls);
-        if (n) { o->fields = calloc(n, sizeof(jvalue)); o->nfields = n; }
+        if (n) { o->fields = tl_gc_payload_calloc(n, sizeof(jvalue)); o->nfields = n; }
     }
     return o;
 }
@@ -161,7 +162,7 @@ jobj *tl_jni_new_object(tl_jclass *cls)
 jobj *tl_jni_new_string(const char *utf8)
 {
     jobj *o = obj_alloc(TL_K_STRING, tl_jni_class("java/lang/String"));
-    o->str.utf8 = strdup(utf8 ? utf8 : "");
+    o->str.utf8 = tl_gc_payload_strdup(utf8 ? utf8 : "");
     return o;
 }
 
@@ -178,7 +179,7 @@ jobj *tl_jni_new_prim_array(char etype, uint32_t len)
     char cn[4] = { '[', etype, 0 };
     jobj *o = obj_alloc(TL_K_PRIM_ARRAY, tl_jni_class(cn));
     o->arr.esz = esz_of(etype); o->arr.etype = etype; o->arr.len = len;
-    o->arr.data = calloc(len ? len : 1, o->arr.esz);
+    o->arr.data = tl_gc_payload_calloc(len ? len : 1, o->arr.esz);
     return o;
 }
 
@@ -188,7 +189,7 @@ jobj *tl_jni_new_obj_array(tl_jclass *elem, uint32_t len)
     snprintf(cn, sizeof(cn), "[L%s;", elem ? elem->name : "java/lang/Object");
     jobj *o = obj_alloc(TL_K_OBJ_ARRAY, tl_jni_class(cn));
     o->oarr.len = len;
-    o->oarr.v = calloc(len ? len : 1, sizeof(jobj *));
+    o->oarr.v = tl_gc_payload_calloc(len ? len : 1, sizeof(jobj *));
     return o;
 }
 
@@ -651,8 +652,19 @@ static void jni_ExceptionClear(void *env) { if (t_pending && g_trace >= 2) { tl_
 static void jni_FatalError(void *env, const char *msg) { (void)env; tl_log_line("jni: FatalError: %s", msg); abort(); }
 static int32_t jni_PushLocalFrame(void *env, int32_t cap) { (void)env; (void)cap; return 0; }
 static jo jni_PopLocalFrame(void *env, jo r) { (void)env; return r; }
-static jo jni_NewGlobalRef(void *env, jo o) { (void)env; return tl_jni_ref(o); }
-static void jni_DeleteGlobalRef(void *env, jo o) { (void)env; tl_jni_unref(o); }
+/* A global reference pins the object for the collector until it is deleted (a count that saturates: past it, for good). */
+static jo jni_NewGlobalRef(void *env, jo o)
+{
+    (void)env;
+    if (o && o->kind != TL_K_CLASS) { uint16_t g = __atomic_load_n(&o->grefs, __ATOMIC_RELAXED); while (g != UINT16_MAX && !__atomic_compare_exchange_n(&o->grefs, &g, (uint16_t)(g + 1), true, __ATOMIC_RELAXED, __ATOMIC_RELAXED)) {} }
+    return tl_jni_ref(o);
+}
+static void jni_DeleteGlobalRef(void *env, jo o)
+{
+    (void)env;
+    if (o && o->kind != TL_K_CLASS) { uint16_t g = __atomic_load_n(&o->grefs, __ATOMIC_RELAXED); while (g && g != UINT16_MAX && !__atomic_compare_exchange_n(&o->grefs, &g, (uint16_t)(g - 1), true, __ATOMIC_RELAXED, __ATOMIC_RELAXED)) {} }
+    tl_jni_unref(o);
+}
 static void jni_DeleteLocalRef(void *env, jo o) { (void)env; tl_jni_unref(o); }
 static uint8_t jni_IsSameObject(void *env, jo a, jo b) { (void)env; return a == b; }
 static jo jni_NewLocalRef(void *env, jo o) { (void)env; return tl_jni_ref(o); }

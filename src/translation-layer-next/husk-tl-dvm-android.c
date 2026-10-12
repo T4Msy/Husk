@@ -9,6 +9,7 @@
 #define _DARWIN_C_SOURCE
 #include "husk-tl-dvm-javaapp.h"
 #include "husk-tl-dvm-gl.h"
+#include "husk-tl-gc.h"
 
 #include <fcntl.h>
 #include <pthread.h>
@@ -1148,6 +1149,7 @@ bool tl_javaapp_start(const tl_javaapp_config *cfg)
     }
     if (cfg->package_name && cfg->package_name[0]) snprintf(A.pkg, sizeof(A.pkg), "%s", cfg->package_name);
     tl_log_line("javaapp: %s, launcher %s, application %s", A.pkg, A.activity, A.application[0] ? A.application : "(none)");
+    tl_gc_enable();
     tl_nwindow_configure(cfg->width, cfg->height, cfg->metal_layer);
     if (cfg->angle_egl && !tl_egl_init(cfg->angle_egl, cfg->angle_gles, cfg->frame_dir, cfg->frame_every)) return false;
     { void tl_set_data_dir(const char *dir); tl_set_data_dir(cfg->data_dir); }

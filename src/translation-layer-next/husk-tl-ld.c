@@ -470,6 +470,26 @@ tl_lib *tl_ld_lib_of(const void *addr)
 }
 
 const char *tl_ld_lib_name(const tl_lib *lib) { return lib ? lib->name : NULL; }
+/* Each library's writable segments (data, bss, GOT), in their writable view: the collector's roots in the app's own libraries. */
+void tl_ld_each_writable(void (*cb)(const void *start, size_t len, void *user), void *user);
+void tl_ld_each_writable(void (*cb)(const void *start, size_t len, void *user), void *user)
+{
+    int n = G.nlibs;
+    for (int i = 0; i < n && i < MAX_LIBS; i++) {
+        const tl_lib *L = G.libs[i];
+        if (!L || !L->phdr || !L->rw) continue;
+        size_t span = L->npages * PAGE;
+        for (unsigned k = 0; k < L->phnum; k++) {
+            const elf_phdr *p = &L->phdr[k];
+            if (p->p_type != PT_LOAD_ || !(p->p_flags & PF_W_) || p->p_vaddr < L->base_vaddr) continue;
+            uint64_t off = p->p_vaddr - L->base_vaddr, len = p->p_memsz;
+            if (off >= span) continue;
+            if (off + len > span) len = span - off;
+            cb(L->rw + off, (size_t)len, user);
+        }
+    }
+}
+
 
 const char *tl_ld_symbol_at(const void *addr, const char **lib_name, const void **sym_addr)
 {

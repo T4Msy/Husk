@@ -11,6 +11,7 @@
 
 #include "husk-tl-dvm.h"
 #include "husk-tl-jni-internal.h"
+#include "husk-tl-gc.h"
 
 typedef struct dvm_dex dvm_dex;
 typedef struct dvm_class dvm_class;

@@ -265,7 +265,7 @@ jobj *tl_dvm_string_u16(const uint16_t *s, int32_t n)
     jobj *o = tl_jni_new_string("");
     free(o->str.utf8);
     o->str.utf8 = u16_to_utf8(s, n);
-    o->str.u16 = malloc((size_t)(n ? n : 1) * 2);
+    o->str.u16 = tl_gc_payload_malloc((size_t)(n ? n : 1) * 2);
     if (n) memcpy(o->str.u16, s, (size_t)n * 2);
     o->str.len16 = n;
     o->refs = 1u << 30;
@@ -604,7 +604,7 @@ jvalue *dvm_slots(jobj *o)
     dvm_class *c = dvm_class_of(jc);
     uint32_t n = c ? c->nslots : 0;
     if (!n) n = 1;
-    jvalue *f = calloc(n, sizeof(jvalue));
+    jvalue *f = tl_gc_payload_calloc(n, sizeof(jvalue));
     pthread_mutex_lock(&g_lock);
     bool mine = !o->fields;
     if (mine) { o->fields = f; o->nfields = n; f = NULL; }
@@ -624,7 +624,7 @@ jvalue *dvm_grow_slots(jobj *o, uint32_t need)
         dvm_class *c = dvm_class_of(o->kind == TL_K_CLASS ? g_class_class : o->cls);
         uint32_t nn = need;
         if (c && c->nslots > nn) nn = c->nslots;
-        jvalue *f = calloc(nn, sizeof(jvalue));
+        jvalue *f = tl_gc_payload_calloc(nn, sizeof(jvalue));
         if (o->fields && o->nfields) memcpy(f, o->fields, (size_t)o->nfields * sizeof(jvalue));
         __atomic_store_n(&o->fields, f, __ATOMIC_RELEASE);
         o->nfields = nn;
@@ -2360,7 +2360,7 @@ bool tl_dvm_load_natives(const char *libdir)
     }
     dvm_current_thread();
     g_core_up = true;
-    tl_log_line("dvm: Husk translation layer, T4Msy build gb14");
+    tl_log_line("dvm: Husk translation layer, T4Msy build gb15");
     return ok;
 }
 

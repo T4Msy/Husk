@@ -50,7 +50,7 @@ NAT(Object_internalClone)
         int32_t n; const uint16_t *s = chars(self, &n); c = tl_dvm_string_u16(s, n);
     } else {
         c = dvm_new_object(self->cls);
-        if (self->nfields) { c->fields = calloc(self->nfields, sizeof(jvalue)); memcpy(c->fields, self->fields, self->nfields * sizeof(jvalue)); c->nfields = self->nfields; }
+        if (self->nfields) { c->fields = tl_gc_payload_calloc(self->nfields, sizeof(jvalue)); memcpy(c->fields, self->fields, self->nfields * sizeof(jvalue)); c->nfields = self->nfields; }
     }
     c->refs = 1u << 30;
     *ret = L(c);

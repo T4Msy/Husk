@@ -195,10 +195,12 @@ jobs:
           echo "ANGLE: $EGL $GLES"
           DYLD_LIBRARY_PATH="$(dirname "$EGL")" TL_ANGLE_EGL="$EGL" TL_ANGLE_GLES="$GLES" \
           TL_ART="$R/com.android.art" TL_FRAMEWORK="$R/husk-framework.dex" TL_FRAMEWORK_RES="$R/framework-res.apk" \
-          TL_NET_TRACE=1 TL_LOG_TIME=1 TL_PACKAGE=com.whatsapp TL_DATA="$RUNNER_TEMP/data" TL_CTL="$RUNNER_TEMP/ctl" TL_AUDIO_MUTE=1 \
+          TL_GC_MB=16 TL_NET_TRACE=1 TL_LOG_TIME=1 TL_PACKAGE=com.whatsapp TL_DATA="$RUNNER_TEMP/data" TL_CTL="$RUNNER_TEMP/ctl" TL_AUDIO_MUTE=1 \
             perl -e 'alarm shift; exec @ARGV' 380 "$RUNNER_TEMP/javaapp-test" "$RUNNER_TEMP/apk/com.whatsapp.apk" 290 > "$RUNNER_TEMP/out/whatsapp.log" 2>&1
           echo "exit code $?"
           grep -E 'main thread ended|=== CRASH|exit\(|frames in|not implemented|unresolved import|Exception|activity' "$RUNNER_TEMP/out/whatsapp.log" | sort | uniq -c | sort -rn | head -80
+          echo "---- collector (TL_GC_MB=16: a collection every 16 MiB made)"
+          grep -E '^gc:|gc: ' "$RUNNER_TEMP/out/whatsapp.log" | head -60; echo "collections: $(grep -c 'gc: #' "$RUNNER_TEMP/out/whatsapp.log")"
           echo "---- harness: started screens and their view trees"
           grep -n -A400 'harness:' "$RUNNER_TEMP/out/whatsapp.log" | grep -v '^--$' | head -1500
           tail -120 "$RUNNER_TEMP/out/whatsapp.log"

@@ -37,6 +37,7 @@ enum { TL_K_OBJECT, TL_K_CLASS, TL_K_STRING, TL_K_PRIM_ARRAY, TL_K_OBJ_ARRAY };
 struct jobj {
     uint32_t refs;
     uint8_t kind;
+    uint16_t grefs;                     /* JNI global references: the collector (husk-tl-gc.c) keeps the object while any is held */
     tl_jclass *cls;
     union {
         struct { char *utf8; uint16_t *u16; int32_t len16; } str;   /* u16: the UTF-16 form, made when the interpreter first needs it */
