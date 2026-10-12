@@ -2,7 +2,7 @@ package android.media;
 
 import java.util.ArrayList;
 
-/** The codecs Husk has (see MediaCodecInfo): H.264 and HEVC decoders, AAC and MP3 decoders, an H.264 and an AAC encoder. */
+/** The codecs Husk has (see MediaCodecInfo): H.264 and HEVC decoders, AAC, MP3 and (iOS 17) Opus decoders, an H.264 and an AAC encoder. */
 public final class MediaCodecList {
     public static final int REGULAR_CODECS = 0, ALL_CODECS = 1;
     private static MediaCodecInfo[] sInfos;
@@ -29,6 +29,8 @@ public final class MediaCodecList {
             l.add(new MediaCodecInfo("c2.husk.avc.encoder", true, MediaCodecInfo.CodecCapabilities.videoEncoder(MediaFormat.MIMETYPE_VIDEO_AVC, avc)));
             l.add(new MediaCodecInfo("c2.husk.aac.encoder", true, MediaCodecInfo.CodecCapabilities.audioEncoder(MediaFormat.MIMETYPE_AUDIO_AAC, 6,
                 new int[] { MediaCodecInfo.CodecProfileLevel.AACObjectLC })));
+            if (husk.MediaCodecNative.supported(MediaFormat.MIMETYPE_AUDIO_OPUS))
+                l.add(new MediaCodecInfo("c2.husk.opus.decoder", false, MediaCodecInfo.CodecCapabilities.audio(MediaFormat.MIMETYPE_AUDIO_OPUS, 8, new int[0])));
             sInfos = l.toArray(new MediaCodecInfo[0]);
         }
         return sInfos;

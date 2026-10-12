@@ -1,6 +1,6 @@
 package husk;
 
-/** Codecs behind android.media.MediaCodec (husk-tl-dvm-media.c): VideoToolbox for H.264/HEVC, AudioToolbox for AAC/MP3. */
+/** Codecs behind android.media.MediaCodec (husk-tl-dvm-media.c): VideoToolbox for H.264/HEVC (and the H.264 encoder), AudioToolbox for AAC/MP3/Opus (and the AAC encoder). */
 public final class MediaCodecNative {
     private MediaCodecNative() {}
     public static native boolean supported(String mime);

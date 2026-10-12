@@ -25,12 +25,18 @@ public class RadioGroup extends LinearLayout {
         setCheckedId(b.getId());
     };
     public RadioGroup(Context c) { super(c); setOrientation(VERTICAL); }
-    public RadioGroup(Context c, AttributeSet a) { super(c, a); if (a == null) setOrientation(VERTICAL); }
+    private int mInitialCheckedId = -1;                   /* android:checkedButton: applied when that child arrives */
+    public RadioGroup(Context c, AttributeSet a) {
+        super(c, a);
+        if (a == null) setOrientation(VERTICAL);
+        else { int id = a.getAttributeResourceValue("http://schemas.android.com/apk/res/android", "checkedButton", -1); if (id != -1) { mInitialCheckedId = id; mCheckedId = id; } }
+    }
     @Override public void onViewAdded(View child) {
         super.onViewAdded(child);
         if (child instanceof RadioButton) {
             if (child.getId() == View.NO_ID) child.setId(View.generateViewId());
             ((RadioButton) child).setOnCheckedChangeWidgetListener(mChildListener);
+            if (child.getId() == mInitialCheckedId && !((RadioButton) child).isChecked()) { mProtectFromCheckedChange = true; ((RadioButton) child).setChecked(true); mProtectFromCheckedChange = false; mInitialCheckedId = -1; return; }
             if (((RadioButton) child).isChecked()) { mProtectFromCheckedChange = true; if (mCheckedId != -1) setCheckedStateForView(mCheckedId, false); mProtectFromCheckedChange = false; setCheckedId(child.getId()); }
         }
     }
