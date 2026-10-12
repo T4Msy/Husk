@@ -952,8 +952,8 @@ static void *prof_main(void *arg)
 {
     (void)arg;
     pthread_setname_np("husk-profiler");
-    struct timespec tick = { 0, 4000000 };
-    uint64_t round = 0;
+    struct timespec tick = { 0, 4000000 }, now, last;
+    clock_gettime(CLOCK_MONOTONIC, &last);
     for (;;) {
         nanosleep(&tick, NULL);
         int d = *g_prof_depth;
@@ -966,7 +966,9 @@ static void *prof_main(void *arg)
             break;
         }
         g_prof_total++;
-        if (++round % 7500) continue;                       /* 30 s */
+        clock_gettime(CLOCK_MONOTONIC, &now);              /* every 30 s by the clock: a background thread's sleeps run long */
+        if (now.tv_sec - last.tv_sec < 30) continue;
+        last = now;
         prof_e top[14]; int nt = 0;
         for (int i = 0; i < PROF_CAP; i++) {
             if (!g_prof[i].n) continue;
