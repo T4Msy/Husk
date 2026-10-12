@@ -15,6 +15,11 @@ public class Surface implements android.os.Parcelable {
     public Surface() {}
     /** The SurfaceTexture this surface feeds, when made on one. */
     public android.graphics.SurfaceTexture huskTexture;
+    /** The ImageReader this surface feeds (ImageReader.getSurface), for the camera. */
+    public android.media.ImageReader huskReader;
+    /** Any other consumer a camera session may be asked to feed (an encoder's input surface), and the size it wants. */
+    public husk.CameraSource.FrameSink huskSink;
+    public int huskWidth, huskHeight;
     public Surface(android.graphics.SurfaceTexture t) {
         huskTexture = t;
         if (t != null) mProducer = new Producer() {
