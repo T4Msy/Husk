@@ -1277,7 +1277,28 @@ NAT(G_txWidths)
 }
 
 /* ---- Typeface */
-NAT(G_tfCreate) { (void)self; const char *fam = a[0].l ? tl_jni_string(a[0].l) : NULL; *ret = J((int64_t)(uintptr_t)face_family(fam, a[1].i)); return true; }
+/* one face per (family, style), for the same reason as tfDerive's */
+NAT(G_tfCreate)
+{
+    (void)self;
+    const char *fam = a[0].l ? tl_jni_string(a[0].l) : NULL;
+    int style = a[1].i;
+    static struct { char *fam; int style; gface *made; } cache[256];
+    static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+    uint32_t h = 2166136261u ^ (uint32_t)style;
+    for (const char *c = fam ? fam : ""; *c; c++) { h ^= (unsigned char)*c; h *= 16777619u; }
+    h &= 255;
+    pthread_mutex_lock(&lock);
+    for (int i = 0; i < 256; i++, h = (h + 1) & 255) {
+        if (cache[h].made && cache[h].style == style && !strcmp(cache[h].fam, fam ? fam : "")) { gface *m = cache[h].made; pthread_mutex_unlock(&lock); *ret = J((int64_t)(uintptr_t)m); return true; }
+        if (!cache[h].made) break;
+    }
+    gface *m = face_family(fam, style);
+    if (!cache[h].made) { cache[h].fam = strdup(fam ? fam : ""); cache[h].style = style; cache[h].made = m; }
+    pthread_mutex_unlock(&lock);
+    *ret = J((int64_t)(uintptr_t)m);
+    return true;
+}
 NAT(G_tfDefault) { (void)self; (void)a; *ret = J((int64_t)(uintptr_t)default_face()); return true; }
 NAT(G_tfDerive)
 {
@@ -1285,7 +1306,21 @@ NAT(G_tfDerive)
     gface *g = H(gface, 0);
     if (!g) g = default_face();
     int style = a[1].i, weight = a[2].i;
-    *ret = J((int64_t)(uintptr_t)face_make(g->base, style, weight > 0 ? weight : ((style & 1) ? 700 : 400)));
+    if (weight <= 0) weight = (style & 1) ? 700 : 400;
+    /* one face per (face, style, weight): apps derive the same typeface for every text they lay out, and each new one made a
+       CoreText font of its own (slow, and never freed) */
+    static struct { gface *from, *made; int style, weight; } cache[1024];
+    static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+    uint32_t h = (uint32_t)(((uintptr_t)g >> 4) * 2654435761u ^ (uint32_t)style * 40503u ^ (uint32_t)weight * 2246822519u) & 1023;
+    pthread_mutex_lock(&lock);
+    for (int i = 0; i < 1024; i++, h = (h + 1) & 1023) {
+        if (cache[h].from == g && cache[h].style == style && cache[h].weight == weight) { gface *m = cache[h].made; pthread_mutex_unlock(&lock); *ret = J((int64_t)(uintptr_t)m); return true; }
+        if (!cache[h].from) break;
+    }
+    gface *m = face_make(g->base, style, weight);
+    if (!cache[h].from) { cache[h].from = g; cache[h].made = m; cache[h].style = style; cache[h].weight = weight; }
+    pthread_mutex_unlock(&lock);
+    *ret = J((int64_t)(uintptr_t)m);
     return true;
 }
 /* (byte[] data) -> long, 0 when it is not a font */
