@@ -30,7 +30,6 @@ public class ImageReader implements AutoCloseable {
         mWidth = width; mHeight = height; mFormat = format; mMaxImages = maxImages; mUsage = usage;
         mSurface = new Surface();
         mSurface.huskReader = this;
-        mSurface.huskWidth = width; mSurface.huskHeight = height;
     }
     public static ImageReader newInstance(int width, int height, int format, int maxImages) { return new ImageReader(width, height, format, maxImages, 0); }
     public static ImageReader newInstance(int width, int height, int format, int maxImages, long usage) { return new ImageReader(width, height, format, maxImages, usage); }

@@ -12,6 +12,9 @@ public class PropertyValuesHolder implements Cloneable {
     Object mAnimated;
     private Method mSetter, mGetter;
     private Class<?> mBoundClass;
+    TypeConverter mConverter;
+    private float[] mPathData;          /* a path to animate along: Path.approximate's (fraction, x, y) triples */
+    private int mPathComponent = -1;    /* -1: the point itself (through the converter), 0 / 1: its x / y as a float or int */
 
     private PropertyValuesHolder(String name) { mName = name; }
     private PropertyValuesHolder(Property p) { mProperty = p; if (p != null) mName = p.getName(); }
@@ -21,6 +24,22 @@ public class PropertyValuesHolder implements Cloneable {
     public static PropertyValuesHolder ofInt(Property<?, Integer> p, int... v) { PropertyValuesHolder h = new PropertyValuesHolder(p); h.setIntValues(v); return h; }
     public static PropertyValuesHolder ofObject(String name, TypeEvaluator e, Object... v) { PropertyValuesHolder h = new PropertyValuesHolder(name); h.setObjectValues(v); h.mEvaluator = e; return h; }
     public static <V> PropertyValuesHolder ofObject(Property p, TypeEvaluator<V> e, V... v) { PropertyValuesHolder h = new PropertyValuesHolder(p); h.setObjectValues(v); h.mEvaluator = e; return h; }
+    public static <V> PropertyValuesHolder ofObject(Property<?, V> p, TypeConverter<android.graphics.PointF, V> c, android.graphics.Path path) { PropertyValuesHolder h = new PropertyValuesHolder(p); h.setPath(path, -1, android.graphics.PointF.class); h.mConverter = c; return h; }
+    public static PropertyValuesHolder ofObject(String name, TypeConverter<android.graphics.PointF, ?> c, android.graphics.Path path) { PropertyValuesHolder h = new PropertyValuesHolder(name); h.setPath(path, -1, android.graphics.PointF.class); h.mConverter = c; return h; }
+    public static <T, V> PropertyValuesHolder ofObject(Property<?, V> p, TypeConverter<T, V> c, TypeEvaluator<T> e, T... v) { PropertyValuesHolder h = new PropertyValuesHolder(p); h.setObjectValues(v); h.mEvaluator = e; h.mConverter = c; return h; }
+    /** Husk: x (0) or y (1) along the path, for ObjectAnimator's two-property path forms. */
+    static PropertyValuesHolder ofPathComponent(String name, Property p, android.graphics.Path path, int component, Class<?> type) { PropertyValuesHolder h = p != null ? new PropertyValuesHolder(p) : new PropertyValuesHolder(name); h.setPath(path, component, type); return h; }
+    private void setPath(android.graphics.Path path, int component, Class<?> type) { mPathData = path.approximate(0.5f); mPathComponent = component; mType = type; mValues = null; }
+    /** The point at fraction f along the path, between the two nearest of its sampled points. */
+    private android.graphics.PointF pointAt(float f) {
+        float[] d = mPathData; int n = d.length / 3;
+        if (f <= 0 || n < 2) return new android.graphics.PointF(d[1], d[2]);
+        if (f >= 1) return new android.graphics.PointF(d[3 * (n - 1) + 1], d[3 * (n - 1) + 2]);
+        int lo = 0, hi = n - 1;
+        while (hi - lo > 1) { int mid = (lo + hi) / 2; if (d[3 * mid] <= f) lo = mid; else hi = mid; }
+        float span = d[3 * hi] - d[3 * lo], t = span > 0 ? (f - d[3 * lo]) / span : 0;
+        return new android.graphics.PointF(d[3 * lo + 1] + t * (d[3 * hi + 1] - d[3 * lo + 1]), d[3 * lo + 2] + t * (d[3 * hi + 2] - d[3 * lo + 2]));
+    }
     public static PropertyValuesHolder ofKeyframe(String name, Keyframe... k) {
         PropertyValuesHolder h = new PropertyValuesHolder(name);
         Object[] v = new Object[k.length]; for (int i = 0; i < k.length; i++) v[i] = k[i].getValue();
@@ -38,7 +57,15 @@ public class PropertyValuesHolder implements Cloneable {
     public void setProperty(Property p) { mProperty = p; }
     public Object getAnimatedValue() { return mAnimated; }
 
+    @SuppressWarnings("unchecked")
     void calculate(float f) {
+        if (mPathData != null) {
+            android.graphics.PointF p = pointAt(f);
+            if (mPathComponent == 0) mAnimated = mType == int.class ? (Object) Math.round(p.x) : (Object) p.x;
+            else if (mPathComponent == 1) mAnimated = mType == int.class ? (Object) Math.round(p.y) : (Object) p.y;
+            else mAnimated = mConverter != null ? mConverter.convert(p) : p;
+            return;
+        }
         if (mValues == null || mValues.length == 0) return;
         if (mValues.length == 1) { mAnimated = mValues[0]; return; }
         float scaled = f * (mValues.length - 1);
@@ -49,6 +76,7 @@ public class PropertyValuesHolder implements Cloneable {
         else if (a instanceof Float) mAnimated = (Float) a + local * ((Float) b - (Float) a);
         else if (a instanceof Integer) mAnimated = (int) ((Integer) a + local * ((Integer) b - (Integer) a));
         else mAnimated = local < 1 ? a : b;
+        if (mConverter != null) mAnimated = mConverter.convert(mAnimated);
     }
     private static String setterName(String prefix, String n) { return prefix + Character.toUpperCase(n.charAt(0)) + n.substring(1); }
     private Method find(Class<?> c, String name, Class<?>... args) {
@@ -65,6 +93,7 @@ public class PropertyValuesHolder implements Cloneable {
         if (mSetter == null && t == float.class) mSetter = find(mBoundClass, setterName("set", mName), Float.class);
         if (mSetter == null && t == int.class) mSetter = find(mBoundClass, setterName("set", mName), Integer.class);
         if (mSetter == null) mSetter = find(mBoundClass, setterName("set", mName), Object.class);
+        if (mSetter == null) for (Method m : mBoundClass.getMethods()) if (m.getName().equals(setterName("set", mName)) && m.getParameterTypes().length == 1) { mSetter = m; break; }
         mGetter = find(mBoundClass, setterName("get", mName));
     }
     @SuppressWarnings("unchecked")
@@ -85,7 +114,7 @@ public class PropertyValuesHolder implements Cloneable {
             else { bind(target); if (mSetter != null) mSetter.invoke(target, mAnimated); }
         } catch (Exception e) { android.util.Log.w("PropertyValuesHolder", "cannot set " + mName + " on " + target.getClass().getName(), e); }
     }
-    @Override public PropertyValuesHolder clone() { try { PropertyValuesHolder h = (PropertyValuesHolder) super.clone(); h.mValues = mValues == null ? null : mValues.clone(); return h; } catch (CloneNotSupportedException e) { throw new AssertionError(); } }
+    @Override public PropertyValuesHolder clone() { try { PropertyValuesHolder h = (PropertyValuesHolder) super.clone(); h.mValues = mValues == null ? null : mValues.clone(); h.mBoundClass = null; h.mSetter = h.mGetter = null; return h; } catch (CloneNotSupportedException e) { throw new AssertionError(); } }
     // ---- generated by tools/compat/fillmembers.py: the platform's members this class does not write (signatures only)
     public static android.animation.PropertyValuesHolder ofMultiFloat(java.lang.String p0, android.animation.TypeConverter p1, android.animation.TypeEvaluator p2, android.animation.Keyframe[] p3) { return null; }
     public static android.animation.PropertyValuesHolder ofMultiFloat(java.lang.String p0, android.animation.TypeConverter p1, android.animation.TypeEvaluator p2, java.lang.Object[] p3) { return null; }
@@ -94,12 +123,9 @@ public class PropertyValuesHolder implements Cloneable {
     public static android.animation.PropertyValuesHolder ofMultiInt(java.lang.String p0, android.animation.TypeConverter p1, android.animation.TypeEvaluator p2, java.lang.Object[] p3) { return null; }
     public static android.animation.PropertyValuesHolder ofMultiInt(java.lang.String p0, android.graphics.Path p1) { return null; }
     public static android.animation.PropertyValuesHolder ofMultiInt(java.lang.String p0, int[][] p1) { return null; }
-    public static android.animation.PropertyValuesHolder ofObject(android.util.Property p0, android.animation.TypeConverter p1, android.animation.TypeEvaluator p2, java.lang.Object[] p3) { return null; }
-    public static android.animation.PropertyValuesHolder ofObject(android.util.Property p0, android.animation.TypeConverter p1, android.graphics.Path p2) { return null; }
-    public static android.animation.PropertyValuesHolder ofObject(java.lang.String p0, android.animation.TypeConverter p1, android.graphics.Path p2) { return null; }
     public void getPropertyValues(android.animation.PropertyValuesHolder.PropertyValues p0) {}
-    public java.lang.Class getValueType() { return null; }
-    public void setConverter(android.animation.TypeConverter p0) {}
+    public java.lang.Class getValueType() { return mType; }
+    public void setConverter(android.animation.TypeConverter c) { mConverter = c; }
     public void setKeyframes(android.animation.Keyframe[] p0) {}
     // ---- end of generated members
     // ---- generated by tools/compat/genstubs.py: the platform's nested classes this class does not write

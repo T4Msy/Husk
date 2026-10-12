@@ -528,6 +528,8 @@ dvm_native_fn tl_sensors_native(const char *name, const char *sig);
 dvm_native_fn tl_sqlite_native(const char *name, const char *sig);
 dvm_native_fn tl_media_native(const char *name, const char *sig);
 dvm_native_fn tl_camera_native(const char *name, const char *sig);
+dvm_native_fn tl_muxer_native(const char *name, const char *sig);
+dvm_native_fn tl_demux_native(const char *name, const char *sig);
 dvm_native_fn tl_web_native(const char *name, const char *sig);
 bool tl_web_any_visible(void);
 dvm_native_fn dvm_android_native(const char *cls, const char *name, const char *sig)
@@ -535,6 +537,8 @@ dvm_native_fn dvm_android_native(const char *cls, const char *name, const char *
     if (!strcmp(cls, "husk/Sqlite")) return tl_sqlite_native(name, sig);
     if (!strcmp(cls, "husk/MediaCodecNative")) return tl_media_native(name, sig);
     if (!strcmp(cls, "husk/Camera")) return tl_camera_native(name, sig);
+    if (!strcmp(cls, "husk/MediaMuxerNative")) return tl_muxer_native(name, sig);
+    if (!strcmp(cls, "husk/MediaDemux")) return tl_demux_native(name, sig);
     if (!strcmp(cls, "husk/Web")) return tl_web_native(name, sig);
     if (!strcmp(cls, "husk/Sensors")) return tl_sensors_native(name, sig);
     if (!strcmp(cls, "husk/Gfx")) return tl_gfx_native(name, sig);

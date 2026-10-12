@@ -119,7 +119,13 @@ public final class AppRunner {
         a.huskAttach(base, sApp, intent, info, caller, request);
         if (prev != null && prev.isResumedHusk()) prev.huskPause();
         sStack.add(a);
-        a.huskCreate(null);
+        try { a.huskCreate(null); }
+        catch (Throwable t) {
+            // what the screen was made of when its onCreate failed: a view it expected and did not find shows up here
+            android.view.View d = a.getWindow() != null ? a.getWindow().peekDecorView() : null;
+            if (d != null) { StringBuilder sb = new StringBuilder("harness: view tree of ").append(cls).append(" when onCreate failed\n"); dumpView(d, 0, sb); android.util.Log.i("Husk", sb.toString()); }
+            throw t;
+        }
         if (!a.isFinishing()) { a.huskStart(); a.huskResume(); }
         if (prev != null && !a.isFinishing()) {
             final Activity p = prev;

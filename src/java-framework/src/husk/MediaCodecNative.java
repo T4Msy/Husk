@@ -1,6 +1,6 @@
 package husk;
 
-/** Decoders behind android.media.MediaCodec (husk-tl-dvm-media.c): VideoToolbox for H.264/HEVC, AudioToolbox for AAC/MP3. */
+/** Codecs behind android.media.MediaCodec (husk-tl-dvm-media.c): VideoToolbox for H.264/HEVC (and the H.264 encoder), AudioToolbox for AAC/MP3/Opus (and the AAC encoder). */
 public final class MediaCodecNative {
     private MediaCodecNative() {}
     public static native boolean supported(String mime);
@@ -16,4 +16,22 @@ public final class MediaCodecNative {
     public static native void flush(long h);
     public static native void destroy(long h);
     public static native int size(long h);
+
+    /* ---- encoders: H.264 (VTCompressionSession) and AAC-LC (AudioConverter) */
+    public static native long createEncoder(String mime);
+    public static native boolean configureEncoder(long h, int width, int height, int bitrate, float frameRate, float iFrameInterval, int profile, int level,
+                                                  int bitrateMode, int colorFormat, int sampleRate, int channels, int aacProfile);
+    /** A YUV420 frame (planar, or NV12 for COLOR_FormatYUV420SemiPlanar) or 16-bit PCM; null with BUFFER_FLAG_END_OF_STREAM drains the encoder. */
+    public static native boolean encode(long h, byte[] data, int offset, int len, long ptsUs, int flags);
+    /** The input Surface's frame as read back from GL: RGBA, bottom row first when flip. */
+    public static native boolean encodeRgba(long h, java.nio.ByteBuffer pixels, int width, int height, boolean flip, long ptsUs);
+    /** The next encoded packet, waiting up to timeoutUs for one; null when none; info = { ptsUs, flags }. */
+    public static native byte[] nextPacket(long h, long[] info, long timeoutUs);
+    /** key 1: request a sync frame; key 2: a new video bitrate. */
+    public static native void setEncoderParameter(long h, int key, int value);
+    public static native void flushEncoder(long h);
+    public static native void destroyEncoder(long h);
+    /** The AAC encoder's AudioSpecificConfig (csd-0); null for the video encoder, whose parameter sets come as its first packet. */
+    public static native byte[] encoderCsd(long h);
+    public static native int encoderBitrate(long h);
 }

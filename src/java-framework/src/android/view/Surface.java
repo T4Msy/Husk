@@ -17,9 +17,6 @@ public class Surface implements android.os.Parcelable {
     public android.graphics.SurfaceTexture huskTexture;
     /** The ImageReader this surface feeds (ImageReader.getSurface), for the camera. */
     public android.media.ImageReader huskReader;
-    /** Any other consumer a camera session may be asked to feed (an encoder's input surface), and the size it wants. */
-    public husk.CameraSource.FrameSink huskSink;
-    public int huskWidth, huskHeight;
     public Surface(android.graphics.SurfaceTexture t) {
         huskTexture = t;
         if (t != null) mProducer = new Producer() {
@@ -29,6 +26,28 @@ public class Surface implements android.os.Parcelable {
         };
     }
     public Surface(SurfaceControl c) {}
+    /** The frame sink this surface feeds (an encoder's input, MediaCodec.createInputSurface): EGL draws into a pbuffer and reads it back. */
+    public husk.FrameSink huskSink;
+    public Surface(final husk.FrameSink sink) {
+        huskSink = sink;
+        if (sink != null) mProducer = new Producer() {
+            android.graphics.Bitmap bm; Canvas canvas;
+            public Canvas lock(Rect d) {
+                int w = Math.max(1, sink.huskWidth()), h = Math.max(1, sink.huskHeight());
+                if (bm == null || bm.getWidth() != w || bm.getHeight() != h) { bm = android.graphics.Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888); canvas = new Canvas(bm); }
+                canvas.save(); if (d != null) canvas.clipRect(d);
+                return canvas;
+            }
+            public void post(Canvas c) {
+                if (bm == null) return;
+                canvas.restore();
+                java.nio.ByteBuffer px = java.nio.ByteBuffer.allocateDirect(bm.getWidth() * bm.getHeight() * 4);
+                bm.copyPixelsToBuffer(px); px.rewind();
+                sink.huskFrame(px, bm.getWidth(), bm.getHeight(), false, 0);
+            }
+            public boolean valid() { return true; }
+        };
+    }
     public boolean isValid() { return !mReleased && (mProducer == null || mProducer.valid()); }
     public void release() { mReleased = true; }
     public Canvas lockCanvas(Rect dirty) throws OutOfResourcesException, IllegalArgumentException { if (mProducer == null) throw new IllegalStateException("Surface has no buffer to draw into"); return mProducer.lock(dirty); }

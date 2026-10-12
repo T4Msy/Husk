@@ -203,7 +203,7 @@ public final class MediaStore {
     public static long getGeneration(android.content.ContentResolver p0, java.lang.String p1) { return 0L; }
     public static long getGeneration(android.content.Context p0, java.lang.String p1) { return 0L; }
     public static boolean getIncludePending(android.net.Uri p0) { return false; }
-    public static android.net.Uri getMediaScannerUri() { return null; }
+    public static android.net.Uri getMediaScannerUri() { return AUTHORITY_URI.buildUpon().appendPath("none").appendPath("media_scanner").build(); }
     public static android.net.Uri getMediaUri(android.content.Context p0, android.net.Uri p1) { return null; }
     public static android.os.ParcelFileDescriptor getOriginalMediaFormatFileDescriptor(android.content.Context p0, android.os.ParcelFileDescriptor p1) { return null; }
     public static java.lang.String getOwnerPackageName(android.content.ContentResolver p0, int p1) { return null; }
@@ -489,11 +489,25 @@ public final class MediaStore {
             public static android.graphics.Bitmap getBitmap(android.content.ContentResolver p0, android.net.Uri p1) throws java.io.FileNotFoundException, java.io.IOException { try (java.io.InputStream in = p0.openInputStream(p1)) { return android.graphics.BitmapFactory.decodeStream(in); } }
             public static android.net.Uri getContentUri(java.lang.String p0) { return android.net.Uri.parse("content://media/" + p0 + "/images/media"); }
             public static android.net.Uri getContentUri(java.lang.String p0, long p1) { return android.content.ContentUris.withAppendedId(getContentUri(p0), p1); }
-            public static java.lang.String insertImage(android.content.ContentResolver p0, android.graphics.Bitmap p1, java.lang.String p2, java.lang.String p3) { return null; }
-            public static java.lang.String insertImage(android.content.ContentResolver p0, java.lang.String p1, java.lang.String p2, java.lang.String p3) { return null; }
+            /** Inserts a JPEG of the bitmap into the external images; the new item's URI as a string, null when the media store takes none. */
+            public static String insertImage(android.content.ContentResolver cr, android.graphics.Bitmap source, String title, String description) {
+                android.content.ContentValues v = new android.content.ContentValues();
+                v.put(ImageColumns.TITLE, title); v.put(ImageColumns.DISPLAY_NAME, title); v.put(ImageColumns.DESCRIPTION, description); v.put(ImageColumns.MIME_TYPE, "image/jpeg");
+                android.net.Uri u = cr.insert(EXTERNAL_CONTENT_URI, v);
+                if (u == null) return null;
+                try (java.io.OutputStream out = cr.openOutputStream(u)) {
+                    if (out == null || source == null || !source.compress(android.graphics.Bitmap.CompressFormat.JPEG, 50, out)) { cr.delete(u, null, null); return null; }
+                } catch (Exception e) { cr.delete(u, null, null); return null; }
+                return u.toString();
+            }
+            public static String insertImage(android.content.ContentResolver cr, String imagePath, String name, String description) throws java.io.FileNotFoundException {
+                android.graphics.Bitmap b = android.graphics.BitmapFactory.decodeFile(imagePath);
+                if (b == null) throw new java.io.FileNotFoundException("cannot decode " + imagePath);
+                try { return insertImage(cr, b, name, description); } finally { b.recycle(); }
+            }
             public static android.database.Cursor query(android.content.ContentResolver p0, android.net.Uri p1, java.lang.String[] p2) { return p0.query(p1, p2, null, null, null); }
             public static android.database.Cursor query(android.content.ContentResolver p0, android.net.Uri p1, java.lang.String[] p2, java.lang.String p3, java.lang.String p4) { return p0.query(p1, p2, p3, null, p4); }
-            public static android.database.Cursor query(android.content.ContentResolver p0, android.net.Uri p1, java.lang.String[] p2, java.lang.String p3, java.lang.String[] p4, java.lang.String p5) { return null; }
+            public static android.database.Cursor query(android.content.ContentResolver cr, android.net.Uri uri, String[] projection, String where, String[] whereArgs, String orderBy) { return cr.query(uri, projection, where, whereArgs, orderBy == null ? DEFAULT_SORT_ORDER : orderBy); }
         }
         public static class Thumbnails implements android.provider.BaseColumns {
             private final java.util.HashMap<String, Object> huskProps = new java.util.HashMap<>();
@@ -513,12 +527,23 @@ public final class MediaStore {
             public static void cancelThumbnailRequest(android.content.ContentResolver p0, long p1) {}
             public static void cancelThumbnailRequest(android.content.ContentResolver p0, long p1, long p2) {}
             public static android.net.Uri getContentUri(java.lang.String p0) { return android.net.Uri.parse("content://media/" + p0 + "/images/thumbnails"); }
-            public static android.util.Size getKindSize(int p0) { return null; }
-            public static android.graphics.Bitmap getThumbnail(android.content.ContentResolver p0, long p1, int p2, android.graphics.BitmapFactory.Options p3) { return null; }
-            public static android.graphics.Bitmap getThumbnail(android.content.ContentResolver p0, long p1, long p2, int p3, android.graphics.BitmapFactory.Options p4) { return null; }
+            public static android.util.Size getKindSize(int kind) { return huskKindSize(kind); }
+            /** The image scaled to the kind's size, decoded from the media store's item; null when there is no such image. */
+            public static android.graphics.Bitmap getThumbnail(android.content.ContentResolver cr, long imageId, int kind, android.graphics.BitmapFactory.Options options) { return huskThumbnail(cr, Media.EXTERNAL_CONTENT_URI, imageId, kind, options); }
+            public static android.graphics.Bitmap getThumbnail(android.content.ContentResolver cr, long imageId, long groupId, int kind, android.graphics.BitmapFactory.Options options) { return getThumbnail(cr, imageId, kind, options); }
             public static android.database.Cursor query(android.content.ContentResolver p0, android.net.Uri p1, java.lang.String[] p2) { return p0.query(p1, p2, null, null, null); }
-            public static android.database.Cursor queryMiniThumbnail(android.content.ContentResolver p0, long p1, int p2, java.lang.String[] p3) { return null; }
-            public static android.database.Cursor queryMiniThumbnails(android.content.ContentResolver p0, android.net.Uri p1, int p2, java.lang.String[] p3) { return null; }
+            public static android.database.Cursor queryMiniThumbnail(android.content.ContentResolver cr, long origId, int kind, String[] projection) { return cr.query(EXTERNAL_CONTENT_URI, projection, IMAGE_ID + " = " + origId + " AND " + KIND + " = " + kind, null, null); }
+            public static android.database.Cursor queryMiniThumbnails(android.content.ContentResolver cr, android.net.Uri uri, int kind, String[] projection) { return cr.query(uri, projection, KIND + " = " + kind, null, null); }
+            static android.util.Size huskKindSize(int kind) {
+                if (kind == MICRO_KIND) return new android.util.Size(96, 96);
+                if (kind == MINI_KIND || kind == FULL_SCREEN_KIND) return new android.util.Size(512, 384);
+                throw new IllegalArgumentException("Unsupported kind: " + kind);
+            }
+            static android.graphics.Bitmap huskThumbnail(android.content.ContentResolver cr, android.net.Uri base, long id, int kind, android.graphics.BitmapFactory.Options options) {
+                android.net.Uri u = android.content.ContentUris.withAppendedId(base, id);
+                android.util.Size s = huskKindSize(kind);
+                try { return android.media.ThumbnailUtils.huskScaledFromUri(cr, u, s, options); } catch (java.io.IOException e) { return null; }
+            }
         }
     }
     public interface MediaColumns extends android.provider.BaseColumns {
@@ -627,9 +652,10 @@ public final class MediaStore {
             public static void cancelThumbnailRequest(android.content.ContentResolver p0, long p1) {}
             public static void cancelThumbnailRequest(android.content.ContentResolver p0, long p1, long p2) {}
             public static android.net.Uri getContentUri(java.lang.String p0) { return android.net.Uri.parse("content://media/" + p0 + "/video/thumbnails"); }
-            public static android.util.Size getKindSize(int p0) { return null; }
-            public static android.graphics.Bitmap getThumbnail(android.content.ContentResolver p0, long p1, int p2, android.graphics.BitmapFactory.Options p3) { return null; }
-            public static android.graphics.Bitmap getThumbnail(android.content.ContentResolver p0, long p1, long p2, int p3, android.graphics.BitmapFactory.Options p4) { return null; }
+            public static android.util.Size getKindSize(int kind) { return Images.Thumbnails.huskKindSize(kind); }
+            /** A frame of the video scaled to the kind's size, from the media store's item; null when there is no such video. */
+            public static android.graphics.Bitmap getThumbnail(android.content.ContentResolver cr, long videoId, int kind, android.graphics.BitmapFactory.Options options) { return Images.Thumbnails.huskThumbnail(cr, Media.EXTERNAL_CONTENT_URI, videoId, kind, options); }
+            public static android.graphics.Bitmap getThumbnail(android.content.ContentResolver cr, long videoId, long groupId, int kind, android.graphics.BitmapFactory.Options options) { return getThumbnail(cr, videoId, kind, options); }
         }
         public interface VideoColumns extends android.provider.MediaStore.MediaColumns {
             java.lang.String ALBUM = "album";

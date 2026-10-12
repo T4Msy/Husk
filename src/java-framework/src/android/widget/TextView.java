@@ -844,8 +844,11 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
     public void setImeHintLocales(android.os.LocaleList l) {}
     public void setShowSoftInputOnFocus(boolean s) {}
     public boolean getShowSoftInputOnFocus() { return true; }
-    public void setCustomSelectionActionModeCallback(ActionMode.Callback cb) {}
-    public void setCustomInsertionActionModeCallback(ActionMode.Callback cb) {}
+    private ActionMode.Callback mSelectionCallback, mInsertionCallback;
+    public void setCustomSelectionActionModeCallback(ActionMode.Callback cb) { mSelectionCallback = cb; }
+    public void setCustomInsertionActionModeCallback(ActionMode.Callback cb) { mInsertionCallback = cb; }
+    public ActionMode.Callback getCustomSelectionActionModeCallback() { return mSelectionCallback; }
+    public ActionMode.Callback getCustomInsertionActionModeCallback() { return mInsertionCallback; }
     public boolean isInputMethodTarget() { return husk.InputMethods.focused() == this; }
     public boolean didTouchFocusSelect() { return false; }
     public void beginBatchEdit() {}
@@ -984,8 +987,6 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
     protected int getBottomPaddingOffset() { return 0; }
     public android.graphics.BlendMode getCompoundDrawableTintBlendMode() { return (android.graphics.BlendMode) huskFill.get("CompoundDrawableTintBlendMode"); }
     public android.view.inputmethod.CursorAnchorInfo getCursorAnchorInfo(int p0, android.view.inputmethod.CursorAnchorInfo.Builder p1, android.graphics.Matrix p2) { return null; }
-    public android.view.ActionMode.Callback getCustomInsertionActionModeCallback() { return null; }
-    public android.view.ActionMode.Callback getCustomSelectionActionModeCallback() { return null; }
     protected int getFadeHeight(boolean p0) { return 0; }
     protected int getFadeTop(boolean p0) { return 0; }
     public void getFocusedRect(android.graphics.Rect p0) { getDrawingRect(p0); }

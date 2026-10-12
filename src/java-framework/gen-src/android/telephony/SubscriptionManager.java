@@ -152,14 +152,14 @@ public class SubscriptionManager {
     public static void disableCaching() {}
     public static java.lang.String displayNameSourceToString(int p0) { return null; }
     public static android.telephony.SubscriptionManager from(android.content.Context p0) { return new SubscriptionManager(); }
-    public static int getActiveDataSubscriptionId() { return 0; }
+    public static int getActiveDataSubscriptionId() { return INVALID_SUBSCRIPTION_ID; }
     public static int getAllServiceCapabilityBitmasks() { return 0; }
     public static boolean getBooleanSubscriptionProperty(int p0, java.lang.String p1, boolean p2, android.content.Context p3) { return false; }
-    public static int getDefaultDataSubscriptionId() { return 0; }
-    public static int getDefaultSmsSubscriptionId() { return 0; }
-    public static int getDefaultSubscriptionId() { return 0; }
+    public static int getDefaultDataSubscriptionId() { return INVALID_SUBSCRIPTION_ID; }
+    public static int getDefaultSmsSubscriptionId() { return INVALID_SUBSCRIPTION_ID; }
+    public static int getDefaultSubscriptionId() { return INVALID_SUBSCRIPTION_ID; }
     public static int getDefaultVoicePhoneId() { return 0; }
-    public static int getDefaultVoiceSubscriptionId() { return 0; }
+    public static int getDefaultVoiceSubscriptionId() { return INVALID_SUBSCRIPTION_ID; }
     public static int getIntegerSubscriptionProperty(int p0, java.lang.String p1, int p2, android.content.Context p3) { return 0; }
     public static long getLongSubscriptionProperty(int p0, java.lang.String p1, long p2, android.content.Context p3) { return 0L; }
     public static int getPhoneId(int p0) { return 0; }

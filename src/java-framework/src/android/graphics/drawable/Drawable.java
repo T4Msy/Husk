@@ -53,8 +53,9 @@ public abstract class Drawable {
     public void setChangingConfigurations(int c) { mChangingConfigurations = c; }
     public int getChangingConfigurations() { return mChangingConfigurations; }
     public void setDither(boolean d) {}
-    public void setFilterBitmap(boolean f) {}
-    public boolean isFilterBitmap() { return false; }
+    private boolean mFilterBitmap, mAutoMirrored;
+    public void setFilterBitmap(boolean f) { mFilterBitmap = f; }
+    public boolean isFilterBitmap() { return mFilterBitmap; }
     public final void setCallback(Callback cb) { mCallback = cb == null ? null : new java.lang.ref.WeakReference<>(cb); }
     public Callback getCallback() { return mCallback == null ? null : mCallback.get(); }
     public void invalidateSelf() { Callback c = getCallback(); if (c != null) c.invalidateDrawable(this); }
@@ -63,8 +64,8 @@ public abstract class Drawable {
     public int getLayoutDirection() { return mLayoutDirection; }
     public final boolean setLayoutDirection(int d) { if (mLayoutDirection == d) return false; mLayoutDirection = d; return onLayoutDirectionChanged(d); }
     public boolean onLayoutDirectionChanged(int d) { return false; }
-    public void setAutoMirrored(boolean m) {}
-    public boolean isAutoMirrored() { return false; }
+    public void setAutoMirrored(boolean m) { mAutoMirrored = m; }
+    public boolean isAutoMirrored() { return mAutoMirrored; }
 
     public void setTint(int c) { setTintList(ColorStateList.valueOf(c)); }
     public void setTintList(ColorStateList t) { mTintList = t; updateTint(); invalidateSelf(); }

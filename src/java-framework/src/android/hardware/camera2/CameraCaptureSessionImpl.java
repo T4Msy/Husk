@@ -15,7 +15,7 @@ import java.util.concurrent.Executor;
  * Husk's capture session: each frame the camera thread brings runs the next queued request, else the repeating one, and
  * goes to that request's targets -- a SurfaceTexture or SurfaceView upright (turned by the sensor orientation, the front
  * camera mirrored, as the platform's buffer transform would show it), an ImageReader in sensor orientation, a FrameSink as
- * is. The request's settings that AVFoundation can honour are applied when they change: focus mode and trigger, the
+ * is (an encoder's sink in sensor orientation). The request's settings that AVFoundation can honour are applied when they change: focus mode and trigger, the
  * metering region, flash as the torch, exposure compensation, zoom (or the crop region), frame rate. Results report the 3A
  * converged, with an AF scan of a few frames after a trigger.
  */
@@ -51,7 +51,7 @@ final class CameraCaptureSessionImpl extends CameraCaptureSession implements hus
             if (s.huskReader != null) { sw = s.huskReader.getWidth(); sh = s.huskReader.getHeight(); if (s.huskReader.getImageFormat() == android.graphics.ImageFormat.JPEG) { if ((long) sw * sh > (long) jw * jh) { jw = sw; jh = sh; } continue; } }
             else if (s.huskTexture != null) { int[] sz = s.huskTexture.huskSize(); sw = sz[0]; sh = sz[1]; }
             else if (s.huskView != null) { int[] sz = s.huskView.huskSurfaceSize(); sw = sz[0]; sh = sz[1]; }
-            else { sw = s.huskWidth; sh = s.huskHeight; }
+            else if (s.huskSink != null) { sw = s.huskSink.huskWidth(); sh = s.huskSink.huskHeight(); }
             if ((long) sw * sh > (long) w * h) { w = sw; h = sh; }
         }
         if (w == 0) { w = jw; h = jh; }
@@ -189,7 +189,7 @@ final class CameraCaptureSessionImpl extends CameraCaptureSession implements hus
                 Integer o = req.get(CaptureRequest.JPEG_ORIENTATION); Byte q = req.get(CaptureRequest.JPEG_QUALITY);
                 s.huskReader.huskDeliver(mSource, frame, fw, fh, ts, q != null ? q & 0xff : 95, o != null ? o : 0);
             } else if (s.huskSink != null) {
-                s.huskSink.onCameraFrame(mSource, frame, fw, fh, ts);
+                mSource.toSink(s.huskSink, frame, fw, fh, 0, ts);         /* a recording stream: sensor orientation, the app's orientation hint turns it */
             } else {
                 mSource.toSurface(s, frame, fw, fh, (mSource.orientation / 90) | (mSource.facing == 1 ? husk.CameraSource.FLIP_Y : 0));
             }

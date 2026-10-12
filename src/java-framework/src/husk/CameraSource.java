@@ -12,14 +12,12 @@ import android.view.Surface;
  * as it arrives and hands it to the API's handler, and the ways a frame reaches a consumer. A Surface made on a
  * SurfaceTexture gets the frame as RGBA: a TextureView's texture as its next buffer, a GL texture (SurfaceTexture(texName))
  * as a direct buffer that updateTexImage uploads; a SurfaceView's surface gets it scaled onto its buffer; an ImageReader's
- * gets planes or a JPEG (ImageReader.huskDeliver); any other producer registers a FrameSink on its Surface.
+ * gets planes or a JPEG (ImageReader.huskDeliver); an encoder's input surface (a husk.FrameSink) gets RGBA in sensor
+ * orientation at the size it asks for, as a recording stream would.
  */
 public final class CameraSource {
     /** What the API layer does with each frame, on the camera thread; the frame is freed after it returns. */
     public interface FrameHandler { void handleFrame(long frame, int width, int height, long timestampNs); }
-    /** A Surface's consumer that is neither a texture, a view nor an ImageReader (an encoder's input surface): set
-     *  Surface.huskSink and get every frame, in sensor orientation, as the camera thread sees it. */
-    public interface FrameSink { void onCameraFrame(CameraSource source, long frame, int width, int height, long timestampNs); }
     public static final int FLIP_X = Camera.FLIP_X, FLIP_Y = Camera.FLIP_Y;
     /** 0 back, 1 front, and the clockwise turn that makes its frames upright (Android's SENSOR_ORIENTATION). */
     public final int facing, orientation;
@@ -88,7 +86,17 @@ public final class CameraSource {
         if (s == null || !s.isValid()) return false;
         SurfaceTexture t = s.huskTexture;
         if (t != null) return toTexture(t, frame, fw, fh, transform);
+        if (s.huskSink != null) return toSink(s.huskSink, frame, fw, fh, transform, 0);
         return draw(s, frame, fw, fh, transform);
+    }
+    /** The frame as RGBA of the sink's size (the frame's when it names none), in a buffer the sink keeps. */
+    public boolean toSink(FrameSink sink, long frame, int fw, int fh, int transform, long ptsNs) {
+        int w = sink.huskWidth(), h = sink.huskHeight();
+        if (w <= 0 || h <= 0) { w = (transform & 1) != 0 ? fh : fw; h = (transform & 1) != 0 ? fw : fh; }
+        java.nio.ByteBuffer b = java.nio.ByteBuffer.allocateDirect(w * h * 4).order(java.nio.ByteOrder.nativeOrder());
+        if (!Camera.frameToBuffer(frame, b, w, h, transform)) return false;
+        sink.huskFrame(b, w, h, false, ptsNs);
+        return true;
     }
     public boolean toTexture(SurfaceTexture t, long frame, int fw, int fh, int transform) {
         if (t == null || t.isReleased()) return false;

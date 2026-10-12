@@ -8,7 +8,9 @@ import java.lang.ref.WeakReference;
 
 public final class ViewStub extends View {
     public interface OnInflateListener { void onInflate(ViewStub stub, View inflated); }
-    private int mInflatedId, mLayoutResource;
+    // NO_ID when nothing set it, as the platform's constructor leaves it even without attributes: an inflated view keeps its own id
+    // then (a stub built in code that inflated a layout whose root carries an id was handing out views with id 0)
+    private int mInflatedId = NO_ID, mLayoutResource;
     private WeakReference<View> mInflatedViewRef;
     private LayoutInflater mInflater;
     private OnInflateListener mInflateListener;

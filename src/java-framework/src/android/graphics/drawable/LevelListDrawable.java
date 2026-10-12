@@ -3,6 +3,10 @@ package android.graphics.drawable;
 public class LevelListDrawable extends DrawableContainer {
     private final java.util.ArrayList<int[]> mRanges = new java.util.ArrayList<>();
     public void addLevel(int low, int high, Drawable d) { mRanges.add(new int[] { low, high }); addChild(d); onLevelChange(getLevel()); }
+    @Override protected void huskCopyFrom(DrawableContainer src, android.content.res.Resources res) {
+        LevelListDrawable o = (LevelListDrawable) src;
+        for (int i = 0; i < o.mRanges.size(); i++) addLevel(o.mRanges.get(i)[0], o.mRanges.get(i)[1], huskCopyChild(o.mChildren.get(i), res));
+    }
     @Override protected boolean onLevelChange(int l) {
         for (int i = 0; i < mRanges.size(); i++) if (l >= mRanges.get(i)[0] && l <= mRanges.get(i)[1]) return selectDrawable(i);
         return selectDrawable(-1);

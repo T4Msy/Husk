@@ -5,8 +5,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A codec the device has. Husk decodes H.264 and HEVC video through VideoToolbox and AAC (and MP3) audio through AudioToolbox
- * (husk-tl-dvm-media.c); MediaCodecList lists those, with capabilities like a phone's hardware decoders.
+ * A codec the device has. Husk decodes H.264 and HEVC video through VideoToolbox and AAC (and MP3) audio through AudioToolbox, and
+ * encodes H.264 and AAC-LC with the same (husk-tl-dvm-media.c); MediaCodecList lists those, with capabilities like a phone's
+ * hardware codecs.
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
 public final class MediaCodecInfo {
@@ -111,22 +112,39 @@ public final class MediaCodecInfo {
         public int[] colorFormats = new int[0];
         public CodecProfileLevel[] profileLevels = new CodecProfileLevel[0];
         String mMime = "";
-        VideoCapabilities mVideo; AudioCapabilities mAudio;
+        VideoCapabilities mVideo; AudioCapabilities mAudio; EncoderCapabilities mEncoder;
         final Set<String> mFeatures = new HashSet<>();
         public CodecCapabilities() {}
+        private static CodecProfileLevel[] levels(int[][] pl) {
+            CodecProfileLevel[] r = new CodecProfileLevel[pl.length];
+            for (int i = 0; i < pl.length; i++) { r[i] = new CodecProfileLevel(); r[i].profile = pl[i][0]; r[i].level = pl[i][1]; }
+            return r;
+        }
         static CodecCapabilities video(String mime, int[][] pl) {
             CodecCapabilities c = new CodecCapabilities(); c.mMime = mime;
             c.colorFormats = new int[] { COLOR_FormatSurface, COLOR_FormatYUV420Flexible, COLOR_FormatYUV420SemiPlanar };
-            c.profileLevels = new CodecProfileLevel[pl.length];
-            for (int i = 0; i < pl.length; i++) { c.profileLevels[i] = new CodecProfileLevel(); c.profileLevels[i].profile = pl[i][0]; c.profileLevels[i].level = pl[i][1]; }
-            c.mVideo = new VideoCapabilities(); c.mFeatures.add(FEATURE_AdaptivePlayback);
+            c.profileLevels = levels(pl);
+            c.mVideo = new VideoCapabilities(false); c.mFeatures.add(FEATURE_AdaptivePlayback);
             return c;
         }
         static CodecCapabilities audio(String mime, int maxChannels, int[] profiles) {
             CodecCapabilities c = new CodecCapabilities(); c.mMime = mime;
             c.profileLevels = new CodecProfileLevel[profiles.length];
             for (int i = 0; i < profiles.length; i++) { c.profileLevels[i] = new CodecProfileLevel(); c.profileLevels[i].profile = profiles[i]; }
-            c.mAudio = new AudioCapabilities(maxChannels);
+            c.mAudio = new AudioCapabilities(maxChannels, false);
+            return c;
+        }
+        /** The H.264 encoder: frames from a Surface or as YUV420 buffers (flexible, planar or NV12), VBR or CBR. */
+        static CodecCapabilities videoEncoder(String mime, int[][] pl) {
+            CodecCapabilities c = new CodecCapabilities(); c.mMime = mime;
+            c.colorFormats = new int[] { COLOR_FormatSurface, COLOR_FormatYUV420Flexible, COLOR_FormatYUV420SemiPlanar, COLOR_FormatYUV420Planar };
+            c.profileLevels = levels(pl);
+            c.mVideo = new VideoCapabilities(true); c.mEncoder = new EncoderCapabilities(c);
+            return c;
+        }
+        static CodecCapabilities audioEncoder(String mime, int maxChannels, int[] profiles) {
+            CodecCapabilities c = audio(mime, maxChannels, profiles);
+            c.mAudio = new AudioCapabilities(maxChannels, true); c.mEncoder = new EncoderCapabilities(c);
             return c;
         }
         public static CodecCapabilities createFromProfileLevel(String mime, int profile, int level) {
@@ -136,18 +154,26 @@ public final class MediaCodecInfo {
         public String getMimeType() { return mMime; }
         public VideoCapabilities getVideoCapabilities() { return mVideo; }
         public AudioCapabilities getAudioCapabilities() { return mAudio; }
-        public EncoderCapabilities getEncoderCapabilities() { return null; }
+        public EncoderCapabilities getEncoderCapabilities() { return mEncoder; }
         public int getMaxSupportedInstances() { return 16; }
-        public MediaFormat getDefaultFormat() { MediaFormat f = new MediaFormat(); f.setString(MediaFormat.KEY_MIME, mMime); return f; }
+        public MediaFormat getDefaultFormat() {
+            MediaFormat f = new MediaFormat(); f.setString(MediaFormat.KEY_MIME, mMime);
+            if (mEncoder != null) mEncoder.getDefaultFormat(f);
+            return f;
+        }
         public boolean isFeatureSupported(String name) { return mFeatures.contains(name); }
         public boolean isFeatureRequired(String name) { return false; }
-        public String[] validFeatures() { return mVideo != null ? new String[] { FEATURE_AdaptivePlayback, FEATURE_SecurePlayback, FEATURE_TunneledPlayback, FEATURE_PartialFrame } : new String[0]; }
+        public String[] validFeatures() {
+            if (mEncoder != null) return new String[0];
+            return mVideo != null ? new String[] { FEATURE_AdaptivePlayback, FEATURE_SecurePlayback, FEATURE_TunneledPlayback, FEATURE_PartialFrame } : new String[0];
+        }
         public boolean isRegular() { return true; }
         public boolean isFormatSupported(MediaFormat f) {
             if (f == null) return false;
             String m = f.getString(MediaFormat.KEY_MIME);
             if (m != null && !m.equalsIgnoreCase(mMime)) return false;
             for (String feat : new String[] { FEATURE_SecurePlayback, FEATURE_TunneledPlayback }) if (f.containsKey("feature-" + feat) && f.getInteger("feature-" + feat) != 0) return false;
+            if (mEncoder != null && !mEncoder.supportsFormat(f)) return false;
             if (mVideo != null) return mVideo.supportsFormat(f);
             if (mAudio != null) return mAudio.supportsFormat(f);
             return true;
@@ -459,26 +485,28 @@ public final class MediaCodecInfo {
 
     public static final class VideoCapabilities {
         private static final int MAX_W = 4096, MAX_H = 4096;
-        private static final long MAX_PIXEL_RATE = 3840L * 2160 * 60;
-        VideoCapabilities() {}
-        public Range<Integer> getBitrateRange() { return new Range<>(1, 240000000); }
+        private final boolean mEncoder;
+        private final long mMaxPixelRate;
+        VideoCapabilities(boolean encoder) { mEncoder = encoder; mMaxPixelRate = encoder ? 3840L * 2160 * 30 : 3840L * 2160 * 60; }
+        public Range<Integer> getBitrateRange() { return new Range<>(1, mEncoder ? 120000000 : 240000000); }
         public Range<Integer> getSupportedWidths() { return new Range<>(2, MAX_W); }
         public Range<Integer> getSupportedHeights() { return new Range<>(2, MAX_H); }
         public int getWidthAlignment() { return 2; }
         public int getHeightAlignment() { return 2; }
         public int getSmallerDimensionUpperLimit() { return 2304; }
-        public Range<Integer> getSupportedFrameRates() { return new Range<>(0, 960); }
+        public Range<Integer> getSupportedFrameRates() { return new Range<>(0, mEncoder ? 240 : 960); }
         public boolean isSizeSupported(int w, int h) { return w >= 2 && h >= 2 && w <= MAX_W && h <= MAX_H && Math.min(w, h) <= 2304 && w % 2 == 0 && h % 2 == 0; }
         public Range<Integer> getSupportedWidthsFor(int h) { if (h < 2 || h > MAX_H) throw new IllegalArgumentException("unsupported height"); return new Range<>(2, MAX_W); }
         public Range<Integer> getSupportedHeightsFor(int w) { if (w < 2 || w > MAX_W) throw new IllegalArgumentException("unsupported width"); return new Range<>(2, MAX_H); }
         public Range<Double> getSupportedFrameRatesFor(int w, int h) {
             if (!isSizeSupported(w, h)) throw new IllegalArgumentException("unsupported size");
-            return new Range<>(0.0, Math.min(960.0, (double) MAX_PIXEL_RATE / ((long) w * h)));
+            return new Range<>(0.0, Math.min((double) getSupportedFrameRates().getUpper(), (double) mMaxPixelRate / ((long) w * h)));
         }
         public Range<Double> getAchievableFrameRatesFor(int w, int h) { return getSupportedFrameRatesFor(w, h); }
-        public boolean areSizeAndRateSupported(int w, int h, double rate) { return isSizeSupported(w, h) && rate <= (double) MAX_PIXEL_RATE / ((long) w * h); }
+        public boolean areSizeAndRateSupported(int w, int h, double rate) { return isSizeSupported(w, h) && rate <= (double) mMaxPixelRate / ((long) w * h); }
         public java.util.List<PerformancePoint> getSupportedPerformancePoints() {
-            return java.util.Arrays.asList(new PerformancePoint(3840, 2160, 60), new PerformancePoint(1920, 1080, 240));
+            return mEncoder ? java.util.Arrays.asList(new PerformancePoint(3840, 2160, 30), new PerformancePoint(1920, 1080, 120))
+                            : java.util.Arrays.asList(new PerformancePoint(3840, 2160, 60), new PerformancePoint(1920, 1080, 240));
         }
         public boolean supportsFormat(MediaFormat f) {
             int w = f.containsKey(MediaFormat.KEY_WIDTH) ? f.getInteger(MediaFormat.KEY_WIDTH) : 0, h = f.containsKey(MediaFormat.KEY_HEIGHT) ? f.getInteger(MediaFormat.KEY_HEIGHT) : 0;
@@ -541,13 +569,16 @@ public final class MediaCodecInfo {
 
     public static final class AudioCapabilities {
         private static final int[] RATES = { 7350, 8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000, 64000, 88200, 96000 };
+        private static final int[] ENCODER_RATES = { 8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000 };
         private final int mMaxChannels;
-        AudioCapabilities(int maxChannels) { mMaxChannels = maxChannels; }
-        protected AudioCapabilities() { this(8); }
-        public Range<Integer> getBitrateRange() { return new Range<>(8000, 510000); }
-        public int[] getSupportedSampleRates() { return RATES.clone(); }
-        public Range<Integer>[] getSupportedSampleRateRanges() { Range<Integer>[] r = new Range[RATES.length]; for (int i = 0; i < RATES.length; i++) r[i] = new Range<>(RATES[i], RATES[i]); return r; }
-        public boolean isSampleRateSupported(int rate) { for (int r : RATES) if (r == rate) return true; return false; }
+        private final boolean mEncoder;
+        AudioCapabilities(int maxChannels, boolean encoder) { mMaxChannels = maxChannels; mEncoder = encoder; }
+        protected AudioCapabilities() { this(8, false); }
+        private int[] rates() { return mEncoder ? ENCODER_RATES : RATES; }
+        public Range<Integer> getBitrateRange() { return mEncoder ? new Range<>(8000, 960000) : new Range<>(8000, 510000); }
+        public int[] getSupportedSampleRates() { return rates().clone(); }
+        public Range<Integer>[] getSupportedSampleRateRanges() { int[] rs = rates(); Range<Integer>[] r = new Range[rs.length]; for (int i = 0; i < rs.length; i++) r[i] = new Range<>(rs[i], rs[i]); return r; }
+        public boolean isSampleRateSupported(int rate) { for (int r : rates()) if (r == rate) return true; return false; }
         public int getMaxInputChannelCount() { return mMaxChannels; }
         public int getMinInputChannelCount() { return 1; }
         public Range<Integer>[] getInputChannelCountRanges() { return new Range[] { new Range<>(1, mMaxChannels) }; }
@@ -558,13 +589,30 @@ public final class MediaCodecInfo {
         }
     }
 
+    /** Husk's encoders take an average bitrate (VBR) or a capped one (CBR); no constant quality, complexity or quality knobs. */
     public static final class EncoderCapabilities {
         public static final int BITRATE_MODE_CQ = 0, BITRATE_MODE_VBR = 1, BITRATE_MODE_CBR = 2, BITRATE_MODE_CBR_FD = 3;
-        protected EncoderCapabilities() {}
+        private final CodecCapabilities mParent;
+        EncoderCapabilities(CodecCapabilities parent) { mParent = parent; }
+        protected EncoderCapabilities() { this(null); }
         public Range<Integer> getComplexityRange() { return new Range<>(0, 0); }
         public Range<Integer> getQualityRange() { return new Range<>(0, 0); }
-        public boolean isBitrateModeSupported(int m) { return false; }
-        public void getDefaultFormat(MediaFormat f) {}
-        public boolean supportsFormat(MediaFormat f) { return false; }
+        public boolean isBitrateModeSupported(int m) { return m == BITRATE_MODE_VBR || m == BITRATE_MODE_CBR; }
+        public void getDefaultFormat(MediaFormat f) {
+            f.setInteger(MediaFormat.KEY_BITRATE_MODE, BITRATE_MODE_VBR);
+            if (mParent != null && mParent.mVideo != null) f.setInteger(MediaFormat.KEY_COLOR_FORMAT, CodecCapabilities.COLOR_FormatSurface);
+        }
+        public boolean supportsFormat(MediaFormat f) {
+            if (f == null) return false;
+            if (f.containsKey(MediaFormat.KEY_BITRATE_MODE) && !isBitrateModeSupported(f.getInteger(MediaFormat.KEY_BITRATE_MODE))) return false;
+            if (f.containsKey(MediaFormat.KEY_COMPLEXITY) && f.getInteger(MediaFormat.KEY_COMPLEXITY) != 0) return false;
+            if (f.containsKey(MediaFormat.KEY_QUALITY) && f.getInteger(MediaFormat.KEY_QUALITY) != 0) return false;
+            if (mParent != null && f.containsKey(MediaFormat.KEY_COLOR_FORMAT)) {
+                int c = f.getInteger(MediaFormat.KEY_COLOR_FORMAT); boolean ok = false;
+                for (int x : mParent.colorFormats) if (x == c) ok = true;
+                if (!ok) return false;
+            }
+            return true;
+        }
     }
 }

@@ -91,8 +91,9 @@ public final class Bitmap implements android.os.Parcelable {
     public final boolean isRecycled() { return mRecycled; }
     public final boolean hasAlpha() { return mHasAlpha; }
     public void setHasAlpha(boolean b) { mHasAlpha = b; }
-    public final boolean hasMipMap() { return false; }
-    public final void setHasMipMap(boolean b) {}
+    private boolean mMipMap;
+    public final boolean hasMipMap() { return mMipMap; }
+    public final void setHasMipMap(boolean b) { mMipMap = b; }
     public final boolean isPremultiplied() { return mPremultiplied; }
     public final void setPremultiplied(boolean b) { mPremultiplied = b; }
     public int getDensity() { return mDensity; }

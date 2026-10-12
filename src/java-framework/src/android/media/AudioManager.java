@@ -42,12 +42,13 @@ public class AudioManager {
     public boolean isMusicActive() { return false; }
     public boolean isSpeakerphoneOn() { return true; }
     public void setSpeakerphoneOn(boolean on) {}
-    public boolean isMicrophoneMute() { return false; }
-    public void setMicrophoneMute(boolean on) {}
-    public boolean isBluetoothScoOn() { return false; }
+    private static boolean sMicMute, sScoOn;
+    public boolean isMicrophoneMute() { return sMicMute; }
+    public void setMicrophoneMute(boolean on) { sMicMute = on; }
+    public boolean isBluetoothScoOn() { return sScoOn; }
     public boolean isBluetoothA2dpOn() { return false; }
     public boolean isWiredHeadsetOn() { return false; }
-    public void startBluetoothSco() {} public void stopBluetoothSco() {} public void setBluetoothScoOn(boolean o) {}
+    public void startBluetoothSco() {} public void stopBluetoothSco() {} public void setBluetoothScoOn(boolean o) { sScoOn = o; }
     public int generateAudioSessionId() { return ++sSession; }
     public void playSoundEffect(int effect) {}
     public void playSoundEffect(int effect, float volume) {}

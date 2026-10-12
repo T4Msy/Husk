@@ -5,13 +5,21 @@ package javax.microedition.khronos.egl;
  * other thread it is real: contexts and window surfaces from husk.EGLNative, so an app that drives EGL itself (a GLSurfaceView copied
  * into the app, an engine's own GL thread) draws, and each swap shows its frame where its SurfaceView is.
  */
-final class HuskEGL implements EGL11 {
+public final class HuskEGL implements EGL11 {
     static final class Display extends EGLDisplay {}
     static final class Config extends EGLConfig {}
     static final class Surface extends EGLSurface {
         long handle; int w, h; android.view.SurfaceView view;
         android.graphics.SurfaceTexture texture;           /* a TextureView's: each swap reads the frame back into it */
+        husk.FrameSink sink;                               /* an encoder's input: each swap reads the frame back for it */
+        long presentationNs;                               /* EGLExt.eglPresentationTimeANDROID for the next swap */
         java.nio.ByteBuffer pixels; android.graphics.Bitmap frame;
+    }
+    /** @hide EGLExt.eglPresentationTimeANDROID: the time stamped on the next frame swapped into an encoder's Surface. */
+    public static boolean huskPresentationTime(Object surface, long ns) {
+        if (!(surface instanceof Surface)) return false;
+        ((Surface) surface).presentationNs = ns;
+        return true;
     }
     static final class Context extends EGLContext {
         long handle; int version;
@@ -70,6 +78,15 @@ final class HuskEGL implements EGL11 {
         return null;
     }
     public EGLSurface eglCreateWindowSurface(EGLDisplay d, EGLConfig c, Object w, int[] attribs) {
+        husk.FrameSink sink = w instanceof android.view.Surface ? ((android.view.Surface) w).huskSink : null;
+        if (sink != null) {
+            int sw = sink.huskWidth(), sh = sink.huskHeight();
+            if (sw <= 0 || sh <= 0) { sw = husk.Native.screenWidth(); sh = husk.Native.screenHeight(); }
+            long h = husk.EGLNative.createSurface(sw, sh);
+            if (h == 0) { err(EGL_BAD_ALLOC); return EGL_NO_SURFACE; }
+            Surface s = new Surface(); s.handle = h; s.w = sw; s.h = sh; s.sink = sink;
+            return s;
+        }
         android.graphics.SurfaceTexture tex = textureOf(w);
         if (tex != null) {
             int[] sz = tex.huskSize();
@@ -111,6 +128,7 @@ final class HuskEGL implements EGL11 {
         return ok;
     }
     public boolean eglSwapBuffers(EGLDisplay d, EGLSurface s) {
+        if (s instanceof Surface && ((Surface) s).sink != null && ((Surface) s).handle != 0) return sinkFrame((Surface) s);
         if (s instanceof Surface && ((Surface) s).texture != null && ((Surface) s).handle != 0) return readBack((Surface) s);
         if (render() || !(s instanceof Surface) || ((Surface) s).handle == 0) return true;
         Surface su = (Surface) s;
@@ -138,6 +156,22 @@ final class HuskEGL implements EGL11 {
     public boolean eglWaitNative(int engine, Object bindTarget) { return true; }
     public boolean eglCopyBuffers(EGLDisplay d, EGLSurface s, Object target) { return true; }
     public EGLSurface eglCreatePixmapSurface(EGLDisplay d, EGLConfig c, Object pixmap, int[] attribs) { return EGL_NO_SURFACE; }
+    /* an encoder's frame: the window framebuffer read back while the app's context is current, handed over with the time it stamped */
+    private static boolean sinkFrame(Surface su) {
+        int w = su.w, h = su.h;
+        if (su.pixels == null || su.pixels.capacity() != w * h * 4) su.pixels = java.nio.ByteBuffer.allocateDirect(w * h * 4).order(java.nio.ByteOrder.nativeOrder());
+        Object[] cur = sCurrent.get();
+        boolean es2 = cur == null || !(cur[0] instanceof Context) || ((Context) cur[0]).version >= 2;
+        int[] fb = new int[1];
+        if (es2) { android.opengl.GLES20.glGetIntegerv(android.opengl.GLES20.GL_FRAMEBUFFER_BINDING, fb, 0); if (fb[0] != 0) android.opengl.GLES20.glBindFramebuffer(android.opengl.GLES20.GL_FRAMEBUFFER, 0); }
+        su.pixels.clear();
+        android.opengl.GLES20.glReadPixels(0, 0, w, h, android.opengl.GLES20.GL_RGBA, android.opengl.GLES20.GL_UNSIGNED_BYTE, su.pixels);
+        if (es2 && fb[0] != 0) android.opengl.GLES20.glBindFramebuffer(android.opengl.GLES20.GL_FRAMEBUFFER, fb[0]);
+        su.pixels.rewind();
+        long pts = su.presentationNs; su.presentationNs = 0;
+        su.sink.huskFrame(su.pixels, w, h, true, pts);
+        return true;
+    }
     /* a TextureView's frame: read back while its context is current, flipped (GL rows run bottom-up), and posted to the texture */
     private static boolean readBack(Surface su) {
         int w = su.w, h = su.h;

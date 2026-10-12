@@ -100,8 +100,9 @@ public class Paint {
     public void setSubpixelText(boolean b) { flag(SUBPIXEL_TEXT_FLAG, b); }
     public int getHinting() { return mHinting; }
     public void setHinting(int h) { mHinting = h; }
-    public boolean isElegantTextHeight() { return false; }
-    public void setElegantTextHeight(boolean b) {}
+    private boolean mElegant;
+    public boolean isElegantTextHeight() { return mElegant; }
+    public void setElegantTextHeight(boolean b) { mElegant = b; }
 
     public Style getStyle() { return mStyle; }
     public void setStyle(Style s) { mStyle = s == null ? Style.FILL : s; mP[P_STYLE] = mStyle.ordinal(); }

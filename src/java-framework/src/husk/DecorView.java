@@ -172,4 +172,17 @@ public final class DecorView extends FrameLayout {
     @Override protected void onAttachedToWindow() { super.onAttachedToWindow(); Window.Callback cb = mWindow.getCallback(); if (cb != null && !mWindow.isDestroyed()) cb.onAttachedToWindow(); }
     @Override protected void onDetachedFromWindow() { super.onDetachedFromWindow(); Window.Callback cb = mWindow.getCallback(); if (cb != null) cb.onDetachedFromWindow(); }
     public Window getWindowHusk() { return mWindow; }
+    /** The window shows a child's context menu: the items the view (and its parents) add, in a popup at the view; a pick goes to the
+     *  window's callback (an activity's onContextItemSelected) before the item's own listener. */
+    @Override public boolean showContextMenuForChild(View original) { return showContextMenuForChild(original, Float.NaN, Float.NaN); }
+    @Override public boolean showContextMenuForChild(View original, float x, float y) {
+        final MenuImpl menu = new MenuImpl(getContext());
+        original.createContextMenu(menu);
+        if (!menu.hasVisibleItems()) return false;
+        final Window.Callback cb = mWindow.getCallback();
+        android.widget.PopupMenu.showMenu(getContext(), original, menu, android.view.Gravity.NO_GRAVITY,
+            item -> cb != null && cb.onMenuItemSelected(Window.FEATURE_CONTEXT_MENU, item),
+            () -> { if (cb != null) cb.onPanelClosed(Window.FEATURE_CONTEXT_MENU, menu); });
+        return true;
+    }
 }

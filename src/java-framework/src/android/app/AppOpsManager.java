@@ -5,7 +5,31 @@ public class AppOpsManager {
     public int checkOpNoThrow(String op, int uid, String pkg) { return MODE_ALLOWED; } public int unsafeCheckOpNoThrow(String op, int uid, String pkg) { return MODE_ALLOWED; }
     public int noteOpNoThrow(String op, int uid, String pkg) { return MODE_ALLOWED; } public int noteOpNoThrow(String op, int uid, String pkg, String tag, String msg) { return MODE_ALLOWED; }
     public int noteProxyOpNoThrow(String op, String pkg) { return MODE_ALLOWED; } public int checkOp(String op, int uid, String pkg) { return MODE_ALLOWED; }
-    public void checkPackage(int uid, String pkg) {} public static String permissionToOp(String p) { return null; }
+    public void checkPackage(int uid, String pkg) {}
+    private static final java.util.HashMap<String, String> sPermToOp = new java.util.HashMap<>();
+    static {
+        String[][] m = {
+            { "ACCESS_COARSE_LOCATION", "coarse_location" }, { "ACCESS_FINE_LOCATION", "fine_location" }, { "ACCESS_BACKGROUND_LOCATION", "access_background_location" },
+            { "CAMERA", "camera" }, { "RECORD_AUDIO", "record_audio" }, { "READ_CONTACTS", "read_contacts" }, { "WRITE_CONTACTS", "write_contacts" },
+            { "READ_CALL_LOG", "read_call_log" }, { "WRITE_CALL_LOG", "write_call_log" }, { "READ_CALENDAR", "read_calendar" }, { "WRITE_CALENDAR", "write_calendar" },
+            { "READ_SMS", "read_sms" }, { "RECEIVE_SMS", "receive_sms" }, { "SEND_SMS", "send_sms" }, { "RECEIVE_MMS", "receive_mms" }, { "RECEIVE_WAP_PUSH", "receive_wap_push" },
+            { "READ_PHONE_STATE", "read_phone_state" }, { "READ_PHONE_NUMBERS", "read_phone_numbers" }, { "CALL_PHONE", "call_phone" }, { "ANSWER_PHONE_CALLS", "answer_phone_calls" },
+            { "ADD_VOICEMAIL", "add_voicemail" }, { "USE_SIP", "use_sip" }, { "PROCESS_OUTGOING_CALLS", "process_outgoing_calls" }, { "ACCEPT_HANDOVER", "accept_handover" },
+            { "READ_EXTERNAL_STORAGE", "read_external_storage" }, { "WRITE_EXTERNAL_STORAGE", "write_external_storage" }, { "READ_MEDIA_IMAGES", "read_media_images" },
+            { "READ_MEDIA_VIDEO", "read_media_video" }, { "READ_MEDIA_AUDIO", "read_media_audio" }, { "READ_MEDIA_VISUAL_USER_SELECTED", "read_media_visual_user_selected" },
+            { "ACCESS_MEDIA_LOCATION", "access_media_location" }, { "BODY_SENSORS", "body_sensors" }, { "BODY_SENSORS_BACKGROUND", "body_sensors_background" },
+            { "ACTIVITY_RECOGNITION", "activity_recognition" }, { "GET_ACCOUNTS", "get_accounts" }, { "SYSTEM_ALERT_WINDOW", "system_alert_window" },
+            { "WRITE_SETTINGS", "write_settings" }, { "REQUEST_INSTALL_PACKAGES", "request_install_packages" }, { "PACKAGE_USAGE_STATS", "get_usage_stats" },
+            { "MANAGE_EXTERNAL_STORAGE", "manage_external_storage" }, { "SCHEDULE_EXACT_ALARM", "schedule_exact_alarm" }, { "USE_FULL_SCREEN_INTENT", "use_full_screen_intent" },
+            { "POST_NOTIFICATIONS", "post_notification" }, { "BLUETOOTH_SCAN", "bluetooth_scan" }, { "BLUETOOTH_CONNECT", "bluetooth_connect" }, { "BLUETOOTH_ADVERTISE", "bluetooth_advertise" },
+            { "NEARBY_WIFI_DEVICES", "nearby_wifi_devices" }, { "UWB_RANGING", "uwb_ranging" }, { "ACCESS_NOTIFICATION_POLICY", "access_notification_policy" },
+            { "PICTURE_IN_PICTURE", "picture_in_picture" }, { "INTERACT_ACROSS_PROFILES", "interact_across_profiles" }, { "LOADER_USAGE_STATS", "loader_usage_stats" },
+            { "MANAGE_IPSEC_TUNNELS", "manage_ipsec_tunnels" }, { "MANAGE_MEDIA", "manage_media" }, { "READ_SMS", "read_sms" },
+        };
+        for (String[] e : m) sPermToOp.put("android.permission." + e[0], "android:" + e[1]);
+    }
+    /** The app-op a runtime permission is tracked under, as the platform's table; null for permissions without one. */
+    public static String permissionToOp(String p) { return p == null ? null : sPermToOp.get(p); }
     public void startWatchingMode(String op, String pkg, OnOpChangedListener cb) {} public void startWatchingMode(int op, String pkg, OnOpChangedListener cb) {} public void stopWatchingMode(OnOpChangedListener cb) {}
     // ---- platform API stubs (tools/compat/genstubs.py)
     public interface OnOpChangedListener {

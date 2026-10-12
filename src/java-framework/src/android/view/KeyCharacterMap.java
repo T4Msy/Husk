@@ -21,7 +21,18 @@ public class KeyCharacterMap {
     public static final int SPECIAL_FUNCTION = 5;
     public static boolean[] deviceHasKeys(int[] p0) { return null; }
     public static int getCombiningChar(int p0) { return 0; }
-    public static int getDeadChar(int p0, int p1) { return 0; }
+    public static int getDeadChar(int accent, int c) {
+        if (c == accent || c == ' ') return accent;
+        char comb;
+        switch (accent) {
+        case 0x02CB: case '`': comb = 0x0300; break; case 0x00B4: case '\'': comb = 0x0301; break; case '^': comb = 0x0302; break; case '~': comb = 0x0303; break;
+        case 0x00AF: comb = 0x0304; break; case 0x02D8: comb = 0x0306; break; case 0x02D9: comb = 0x0307; break; case 0x00A8: case '"': comb = 0x0308; break;
+        case 0x02DA: comb = 0x030A; break; case 0x02DD: comb = 0x030B; break; case 0x02C7: comb = 0x030C; break; case 0x00B8: comb = 0x0327; break; case 0x02DB: comb = 0x0328; break;
+        default: return 0;
+        }
+        String s = java.text.Normalizer.normalize(new String(Character.toChars(c)) + comb, java.text.Normalizer.Form.NFC);
+        return s.codePointCount(0, s.length()) == 1 ? s.codePointAt(0) : 0;
+    }
     public static android.view.KeyCharacterMap load(java.lang.String p0, java.lang.String p1) { return null; }
     public static android.view.KeyCharacterMap obtainEmptyMap(int p0) { return null; }
     public int describeContents() { return 0; }
