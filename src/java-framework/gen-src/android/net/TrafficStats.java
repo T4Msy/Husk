@@ -31,57 +31,58 @@ public class TrafficStats {
     public TrafficStats() {}
     public static void attachSocketTagger() {}
     public static void clearRateLimitCaches() {}
-    public static void clearThreadStatsTag() {}
-    public static void clearThreadStatsUid() {}
+    private static final ThreadLocal<Integer> sTag = new ThreadLocal<>(), sUid = new ThreadLocal<>();
+    public static void clearThreadStatsTag() { sTag.set(-1); }
+    public static void clearThreadStatsUid() { sUid.set(-1); }
     public static void closeQuietly(android.net.INetworkStatsSession p0) {}
-    public static int getAndSetThreadStatsTag(int p0) { return 0; }
-    public static long getIfaceStats(java.lang.String p0, int p1) { return 0L; }
-    public static long getLoopbackRxBytes() { return 0L; }
-    public static long getLoopbackRxPackets() { return 0L; }
-    public static long getLoopbackTxBytes() { return 0L; }
-    public static long getLoopbackTxPackets() { return 0L; }
-    public static long getMobileRxBytes() { return 0L; }
-    public static long getMobileRxPackets() { return 0L; }
-    public static long getMobileTcpRxPackets() { return 0L; }
-    public static long getMobileTcpTxPackets() { return 0L; }
-    public static long getMobileTxBytes() { return 0L; }
-    public static long getMobileTxPackets() { return 0L; }
-    public static long getRxBytes(java.lang.String p0) { return 0L; }
-    public static long getRxPackets(java.lang.String p0) { return 0L; }
-    public static int getThreadStatsTag() { return 0; }
-    public static int getThreadStatsUid() { return 0; }
-    public static long getTotalRxBytes() { return 0L; }
-    public static long getTotalRxPackets() { return 0L; }
-    public static long getTotalStats(int p0) { return 0L; }
-    public static long getTotalTxBytes() { return 0L; }
-    public static long getTotalTxPackets() { return 0L; }
-    public static long getTxBytes(java.lang.String p0) { return 0L; }
-    public static long getTxPackets(java.lang.String p0) { return 0L; }
-    public static long getUidRxBytes(int p0) { return 0L; }
-    public static long getUidRxPackets(int p0) { return 0L; }
-    public static long getUidStats(int p0, int p1) { return 0L; }
-    public static long getUidTcpRxBytes(int p0) { return 0L; }
-    public static long getUidTcpRxSegments(int p0) { return 0L; }
-    public static long getUidTcpTxBytes(int p0) { return 0L; }
-    public static long getUidTcpTxSegments(int p0) { return 0L; }
-    public static long getUidTxBytes(int p0) { return 0L; }
-    public static long getUidTxPackets(int p0) { return 0L; }
-    public static long getUidUdpRxBytes(int p0) { return 0L; }
-    public static long getUidUdpRxPackets(int p0) { return 0L; }
-    public static long getUidUdpTxBytes(int p0) { return 0L; }
-    public static long getUidUdpTxPackets(int p0) { return 0L; }
+    public static int getAndSetThreadStatsTag(int tag) { int old = getThreadStatsTag(); sTag.set(tag); return old; }
+    public static long getIfaceStats(java.lang.String p0, int p1) { return UNSUPPORTED; }
+    public static long getLoopbackRxBytes() { return UNSUPPORTED; }
+    public static long getLoopbackRxPackets() { return UNSUPPORTED; }
+    public static long getLoopbackTxBytes() { return UNSUPPORTED; }
+    public static long getLoopbackTxPackets() { return UNSUPPORTED; }
+    public static long getMobileRxBytes() { return UNSUPPORTED; }
+    public static long getMobileRxPackets() { return UNSUPPORTED; }
+    public static long getMobileTcpRxPackets() { return UNSUPPORTED; }
+    public static long getMobileTcpTxPackets() { return UNSUPPORTED; }
+    public static long getMobileTxBytes() { return UNSUPPORTED; }
+    public static long getMobileTxPackets() { return UNSUPPORTED; }
+    public static long getRxBytes(java.lang.String p0) { return UNSUPPORTED; }
+    public static long getRxPackets(java.lang.String p0) { return UNSUPPORTED; }
+    public static int getThreadStatsTag() { Integer t = sTag.get(); return t == null ? -1 : t; }
+    public static int getThreadStatsUid() { Integer u = sUid.get(); return u == null ? -1 : u; }
+    public static long getTotalRxBytes() { return UNSUPPORTED; }
+    public static long getTotalRxPackets() { return UNSUPPORTED; }
+    public static long getTotalStats(int p0) { return UNSUPPORTED; }
+    public static long getTotalTxBytes() { return UNSUPPORTED; }
+    public static long getTotalTxPackets() { return UNSUPPORTED; }
+    public static long getTxBytes(java.lang.String p0) { return UNSUPPORTED; }
+    public static long getTxPackets(java.lang.String p0) { return UNSUPPORTED; }
+    public static long getUidRxBytes(int p0) { return UNSUPPORTED; }
+    public static long getUidRxPackets(int p0) { return UNSUPPORTED; }
+    public static long getUidStats(int p0, int p1) { return UNSUPPORTED; }
+    public static long getUidTcpRxBytes(int p0) { return UNSUPPORTED; }
+    public static long getUidTcpRxSegments(int p0) { return UNSUPPORTED; }
+    public static long getUidTcpTxBytes(int p0) { return UNSUPPORTED; }
+    public static long getUidTcpTxSegments(int p0) { return UNSUPPORTED; }
+    public static long getUidTxBytes(int p0) { return UNSUPPORTED; }
+    public static long getUidTxPackets(int p0) { return UNSUPPORTED; }
+    public static long getUidUdpRxBytes(int p0) { return UNSUPPORTED; }
+    public static long getUidUdpRxPackets(int p0) { return UNSUPPORTED; }
+    public static long getUidUdpTxBytes(int p0) { return UNSUPPORTED; }
+    public static long getUidUdpTxPackets(int p0) { return UNSUPPORTED; }
     public static void incrementOperationCount(int p0) {}
     public static void incrementOperationCount(int p0, int p1) {}
     public static void init(android.content.Context p0) {}
     public static void reinitRateLimitCacheForTest() {}
     public static void setServiceForTest(android.net.INetworkStatsService p0) {}
-    public static void setThreadStatsTag(int p0) {}
-    public static void setThreadStatsTagApp() {}
-    public static void setThreadStatsTagBackup() {}
-    public static void setThreadStatsTagDownload() {}
-    public static void setThreadStatsTagRestore() {}
-    public static void setThreadStatsUid(int p0) {}
-    public static void setThreadStatsUidSelf() {}
+    public static void setThreadStatsTag(int tag) { sTag.set(tag); }
+    public static void setThreadStatsTagApp() { setThreadStatsTag(0xFFFFFF00); }
+    public static void setThreadStatsTagBackup() { setThreadStatsTag(0xFFFFFF03); }
+    public static void setThreadStatsTagDownload() { setThreadStatsTag(0xFFFFFF01); }
+    public static void setThreadStatsTagRestore() { setThreadStatsTag(0xFFFFFF02); }
+    public static void setThreadStatsUid(int uid) { sUid.set(uid); }
+    public static void setThreadStatsUidSelf() { setThreadStatsUid(android.os.Process.myUid()); }
     public static void setTimeSupplierForTest(java.util.function.LongSupplier p0) {}
     public static void startDataProfiling(android.content.Context p0) {}
     public static android.net.NetworkStats stopDataProfiling(android.content.Context p0) { return null; }

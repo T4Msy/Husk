@@ -7,9 +7,10 @@ public class Process {
     /** the calling thread id: one per thread, as gettid() gives (the main thread is the process id) */
     public static int myTid() { long id = Thread.currentThread().getId(); return id == 1 ? 4242 : 4242 + (int) id; }
     public static int myUid() { return 10100; }
-    public static void setThreadPriority(int p) {}
-    public static void setThreadPriority(int tid, int p) {}
-    public static int getThreadPriority(int tid) { return 0; }
+    private static final java.util.HashMap<Integer, Integer> sPriorities = new java.util.HashMap<>();
+    public static void setThreadPriority(int p) { setThreadPriority(myTid(), p); }
+    public static void setThreadPriority(int tid, int p) { if (p < -20 || p > 19) throw new IllegalArgumentException("Priority out of range: " + p); synchronized (sPriorities) { sPriorities.put(tid, p); } }
+    public static int getThreadPriority(int tid) { synchronized (sPriorities) { Integer p = sPriorities.get(tid); return p != null ? p : THREAD_PRIORITY_DEFAULT; } }
     public static void killProcess(int pid) { husk.Native.exit(); }
     /* when the process started: the first use of this class, early in the app's start */
     private static final long START_NANOS = System.nanoTime(), START_ELAPSED = SystemClock.elapsedRealtime(), START_UPTIME = SystemClock.uptimeMillis();

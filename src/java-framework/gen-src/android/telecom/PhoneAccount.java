@@ -42,7 +42,7 @@ public final class PhoneAccount implements android.os.Parcelable {
     public static final java.lang.String SCHEME_SIP = "sip";
     public static final java.lang.String SCHEME_TEL = "tel";
     public static final java.lang.String SCHEME_VOICEMAIL = "voicemail";
-    public static android.telecom.PhoneAccount.Builder builder(android.telecom.PhoneAccountHandle p0, java.lang.CharSequence p1) { return null; }
+    public static android.telecom.PhoneAccount.Builder builder(android.telecom.PhoneAccountHandle handle, java.lang.CharSequence label) { return new Builder(handle, label); }
     public java.lang.String capabilitiesToString() { return null; }
     public int describeContents() { return 0; }
     public android.telecom.PhoneAccountHandle getAccountHandle() { return (android.telecom.PhoneAccountHandle) huskProps.get("AccountHandle"); }
@@ -58,21 +58,21 @@ public final class PhoneAccount implements android.os.Parcelable {
     public android.net.Uri getSubscriptionAddress() { return (android.net.Uri) huskProps.get("SubscriptionAddress"); }
     public int getSupportedAudioRoutes() { return (huskProps.get("SupportedAudioRoutes") instanceof Integer ? (Integer) huskProps.get("SupportedAudioRoutes") : 0); }
     public java.util.List getSupportedUriSchemes() { return (huskProps.get("SupportedUriSchemes") != null ? (java.util.List) huskProps.get("SupportedUriSchemes") : new java.util.ArrayList()); }
-    public boolean hasAudioRoutes(int p0) { return false; }
-    public boolean hasCapabilities(int p0) { return false; }
+    public boolean hasAudioRoutes(int routes) { return (getSupportedAudioRoutes() & routes) == routes; }
+    public boolean hasCapabilities(int caps) { return (getCapabilities() & caps) == caps; }
     public boolean hasSimultaneousCallingRestriction() { return false; }
-    public boolean isEnabled() { return (huskProps.get("Enabled") instanceof Boolean ? (Boolean) huskProps.get("Enabled") : false); }
-    public boolean isSelfManaged() { return (huskProps.get("SelfManaged") instanceof Boolean ? (Boolean) huskProps.get("SelfManaged") : false); }
+    public boolean isEnabled() { return (huskProps.get("IsEnabled") instanceof Boolean ? (Boolean) huskProps.get("IsEnabled") : false); }
+    public boolean isSelfManaged() { return (getCapabilities() & CAPABILITY_SELF_MANAGED) != 0; }
     public void setIsEnabled(boolean p0) { huskProps.put("IsEnabled", Boolean.valueOf(p0)); }
-    public boolean supportsUriScheme(java.lang.String p0) { return false; }
-    public android.telecom.PhoneAccount.Builder toBuilder() { return null; }
+    public boolean supportsUriScheme(java.lang.String scheme) { return getSupportedUriSchemes().contains(scheme); }
+    public android.telecom.PhoneAccount.Builder toBuilder() { return new Builder(this); }
     public void writeToParcel(android.os.Parcel p0, int p1) {}
     protected PhoneAccount() {}
     public static class Builder {
         private final java.util.HashMap<String, Object> huskProps = new java.util.HashMap<>();
-        public Builder(android.telecom.PhoneAccount p0) {}
-        public Builder(android.telecom.PhoneAccountHandle p0, java.lang.CharSequence p1) {}
-        public android.telecom.PhoneAccount.Builder addSupportedUriScheme(java.lang.String p0) { return this; }
+        public Builder(android.telecom.PhoneAccount o) { huskProps.putAll(o.huskProps); }
+        public Builder(android.telecom.PhoneAccountHandle handle, java.lang.CharSequence label) { huskProps.put("AccountHandle", handle); huskProps.put("Label", label); huskProps.put("SupportedAudioRoutes", 15); huskProps.put("SupportedUriSchemes", new java.util.ArrayList<String>()); }
+        public android.telecom.PhoneAccount.Builder addSupportedUriScheme(java.lang.String s) { java.util.List<String> l = (java.util.List<String>) huskProps.get("SupportedUriSchemes"); if (s != null && !l.contains(s)) l.add(s); return this; }
         public android.telecom.PhoneAccount build() { android.telecom.PhoneAccount x = new android.telecom.PhoneAccount(); x.huskProps.putAll(huskProps); return x; }
         public android.telecom.PhoneAccount.Builder clearSimultaneousCallingRestriction() { return this; }
         public android.telecom.PhoneAccount.Builder setAddress(android.net.Uri p0) { huskProps.put("Address", p0); return this; }
@@ -87,7 +87,7 @@ public final class PhoneAccount implements android.os.Parcelable {
         public android.telecom.PhoneAccount.Builder setSimultaneousCallingRestriction(java.util.Set p0) { huskProps.put("SimultaneousCallingRestriction", p0); return this; }
         public android.telecom.PhoneAccount.Builder setSubscriptionAddress(android.net.Uri p0) { huskProps.put("SubscriptionAddress", p0); return this; }
         public android.telecom.PhoneAccount.Builder setSupportedAudioRoutes(int p0) { huskProps.put("SupportedAudioRoutes", Integer.valueOf(p0)); return this; }
-        public android.telecom.PhoneAccount.Builder setSupportedUriSchemes(java.util.List p0) { huskProps.put("SupportedUriSchemes", p0); return this; }
+        public android.telecom.PhoneAccount.Builder setSupportedUriSchemes(java.util.List p0) { huskProps.put("SupportedUriSchemes", p0 == null ? new java.util.ArrayList<String>() : new java.util.ArrayList<String>(p0)); return this; }
         Builder() { this((android.telecom.PhoneAccount) null); }
     }
 }

@@ -57,8 +57,8 @@ public class ParcelFileDescriptor implements Parcelable, Closeable {
     public static android.os.Parcelable.Creator CREATOR;
     public static android.os.ParcelFileDescriptor[] createReliableSocketPair() { return null; }
     public static android.os.ParcelFileDescriptor[] createReliableSocketPair(int p0) { return null; }
-    public static android.os.ParcelFileDescriptor[] createSocketPair() { return null; }
-    public static android.os.ParcelFileDescriptor[] createSocketPair(int p0) { return null; }
+    public static ParcelFileDescriptor[] createSocketPair() throws IOException { throw new IOException("socket pairs are not supported"); }
+    public static ParcelFileDescriptor[] createSocketPair(int type) throws IOException { return createSocketPair(); }
     public static android.os.ParcelFileDescriptor fromData(byte[] p0, java.lang.String p1) { return null; }
     public static android.os.ParcelFileDescriptor fromDatagramSocket(java.net.DatagramSocket p0) { return null; }
     public static android.os.ParcelFileDescriptor fromFd(java.io.FileDescriptor p0, android.os.Handler p1, android.os.ParcelFileDescriptor.OnCloseListener p2) { return null; }

@@ -61,6 +61,8 @@ public final class Gfx {
     public static native void pathBounds(float[] path, int n, float[] out);
     public static native boolean pathContains(float[] path, int n, int fill, float x, float y);
     public static native float pathLength(float[] path, int n, float[] out);
+    /** The path as polylines in out (x,y pairs; a NaN,NaN pair opens a contour, a second one right after its points closes it); returns the floats needed. */
+    public static native int pathFlatten(float[] path, int n, float[] out);
 
     /** The window's views, drawn: Husk's render thread puts them on screen over the app's GL. 0: nothing to show. */
     public static native void present(long bm);

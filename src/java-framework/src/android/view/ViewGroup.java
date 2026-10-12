@@ -250,8 +250,9 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
     public boolean isMotionEventSplittingEnabled() { return mMotionSplit; }
     public void setTouchscreenBlocksFocus(boolean b) {}
     public boolean shouldDelayChildPressedState() { return true; }
-    public void setTransitionGroup(boolean g) {}
-    public boolean isTransitionGroup() { return false; }
+    private int mTransitionGroup = -1;      /* -1: not set, as the platform's: a group when it has a background or a transition name */
+    public void setTransitionGroup(boolean g) { mTransitionGroup = g ? 1 : 0; }
+    public boolean isTransitionGroup() { return mTransitionGroup >= 0 ? mTransitionGroup == 1 : getBackground() != null || getTransitionName() != null; }
     public void setStaticTransformationsEnabled(boolean e) {}
     protected boolean getChildStaticTransformation(View child, android.view.animation.Transformation t) { return false; }
 
@@ -349,8 +350,8 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
     public void recomputeViewAttributes(View child) {}
     public boolean getChildVisibleRect(View child, Rect r, Point offset) { return true; }
     public void focusableViewAvailable(View v) {}
-    public boolean showContextMenuForChild(View original) { return false; }
-    public boolean showContextMenuForChild(View original, float x, float y) { return false; }
+    public boolean showContextMenuForChild(View original) { ViewParent p = getParent(); return p != null && p.showContextMenuForChild(original); }
+    public boolean showContextMenuForChild(View original, float x, float y) { ViewParent p = getParent(); return p != null && p.showContextMenuForChild(original, x, y); }
     public ActionMode startActionModeForChild(View original, ActionMode.Callback cb) { return null; }
     public void requestDisallowInterceptTouchEvent(boolean d) { mDisallowIntercept = d; if (mParent != null) mParent.requestDisallowInterceptTouchEvent(d); }
     public boolean requestChildRectangleOnScreen(View child, Rect r, boolean immediate) { return false; }
@@ -361,16 +362,17 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
     public boolean isTextDirectionResolved() { return true; }
     public boolean isTextAlignmentResolved() { return true; }
     public boolean onStartNestedScroll(View child, View target, int axes) { return false; }
-    public void onNestedScrollAccepted(View child, View target, int axes) {}
-    public void onStopNestedScroll(View target) {}
+    private int mNestedScrollAxes;
+    public void onNestedScrollAccepted(View child, View target, int axes) { mNestedScrollAxes = axes; }
+    public void onStopNestedScroll(View target) { stopNestedScroll(); mNestedScrollAxes = 0; }
     public void onNestedScroll(View target, int dxc, int dyc, int dxu, int dyu) {}
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {}
     public boolean onNestedFling(View target, float vx, float vy, boolean consumed) { return false; }
     public boolean onNestedPreFling(View target, float vx, float vy) { return false; }
     public boolean onNestedPrePerformAccessibilityAction(View target, int action, Bundle args) { return false; }
-    public int getNestedScrollAxes() { return 0; }
+    public int getNestedScrollAxes() { return mNestedScrollAxes; }
     public void requestFitSystemWindows() {}
-    public void createContextMenu(ContextMenu m) {}
+    public void createContextMenu(ContextMenu m) { if (mParent != null) mParent.createContextMenu(m); }
     public boolean onRequestSendAccessibilityEvent(View child, android.view.accessibility.AccessibilityEvent e) { return true; }
     public CharSequence getAccessibilityClassName() { return ViewGroup.class.getName(); }
     public void setClipChildren(boolean c) { mClipChildren = c; invalidate(); }

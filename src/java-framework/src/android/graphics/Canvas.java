@@ -32,7 +32,7 @@ public class Canvas {
     @Override protected void finalize() throws Throwable { if (mNative != 0) husk.Gfx.cvFree(mNative); mNative = 0; super.finalize(); }
 
     public boolean isHardwareAccelerated() { return false; }
-    public boolean isOpaque() { return false; }
+    public boolean isOpaque() { return mBitmap != null && !mBitmap.hasAlpha(); }
     public int getWidth() { return mBitmap == null ? 0 : mBitmap.getWidth(); }
     public int getHeight() { return mBitmap == null ? 0 : mBitmap.getHeight(); }
     public int getDensity() { return mDensity; }
@@ -42,8 +42,9 @@ public class Canvas {
     public int getMaximumBitmapHeight() { return 16384; }
     public void enableZ() {}
     public void disableZ() {}
-    public DrawFilter getDrawFilter() { return null; }
-    public void setDrawFilter(DrawFilter f) {}
+    private DrawFilter mDrawFilter;
+    public DrawFilter getDrawFilter() { return mDrawFilter; }
+    public void setDrawFilter(DrawFilter f) { mDrawFilter = f; }
 
     private void touched() { if (mBitmap != null) mBitmap.huskTouched(); }
 

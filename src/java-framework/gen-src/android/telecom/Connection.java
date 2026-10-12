@@ -124,8 +124,9 @@ public abstract class Connection extends android.telecom.Conferenceable {
     public Connection() { super(); }
     public static java.lang.String capabilitiesToString(int p0) { return null; }
     public static java.lang.String capabilitiesToStringShort(int p0) { return null; }
-    public static android.telecom.Connection createCanceledConnection() { return null; }
-    public static android.telecom.Connection createFailedConnection(android.telecom.DisconnectCause p0) { return null; }
+    /* a connection that is already over, as the platform makes for a call that could not be placed */
+    public static android.telecom.Connection createCanceledConnection() { return createFailedConnection(new android.telecom.DisconnectCause(android.telecom.DisconnectCause.CANCELED)); }
+    public static android.telecom.Connection createFailedConnection(android.telecom.DisconnectCause cause) { Connection c = new Connection() {}; c.setDisconnected(cause); return c; }
     public static java.lang.String propertiesToString(int p0) { return null; }
     public static java.lang.String propertiesToStringShort(int p0) { return null; }
     public static java.lang.String stateToString(int p0) { return null; }

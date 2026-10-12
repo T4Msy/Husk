@@ -19,8 +19,11 @@ public class BiometricPrompt implements android.hardware.biometrics.BiometricAut
     public static final int DISMISSED_REASON_USER_CANCEL = 3;
     public static final int HIDE_DIALOG_DELAY = 2000;
     public static int getMaxFallbackOptions() { return 0; }
-    public void authenticate(android.hardware.biometrics.BiometricPrompt.CryptoObject p0, android.os.CancellationSignal p1, java.util.concurrent.Executor p2, android.hardware.biometrics.BiometricPrompt.AuthenticationCallback p3) {}
-    public void authenticate(android.os.CancellationSignal p0, java.util.concurrent.Executor p1, android.hardware.biometrics.BiometricPrompt.AuthenticationCallback p2) {}
+    public void authenticate(android.hardware.biometrics.BiometricPrompt.CryptoObject crypto, android.os.CancellationSignal cancel, java.util.concurrent.Executor executor, android.hardware.biometrics.BiometricPrompt.AuthenticationCallback cb) { authenticate(cancel, executor, cb); }
+    public void authenticate(android.os.CancellationSignal cancel, java.util.concurrent.Executor executor, final android.hardware.biometrics.BiometricPrompt.AuthenticationCallback cb) {
+        if (executor == null || cb == null) throw new IllegalArgumentException("Must supply an executor and a callback");
+        executor.execute(() -> cb.onAuthenticationError(12 /* BIOMETRIC_ERROR_HW_NOT_PRESENT */, "This device does not have a biometric sensor."));
+    }
     public long authenticateForOperation(android.os.CancellationSignal p0, java.util.concurrent.Executor p1, android.hardware.biometrics.BiometricPrompt.AuthenticationCallback p2, long p3) { return 0L; }
     public void authenticateUser(android.os.CancellationSignal p0, java.util.concurrent.Executor p1, android.hardware.biometrics.BiometricPrompt.AuthenticationCallback p2, int p3) {}
     public int getAllowedAuthenticators() { return (huskProps.get("AllowedAuthenticators") instanceof Integer ? (Integer) huskProps.get("AllowedAuthenticators") : 0); }

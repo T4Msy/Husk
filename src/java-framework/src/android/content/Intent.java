@@ -652,7 +652,39 @@ public class Intent implements Cloneable, android.os.Parcelable {
     public static void maybeMarkAsMissingCreatorToken(java.lang.Object p0) {}
     public static java.lang.String normalizeMimeType(java.lang.String p0) { return null; }
     public static android.content.Intent parseCommandArgs(android.os.ShellCommand p0, android.content.Intent.CommandOptionHandler p1) { return null; }
-    public static android.content.Intent parseIntent(android.content.res.Resources p0, org.xmlpull.v1.XmlPullParser p1, android.util.AttributeSet p2) { return null; }
+    public static Intent parseIntent(android.content.res.Resources res, org.xmlpull.v1.XmlPullParser parser, android.util.AttributeSet attrs) throws org.xmlpull.v1.XmlPullParserException, java.io.IOException {
+        Intent intent = new Intent();
+        final String NS = "http://schemas.android.com/apk/res/android";
+        String action = attrs.getAttributeValue(NS, "action");
+        if (action != null) intent.setAction(action);
+        String data = attrs.getAttributeValue(NS, "data"), type = attrs.getAttributeValue(NS, "mimeType");
+        intent.setDataAndType(data != null ? android.net.Uri.parse(data) : null, type);
+        String pkg = attrs.getAttributeValue(NS, "targetPackage"), cls = attrs.getAttributeValue(NS, "targetClass");
+        if (pkg != null && cls != null) intent.setComponent(new ComponentName(pkg, cls));
+        else if (pkg != null) intent.setPackage(pkg);
+        String id = attrs.getAttributeValue(NS, "identifier");
+        if (id != null) intent.setIdentifier(id);
+        int depth = parser.getDepth(), ev;
+        while ((ev = parser.next()) != org.xmlpull.v1.XmlPullParser.END_DOCUMENT && (ev != org.xmlpull.v1.XmlPullParser.END_TAG || parser.getDepth() > depth)) {
+            if (ev != org.xmlpull.v1.XmlPullParser.START_TAG) continue;
+            String name = parser.getName();
+            if ("categories".equals(name)) {
+                android.util.AttributeSet a = android.util.Xml.asAttributeSet(parser);
+                for (int i = 0; i < a.getAttributeCount(); i++) if ("category".equals(a.getAttributeName(i))) intent.addCategory(a.getAttributeValue(i));
+                skipTag(parser);
+            } else if ("extra".equals(name)) {
+                android.util.AttributeSet a = android.util.Xml.asAttributeSet(parser);
+                String key = a.getAttributeValue(NS, "name"), value = a.getAttributeValue(NS, "value");
+                if (key != null) { if (value != null) intent.putExtra(key, value); }
+                skipTag(parser);
+            } else throw new org.xmlpull.v1.XmlPullParserException("Unknown element under <intent>: " + name, parser, null);
+        }
+        return intent;
+    }
+    private static void skipTag(org.xmlpull.v1.XmlPullParser p) throws org.xmlpull.v1.XmlPullParserException, java.io.IOException {
+        int depth = p.getDepth(), ev;
+        while ((ev = p.next()) != org.xmlpull.v1.XmlPullParser.END_DOCUMENT && (ev != org.xmlpull.v1.XmlPullParser.END_TAG || p.getDepth() > depth)) {}
+    }
     public static void printIntentArgsHelp(java.io.PrintWriter p0, java.lang.String p1) {}
     public static android.content.Intent restoreFromXml(org.xmlpull.v1.XmlPullParser p0) { return null; }
     public android.content.Intent addExtendedFlags(int p0) { return this; }

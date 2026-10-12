@@ -117,7 +117,16 @@ public class TextUtils {
     public static CharSequence commaEllipsize(CharSequence text, android.text.TextPaint p, float avail, String oneMore, String more) { return ellipsize(text, p, avail, TruncateAt.END); }
     public static boolean isPrintableAscii(char c) { return (c >= ' ' && c <= '~') || c == '\r' || c == '\n'; }
     public static boolean isPrintableAsciiOnly(CharSequence s) { for (int i = 0; i < s.length(); i++) if (!isPrintableAscii(s.charAt(i))) return false; return true; }
-    public static int getLayoutDirectionFromLocale(Locale l) { return 0; }
+    public static int getLayoutDirectionFromLocale(Locale l) {
+        if (l == null || l.equals(Locale.ROOT)) return android.view.View.LAYOUT_DIRECTION_LTR;
+        String script = l.getScript();
+        if (script != null && !script.isEmpty()) return "Arab".equals(script) || "Hebr".equals(script) || "Thaa".equals(script) || "Nkoo".equals(script) || "Syrc".equals(script) || "Samr".equals(script) || "Adlm".equals(script) ? android.view.View.LAYOUT_DIRECTION_RTL : android.view.View.LAYOUT_DIRECTION_LTR;
+        switch (l.getLanguage()) {
+        case "ar": case "fa": case "he": case "iw": case "ur": case "ps": case "sd": case "ug": case "yi": case "ji": case "dv": case "ckb": case "ku": case "ks": case "pa_Arab": case "syr": case "arc": case "ff_Adlm":
+            return android.view.View.LAYOUT_DIRECTION_RTL;
+        }
+        return android.view.View.LAYOUT_DIRECTION_LTR;
+    }
     public static CharSequence toUpperCase(Locale l, CharSequence s, boolean copy) { return s.toString().toUpperCase(l); }
     public static CharSequence replace(CharSequence template, String[] sources, CharSequence[] dest) { String t = template.toString(); for (int i = 0; i < sources.length; i++) t = t.replace(sources[i], dest[i]); return t; }
     public static String nullIfEmpty(String s) { return isEmpty(s) ? null : s; }

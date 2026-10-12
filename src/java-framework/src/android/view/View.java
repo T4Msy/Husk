@@ -356,7 +356,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public android.os.IBinder getWindowToken() { return mRoot == null ? null : mRoot.token(); }
     public android.os.IBinder getApplicationWindowToken() { return getWindowToken(); }
     public Display getDisplay() { return mRoot == null ? null : ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay(); }
-    public WindowId getWindowId() { return null; }
+    public WindowId getWindowId() { return mRoot == null ? null : new WindowId(mRoot.token()); }
     public ViewTreeObserver getViewTreeObserver() {
         if (mRoot != null) return mRoot.observer();
         if (mFloatingObserver == null) mFloatingObserver = new ViewTreeObserver();
@@ -497,32 +497,63 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public void setScrollIndicators(int i) { mScrollIndicators = i; }
     public void setScrollIndicators(int i, int mask) { mScrollIndicators = (mScrollIndicators & ~mask) | (i & mask); }
     public int getScrollIndicators() { return mScrollIndicators; }
-    public void setVerticalFadingEdgeEnabled(boolean e) {}
-    public void setHorizontalFadingEdgeEnabled(boolean e) {}
-    public void setFadingEdgeLength(int l) {}
-    public boolean isVerticalFadingEdgeEnabled() { return false; }
-    public boolean isHorizontalFadingEdgeEnabled() { return false; }
-    public int getVerticalFadingEdgeLength() { return 0; }
-    public int getHorizontalFadingEdgeLength() { return 0; }
+    private boolean mVerticalFadingEdge, mHorizontalFadingEdge;
+    private int mFadingEdgeLength = -1;
+    public void setVerticalFadingEdgeEnabled(boolean e) { mVerticalFadingEdge = e; }
+    public void setHorizontalFadingEdgeEnabled(boolean e) { mHorizontalFadingEdge = e; }
+    public void setFadingEdgeLength(int l) { mFadingEdgeLength = l; }
+    public boolean isVerticalFadingEdgeEnabled() { return mVerticalFadingEdge; }
+    public boolean isHorizontalFadingEdgeEnabled() { return mHorizontalFadingEdge; }
+    private int fadingEdgeLength() { return mFadingEdgeLength >= 0 ? mFadingEdgeLength : ViewConfiguration.get(mContext).getScaledFadingEdgeLength(); }
+    public int getVerticalFadingEdgeLength() { return mVerticalFadingEdge ? fadingEdgeLength() : 0; }
+    public int getHorizontalFadingEdgeLength() { return mHorizontalFadingEdge ? fadingEdgeLength() : 0; }
     protected float getTopFadingEdgeStrength() { return 0; }
     protected float getBottomFadingEdgeStrength() { return 0; }
     public int getOverScrollMode() { return mOverScrollMode; }
     public void setOverScrollMode(int m) { mOverScrollMode = m; }
-    public void setNestedScrollingEnabled(boolean e) {}
-    public boolean isNestedScrollingEnabled() { return false; }
-    public boolean startNestedScroll(int axes) { return false; }
-    public void stopNestedScroll() {}
-    public boolean hasNestedScrollingParent() { return false; }
-    public boolean dispatchNestedScroll(int dxc, int dyc, int dxu, int dyu, int[] off) { return false; }
-    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] off) { return false; }
-    public boolean dispatchNestedFling(float vx, float vy, boolean consumed) { return false; }
-    public boolean dispatchNestedPreFling(float vx, float vy) { return false; }
+    private boolean mNestedScrollingEnabled;
+    private ViewParent mNestedScrollingParent;
+    public void setNestedScrollingEnabled(boolean e) { if (mNestedScrollingEnabled != e) { mNestedScrollingEnabled = e; if (!e) stopNestedScroll(); } }
+    public boolean isNestedScrollingEnabled() { return mNestedScrollingEnabled; }
+    public boolean startNestedScroll(int axes) {
+        if (hasNestedScrollingParent()) return true;
+        if (!mNestedScrollingEnabled) return false;
+        View child = this;
+        for (ViewParent p = getParent(); p != null; p = p.getParent()) {
+            if (p.onStartNestedScroll(child, this, axes)) { mNestedScrollingParent = p; p.onNestedScrollAccepted(child, this, axes); return true; }
+            if (p instanceof View) child = (View) p;
+        }
+        return false;
+    }
+    public void stopNestedScroll() { if (mNestedScrollingParent != null) { mNestedScrollingParent.onStopNestedScroll(this); mNestedScrollingParent = null; } }
+    public boolean hasNestedScrollingParent() { return mNestedScrollingParent != null; }
+    public boolean dispatchNestedScroll(int dxc, int dyc, int dxu, int dyu, int[] off) {
+        if (!mNestedScrollingEnabled || mNestedScrollingParent == null) return false;
+        if (dxc == 0 && dyc == 0 && dxu == 0 && dyu == 0) { if (off != null) { off[0] = 0; off[1] = 0; } return false; }
+        int[] before = new int[2]; if (off != null) getLocationInWindow(before);
+        mNestedScrollingParent.onNestedScroll(this, dxc, dyc, dxu, dyu);
+        if (off != null) { int[] after = new int[2]; getLocationInWindow(after); off[0] = after[0] - before[0]; off[1] = after[1] - before[1]; }
+        return true;
+    }
+    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] off) {
+        if (!mNestedScrollingEnabled || mNestedScrollingParent == null) return false;
+        if (dx == 0 && dy == 0) { if (consumed != null) { consumed[0] = 0; consumed[1] = 0; } if (off != null) { off[0] = 0; off[1] = 0; } return false; }
+        int[] before = new int[2]; if (off != null) getLocationInWindow(before);
+        if (consumed == null) consumed = new int[2];
+        consumed[0] = 0; consumed[1] = 0;
+        mNestedScrollingParent.onNestedPreScroll(this, dx, dy, consumed);
+        if (off != null) { int[] after = new int[2]; getLocationInWindow(after); off[0] = after[0] - before[0]; off[1] = after[1] - before[1]; }
+        return consumed[0] != 0 || consumed[1] != 0;
+    }
+    public boolean dispatchNestedFling(float vx, float vy, boolean consumed) { return mNestedScrollingEnabled && mNestedScrollingParent != null && mNestedScrollingParent.onNestedFling(this, vx, vy, consumed); }
+    public boolean dispatchNestedPreFling(float vx, float vy) { return mNestedScrollingEnabled && mNestedScrollingParent != null && mNestedScrollingParent.onNestedPreFling(this, vx, vy); }
     public int getLayerType() { return mLayerType; }
     public void setLayerType(int t, Paint p) { mLayerType = t; mLayerPaint = p; invalidate(); }
     public void setLayerPaint(Paint p) { mLayerPaint = p; invalidate(); }
     public void buildLayer() {}
-    public void setDrawingCacheEnabled(boolean e) {}
-    public boolean isDrawingCacheEnabled() { return false; }
+    private boolean mDrawingCacheEnabled;
+    public void setDrawingCacheEnabled(boolean e) { mDrawingCacheEnabled = e; }
+    public boolean isDrawingCacheEnabled() { return mDrawingCacheEnabled; }
     public void buildDrawingCache() {}
     public void buildDrawingCache(boolean a) {}
     public void destroyDrawingCache() {}
@@ -555,19 +586,22 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public CharSequence getContentDescription() { return mContentDescription; }
     public void setTooltipText(CharSequence t) { mTooltip = t; }
     public CharSequence getTooltipText() { return mTooltip; }
-    public void setStateDescription(CharSequence s) {}
+    private CharSequence mStateDescription, mPaneTitle;
+    private int mLiveRegion, mTraversalBefore = NO_ID, mTraversalAfter = NO_ID, mImportantForAutofill;
+    private boolean mAccessibilityHeading, mScreenReaderFocusable;
+    public void setStateDescription(CharSequence s) { mStateDescription = s; }
     public void setAccessibilityDelegate(AccessibilityDelegate d) { mAccessibilityDelegate = d; }
     public AccessibilityDelegate getAccessibilityDelegate() { return mAccessibilityDelegate; }
     public void setImportantForAccessibility(int m) { mImportantForAccessibility = m; }
     public int getImportantForAccessibility() { return mImportantForAccessibility; }
     public boolean isImportantForAccessibility() { return mImportantForAccessibility != IMPORTANT_FOR_ACCESSIBILITY_NO; }
-    public void setAccessibilityLiveRegion(int m) {}
-    public int getAccessibilityLiveRegion() { return 0; }
-    public void setAccessibilityHeading(boolean h) {}
-    public void setScreenReaderFocusable(boolean f) {}
-    public void setAccessibilityPaneTitle(CharSequence t) {}
-    public void setAccessibilityTraversalBefore(int id) {}
-    public void setAccessibilityTraversalAfter(int id) {}
+    public void setAccessibilityLiveRegion(int m) { mLiveRegion = m; }
+    public int getAccessibilityLiveRegion() { return mLiveRegion; }
+    public void setAccessibilityHeading(boolean h) { mAccessibilityHeading = h; }
+    public void setScreenReaderFocusable(boolean f) { mScreenReaderFocusable = f; }
+    public void setAccessibilityPaneTitle(CharSequence t) { mPaneTitle = t; }
+    public void setAccessibilityTraversalBefore(int id) { mTraversalBefore = id; }
+    public void setAccessibilityTraversalAfter(int id) { mTraversalAfter = id; }
     public void setLabelFor(int id) { mLabelFor = id; }
     public int getLabelFor() { return mLabelFor; }
     public void sendAccessibilityEvent(int t) {}
@@ -579,11 +613,21 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public void onPopulateAccessibilityEvent(android.view.accessibility.AccessibilityEvent e) {}
     public boolean dispatchPopulateAccessibilityEvent(android.view.accessibility.AccessibilityEvent e) { return false; }
     public boolean performAccessibilityAction(int a, Bundle args) { return a == AccessibilityNodeInfo.ACTION_CLICK && performClick(); }
-    public android.view.accessibility.AccessibilityNodeProvider getAccessibilityNodeProvider() { return null; }
+    public android.view.accessibility.AccessibilityNodeProvider getAccessibilityNodeProvider() { return mAccessibilityDelegate != null ? mAccessibilityDelegate.getAccessibilityNodeProvider(this) : null; }
     public CharSequence getAccessibilityClassName() { return getClass().getName(); }
     public boolean isAccessibilityFocused() { return false; }
-    public void setImportantForAutofill(int m) {}
-    public int getImportantForAutofill() { return 0; }
+    public void setImportantForAutofill(int m) { mImportantForAutofill = m; }
+    public int getImportantForAutofill() { return mImportantForAutofill; }
+    public final boolean isImportantForAutofill() {
+        for (ViewParent p = mParent; p instanceof View; p = p.getParent()) {
+            int pi = ((View) p).getImportantForAutofill();
+            if (pi == IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS || pi == IMPORTANT_FOR_AUTOFILL_YES_EXCLUDE_DESCENDANTS) return false;
+        }
+        int i = mImportantForAutofill;
+        if (i == IMPORTANT_FOR_AUTOFILL_YES || i == IMPORTANT_FOR_AUTOFILL_YES_EXCLUDE_DESCENDANTS) return true;
+        if (i == IMPORTANT_FOR_AUTOFILL_NO || i == IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS) return false;
+        return mAutofillHints != null || mID != NO_ID;
+    }
     public void setAutofillHints(String... h) { mAutofillHints = h; }
     public int getAutofillType() { return AUTOFILL_TYPE_NONE; }
     public void setImportantForContentCapture(int m) {}
@@ -781,8 +825,11 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public void setOutlineProvider(ViewOutlineProvider p) { mOutlineProvider = p; invalidateOutline(); }
     public ViewOutlineProvider getOutlineProvider() { return mOutlineProvider; }
     public void invalidateOutline() { invalidate(); }
-    public void setOutlineAmbientShadowColor(int c) {}
-    public void setOutlineSpotShadowColor(int c) {}
+    private int mAmbientShadowColor = Color.BLACK, mSpotShadowColor = Color.BLACK;
+    public void setOutlineAmbientShadowColor(int c) { mAmbientShadowColor = c; }
+    public void setOutlineSpotShadowColor(int c) { mSpotShadowColor = c; }
+    public int getOutlineAmbientShadowColor() { return mAmbientShadowColor; }
+    public int getOutlineSpotShadowColor() { return mSpotShadowColor; }
     public float getElevation() { return mElevation; }
     public void setElevation(float e) { if (e != mElevation) { mElevation = e; invalidateParent(); } }
     public void setSystemGestureExclusionRects(java.util.List<Rect> r) {}
@@ -848,8 +895,13 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public void clearAnimation() { if (mAnimation != null) { mAnimation.cancel(); mAnimation = null; invalidateParent(); } }
     protected void onAnimationStart() {}
     protected void onAnimationEnd() {}
-    public boolean hasTransientState() { return false; }
-    public void setHasTransientState(boolean t) {}
+    private int mTransientStateCount;
+    public boolean hasTransientState() { return mTransientStateCount > 0; }
+    public void setHasTransientState(boolean t) {
+        boolean had = hasTransientState();
+        mTransientStateCount = Math.max(0, t ? mTransientStateCount + 1 : mTransientStateCount - 1);
+        if (had != hasTransientState() && mParent != null) mParent.childHasTransientStateChanged(this, hasTransientState());
+    }
 
     // ---- measure and layout
     public final int getMeasuredWidth() { return mMeasuredWidth & MEASURED_SIZE_MASK; }
@@ -1077,8 +1129,10 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     protected int computeVerticalScrollRange() { return getHeight(); }
     protected int computeVerticalScrollOffset() { return mScrollY; }
     protected int computeVerticalScrollExtent() { return getHeight(); }
-    protected boolean awakenScrollBars() { return false; }
-    protected boolean awakenScrollBars(int d) { return false; }
+    protected boolean awakenScrollBars() { return awakenScrollBars(ViewConfiguration.getScrollDefaultDelay(), true); }
+    protected boolean awakenScrollBars(int d) { return awakenScrollBars(d, true); }
+    /** True when scroll bars are shown (the view is invalidated for them), as the platform's callers expect. */
+    protected boolean awakenScrollBars(int d, boolean invalidate) { if (!mVerticalScrollBar && !mHorizontalScrollBar) return false; if (invalidate) invalidate(); return true; }
     protected boolean overScrollBy(int dx, int dy, int sx, int sy, int rx, int ry, int mx, int my, boolean touch) {
         int nx = sx + dx, ny = sy + dy;
         boolean cx = false, cy = false;
@@ -1109,7 +1163,10 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public void setFocusable(int f) { setFocusable(f != NOT_FOCUSABLE); }
     public boolean isFocusableInTouchMode() { return mFocusableInTouchMode; }
     public void setFocusableInTouchMode(boolean f) { mFocusableInTouchMode = f; if (f) mFocusable = true; }
-    public void setFocusedByDefault(boolean f) {}
+    private boolean mFocusedByDefault, mKeyboardNavigationCluster;
+    private int mNextClusterForward = NO_ID;
+    public void setFocusedByDefault(boolean f) { mFocusedByDefault = f; }
+    public boolean isFocusedByDefault() { return mFocusedByDefault; }
     public void setDefaultFocusHighlightEnabled(boolean b) {}
     public boolean isFocused() { return (mPrivateFlags & PFLAG_FOCUSED) != 0; }
     public boolean hasFocus() { return isFocused(); }
@@ -1173,7 +1230,8 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public void setNextFocusRightId(int id) { mNextFocusRight = id; } public int getNextFocusRightId() { return mNextFocusRight; }
     public void setNextFocusForwardId(int id) { mNextFocusForward = id; } public int getNextFocusForwardId() { return mNextFocusForward; }
     public boolean restoreDefaultFocus() { return requestFocus(); }
-    public void setKeyboardNavigationCluster(boolean c) {}
+    public void setKeyboardNavigationCluster(boolean c) { mKeyboardNavigationCluster = c; }
+    public boolean isKeyboardNavigationCluster() { return mKeyboardNavigationCluster; }
     public boolean onCheckIsTextEditor() { return false; }
     public android.view.inputmethod.InputConnection onCreateInputConnection(android.view.inputmethod.EditorInfo o) { return null; }
     public boolean checkInputConnectionProxy(View v) { return false; }
@@ -1184,9 +1242,10 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public long getDrawingTime() { return android.view.animation.AnimationUtils.currentAnimationTimeMillis(); }
     public ViewParent getParentForAccessibility() { return getParent(); }
     public int getSolidColor() { return 0; }
-    public void setPointerIcon(PointerIcon p) {}
-    public PointerIcon getPointerIcon() { return null; }
-    public PointerIcon onResolvePointerIcon(MotionEvent e, int i) { return null; }
+    private PointerIcon mPointerIcon;
+    public void setPointerIcon(PointerIcon p) { mPointerIcon = p; }
+    public PointerIcon getPointerIcon() { return mPointerIcon; }
+    public PointerIcon onResolvePointerIcon(MotionEvent e, int i) { return mPointerIcon; }
     public void releasePointerCapture() {}
     public void requestPointerCapture() {}
     public boolean hasPointerCapture() { return false; }
@@ -1204,9 +1263,18 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public void setOnHoverListener(OnHoverListener l) { mOnHover = l; }
     public void setOnCapturedPointerListener(OnCapturedPointerListener l) {}
     public void setOnCreateContextMenuListener(OnCreateContextMenuListener l) { if (!mLongClickable) mLongClickable = true; mOnContextMenu = l; }
-    public void createContextMenu(ContextMenu m) {}
-    public boolean showContextMenu() { return false; }
-    public boolean showContextMenu(float x, float y) { return false; }
+    protected ContextMenu.ContextMenuInfo getContextMenuInfo() { return null; }
+    protected void onCreateContextMenu(ContextMenu m) {}
+    public void createContextMenu(ContextMenu m) {
+        ContextMenu.ContextMenuInfo info = getContextMenuInfo();
+        if (m instanceof husk.MenuImpl) ((husk.MenuImpl) m).huskSetCurrentMenuInfo(info);
+        onCreateContextMenu(m);
+        if (mOnContextMenu != null) mOnContextMenu.onCreateContextMenu(m, this, info);
+        if (m instanceof husk.MenuImpl) ((husk.MenuImpl) m).huskSetCurrentMenuInfo(null);
+        if (mParent != null) mParent.createContextMenu(m);
+    }
+    public boolean showContextMenu() { ViewParent p = getParent(); return p != null && p.showContextMenuForChild(this); }
+    public boolean showContextMenu(float x, float y) { ViewParent p = getParent(); return p != null && p.showContextMenuForChild(this, x, y); }
     public void setOnDragListener(OnDragListener l) { mOnDrag = l; }
     public boolean startDrag(android.content.ClipData d, DragShadowBuilder s, Object local, int flags) { return false; }
     public final boolean startDragAndDrop(android.content.ClipData d, DragShadowBuilder s, Object local, int flags) { return false; }
@@ -1363,7 +1431,8 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public void autofill(android.util.SparseArray<android.view.autofill.AutofillValue> values) {}
     public void setTooltip(CharSequence t) { mTooltip = t; }
     public void setFocusedInCluster() {}
-    public void setNextClusterForwardId(int id) {}
+    public void setNextClusterForwardId(int id) { mNextClusterForward = id; }
+    public int getNextClusterForwardId() { return mNextClusterForward; }
     public void setVerticalScrollbarThumbDrawable(Drawable d) {}
     public void setHorizontalScrollbarThumbDrawable(Drawable d) {}
     public void setScrollCaptureHint(int h) {}
@@ -1386,8 +1455,17 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public Bitmap huskSnapshot() { return getDrawingCache(); }
     public boolean isAggregatedVisible() { return isShown(); }
     public void onCancelPendingInputEvents() {}
-    public void setOnReceiveContentListener(String[] mime, OnReceiveContentListener l) {}
-    public ContentInfo performReceiveContent(ContentInfo c) { return c; }
+    private String[] mReceiveContentMimeTypes;
+    private OnReceiveContentListener mReceiveContentListener;
+    public void setOnReceiveContentListener(String[] mime, OnReceiveContentListener l) {
+        if (l != null && (mime == null || mime.length == 0)) throw new IllegalArgumentException("When the listener is set, MIME types must also be set");
+        mReceiveContentMimeTypes = l != null ? mime.clone() : null; mReceiveContentListener = l;
+    }
+    public String[] getReceiveContentMimeTypes() { return mReceiveContentMimeTypes; }
+    public ContentInfo performReceiveContent(ContentInfo c) {
+        if (mReceiveContentListener != null) { ContentInfo r = mReceiveContentListener.onReceiveContent(this, c); return r == null ? null : onReceiveContent(r); }
+        return onReceiveContent(c);
+    }
     public ContentInfo onReceiveContent(ContentInfo c) { return c; }
     public void requestUnbufferedDispatch(MotionEvent e) {}
     public void requestUnbufferedDispatch(int sources) {}
@@ -1543,7 +1621,6 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public void addFrameMetricsListener(android.view.Window p0, android.view.Window.OnFrameMetricsAvailableListener p1, android.os.Handler p2) {}
     public void addKeyboardNavigationClusters(java.util.Collection p0, int p1) {}
     public void applyDrawableToTransparentRegion(android.graphics.drawable.Drawable p0, android.graphics.Region p1) {}
-    protected boolean awakenScrollBars(int p0, boolean p1) { return false; }
     public boolean canHaveDisplayList() { return false; }
     public boolean canNotifyAutofillEnterExitEvent() { return false; }
     protected boolean canReceivePointerEvents() { return false; }
@@ -1586,7 +1663,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public void fakeFocusAfterAttachingToWindow() {}
     public void findAutofillableViewsByTraversal(java.util.List p0) {}
     public void findNamedViews(java.util.Map p0) {}
-    public android.window.OnBackInvokedDispatcher findOnBackInvokedDispatcher() { return null; }
+    public android.window.OnBackInvokedDispatcher findOnBackInvokedDispatcher() { View r = getRootView(); return r instanceof husk.DecorView ? ((husk.DecorView) r).getWindowHusk().getOnBackInvokedDispatcher() : null; }
     public android.view.View findViewByAccessibilityIdTraversal(int p0) { return this; }
     public android.view.View findViewByAutofillIdTraversal(int p0) { return this; }
     @SuppressWarnings("unchecked") public final <T extends View> T findViewByPredicate(java.util.function.Predicate<View> predicate) { return (T) findViewByPredicateTraversal(predicate, null); }
@@ -1604,16 +1681,16 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     protected <T extends View> T findViewByPredicateTraversal(java.util.function.Predicate<View> predicate, View childToSkip) { return predicate.test(this) ? (T) this : null; }
     public void finishMovingTask() {}
     public void generateDisplayHash(java.lang.String p0, android.graphics.Rect p1, java.util.concurrent.Executor p2, android.view.displayhash.DisplayHashResultCallback p3) {}
-    public java.lang.CharSequence getAccessibilityPaneTitle() { return null; }
+    public java.lang.CharSequence getAccessibilityPaneTitle() { return mPaneTitle; }
     public int getAccessibilitySelectionEnd() { return 0; }
     public int getAccessibilitySelectionStart() { return 0; }
-    public int getAccessibilityTraversalAfter() { return 0; }
-    public int getAccessibilityTraversalBefore() { return 0; }
+    public int getAccessibilityTraversalAfter() { return mTraversalAfter; }
+    public int getAccessibilityTraversalBefore() { return mTraversalBefore; }
     public int getAccessibilityViewId() { return 0; }
     public int getAccessibilityWindowId() { return 0; }
     public java.lang.String getAllowedHandwritingDelegatePackageName() { return null; }
     public java.lang.String getAllowedHandwritingDelegatorPackageName() { return null; }
-    public java.lang.String[] getAutofillHints() { return null; }
+    public java.lang.String[] getAutofillHints() { return (String[]) mAutofillHints; }
     public android.view.autofill.AutofillValue getAutofillValue() { return null; }
     public int getAutofillViewId() { return 0; }
     public android.graphics.BlendMode getBackgroundTintBlendMode() { return null; }
@@ -1651,24 +1728,20 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public android.graphics.drawable.Drawable getHorizontalScrollbarTrackDrawable() { return (android.graphics.drawable.Drawable) huskFill.get("HorizontalScrollbarTrackDrawable"); }
     public void getHotspotBounds(android.graphics.Rect p0) {}
     public int getImportantForContentCapture() { return 0; }
-    public android.graphics.Matrix getInverseMatrix() { return null; }
+    public android.graphics.Matrix getInverseMatrix() { return inverseMatrix(); }
     public java.lang.CharSequence getIterableTextForAccessibility() { return null; }
     protected float getLeftFadingEdgeStrength() { return 0f; }
     protected int getLeftPaddingOffset() { return 0; }
-    public int[] getLocationOnScreen() { return null; }
+    public int[] getLocationOnScreen() { int[] l = new int[2]; getLocationOnScreen(l); return l; }
     protected int getLongPressTimeoutMillis() { return 0; }
-    public int getNextClusterForwardId() { return 0; }
     protected boolean getNotifiedContentCaptureAppeared() { return false; }
-    public android.view.View.OnLongClickListener getOnLongClickListener() { return null; }
+    public android.view.View.OnLongClickListener getOnLongClickListener() { return mOnLongClick; }
     public android.graphics.Insets getOpticalInsets() { return (android.graphics.Insets) huskFill.get("OpticalInsets"); }
-    public int getOutlineAmbientShadowColor() { return 0; }
-    public int getOutlineSpotShadowColor() { return 0; }
     public android.os.OutcomeReceiver getPendingCredentialCallback() { return null; }
     public android.credentials.GetCredentialRequest getPendingCredentialRequest() { return (android.credentials.GetCredentialRequest) huskFill.get("PendingCredentialRequest"); }
     public java.util.List getPreferKeepClearRects() { return (huskFill.get("PreferKeepClearRects") != null ? (java.util.List) huskFill.get("PreferKeepClearRects") : new java.util.ArrayList()); }
     public int getRawTextAlignment() { return 0; }
     public int getRawTextDirection() { return 0; }
-    public java.lang.String[] getReceiveContentMimeTypes() { return null; }
     public float getRequestedFrameRate() { return (huskFill.get("RequestedFrameRate") instanceof Float ? (Float) huskFill.get("RequestedFrameRate") : 0f); }
     protected float getRightFadingEdgeStrength() { return 0f; }
     protected int getRightPaddingOffset() { return 0; }
@@ -1678,7 +1751,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public int getScrollBarSize() { return 0; }
     public int getScrollCaptureHint() { return 0; }
     public int getSourceLayoutResId() { return 0; }
-    public java.lang.CharSequence getStateDescription() { return null; }
+    public java.lang.CharSequence getStateDescription() { return mStateDescription; }
     public java.lang.CharSequence getSupplementalDescription() { return (java.lang.CharSequence) huskFill.get("SupplementalDescription"); }
     public java.util.List getSystemGestureExclusionRects() { return new java.util.ArrayList(); }
     public java.lang.CharSequence getTooltip() { return null; }
@@ -1714,7 +1787,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     protected void invalidateParentIfNeeded() {}
     protected void invalidateParentIfNeededAndWasQuickRejected() {}
     public boolean isAccessibilityDataSensitive() { return (huskFill.get("AccessibilityDataSensitive") instanceof Boolean ? (Boolean) huskFill.get("AccessibilityDataSensitive") : false); }
-    public boolean isAccessibilityHeading() { return false; }
+    public boolean isAccessibilityHeading() { return mAccessibilityHeading; }
     public boolean isAccessibilitySelectionExtendable() { return false; }
     public boolean isActionableForAccessibility() { return false; }
     public boolean isAssistBlocked() { return (huskFill.get("AssistBlocked") instanceof Boolean ? (Boolean) huskFill.get("AssistBlocked") : false); }
@@ -1723,21 +1796,18 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public boolean isContentSensitive() { return false; }
     public boolean isCredential() { return false; }
     public boolean isDefaultFocusHighlightNeeded(android.graphics.drawable.Drawable p0, android.graphics.drawable.Drawable p1) { return false; }
-    public boolean isFocusedByDefault() { return false; }
     public boolean isForceDarkAllowed() { return false; }
     public boolean isForegroundInsidePadding() { return false; }
     public boolean isFrameworkOptionalFitsSystemWindows() { return false; }
     public boolean isHandwritingDelegate() { return false; }
-    public boolean isImportantForAutofill() { return false; }
     public boolean isImportantForContentCapture() { return false; }
     public boolean isInScrollingContainer() { return false; }
-    public boolean isKeyboardNavigationCluster() { return false; }
     public boolean isLayoutDirectionInherited() { return false; }
-    public boolean isLayoutRtl() { return false; }
+    public boolean isLayoutRtl() { return getLayoutDirection() == LAYOUT_DIRECTION_RTL; }
     protected boolean isPaddingOffsetRequired() { return false; }
     public boolean isPreferKeepClear() { return false; }
     public boolean isRootNamespace() { return false; }
-    public boolean isScreenReaderFocusable() { return false; }
+    public boolean isScreenReaderFocusable() { return mScreenReaderFocusable; }
     public boolean isScrollbarFadingEnabled() { return false; }
     public boolean isStylusHandwritingAvailable() { return false; }
     public boolean isTextAlignmentInherited() { return false; }
@@ -1757,7 +1827,6 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public void onActivityResult(int p0, int p1, android.content.Intent p2) {}
     public boolean onCapturedPointerEvent(android.view.MotionEvent p0) { return false; }
     public void onCloseSystemDialogs(java.lang.String p0) {}
-    protected void onCreateContextMenu(android.view.ContextMenu p0) {}
     public void onCreateViewTranslationRequest(int[] p0, java.util.function.Consumer p1) {}
     public void onCreateVirtualViewTranslationRequests(long[] p0, int[] p1, java.util.function.Consumer p2) {}
     protected void onDisplayHint(int p0) {}

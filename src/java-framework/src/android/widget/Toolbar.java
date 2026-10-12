@@ -88,9 +88,12 @@ public class Toolbar extends ViewGroup {
         return 0xDE000000;
     }
     public void setPopupTheme(int r) { mPopupTheme = r; } public int getPopupTheme() { return mPopupTheme; }
-    public void setTitleMargin(int s, int t, int e, int b) { mTitleMargin = s; requestLayout(); }
+    private int mTitleMarginTop, mTitleMarginEnd = -1, mTitleMarginBottom;
+    public void setTitleMargin(int s, int t, int e, int b) { mTitleMargin = s; mTitleMarginTop = t; mTitleMarginEnd = e; mTitleMarginBottom = b; requestLayout(); }
     public int getTitleMarginStart() { return mTitleMargin; } public void setTitleMarginStart(int m) { mTitleMargin = m; requestLayout(); }
-    public int getTitleMarginTop() { return 0; } public void setTitleMarginTop(int m) {} public int getTitleMarginEnd() { return mTitleMargin; } public void setTitleMarginEnd(int m) {} public int getTitleMarginBottom() { return 0; } public void setTitleMarginBottom(int m) {}
+    public int getTitleMarginTop() { return mTitleMarginTop; } public void setTitleMarginTop(int m) { mTitleMarginTop = m; requestLayout(); }
+    public int getTitleMarginEnd() { return mTitleMarginEnd >= 0 ? mTitleMarginEnd : mTitleMargin; } public void setTitleMarginEnd(int m) { mTitleMarginEnd = m; requestLayout(); }
+    public int getTitleMarginBottom() { return mTitleMarginBottom; } public void setTitleMarginBottom(int m) { mTitleMarginBottom = m; requestLayout(); }
     public void setLogo(int r) { setLogo(getContext().getDrawable(r)); }
     public void setLogo(Drawable d) {
         if (d != null) { if (mLogoView == null) { mLogoView = new ImageView(getContext()); mLogoView.setScaleType(ImageView.ScaleType.CENTER_INSIDE); addSystemView(mLogoView); } mLogoView.setImageDrawable(d); mLogoView.setVisibility(VISIBLE); }

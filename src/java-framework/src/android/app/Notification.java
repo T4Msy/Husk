@@ -374,7 +374,16 @@ public class Notification implements android.os.Parcelable {
         public static boolean isColorDark(int p0) { return false; }
         public static void makeHeaderExpanded(android.widget.RemoteViews p0) {}
         public static android.app.Notification maybeCloneStrippedForDelivery(android.app.Notification p0) { return null; }
-        public static android.app.Notification.Builder recoverBuilder(android.content.Context p0, android.app.Notification p1) { return null; }
+        /** A builder holding the notification's fields (copied, as the platform's recovers them), to rebuild it. */
+    public static Builder recoverBuilder(android.content.Context c, Notification src) {
+        Builder b = new Builder(c, src.getChannelId());
+        for (java.lang.reflect.Field f : Notification.class.getDeclaredFields()) {
+            if (java.lang.reflect.Modifier.isStatic(f.getModifiers()) || java.lang.reflect.Modifier.isFinal(f.getModifiers())) continue;
+            try { f.setAccessible(true); f.set(b.n, f.get(src)); } catch (Exception e) {}
+        }
+        if (src.actions != null) java.util.Collections.addAll(b.mActions, src.actions);
+        return b;
+    }
         public android.app.Notification buildInto(android.app.Notification p0) { return null; }
         public android.app.Notification buildUnstyled() { return null; }
         public android.widget.RemoteViews createBigContentView() { return n.bigContentView != null ? n.bigContentView : new android.widget.RemoteViews(mContext != null ? mContext.getPackageName() : "", 0); }
@@ -386,7 +395,7 @@ public class Notification implements android.os.Parcelable {
         public android.app.Notification.Colors getColors(boolean p0) { return null; }
         public java.lang.CharSequence getHeadsUpStatusBarText(boolean p0) { return null; }
         public int getSmallIconColor(boolean p0) { return 0; }
-        public android.app.Notification.Style getStyle() { return null; }
+        public android.app.Notification.Style getStyle() { return mStyle; }
         public java.lang.String loadHeaderAppName() { return null; }
         public android.widget.RemoteViews makeLowPriorityContentView(boolean p0) { return null; }
         public android.widget.RemoteViews makeNotificationGroupHeader() { return null; }

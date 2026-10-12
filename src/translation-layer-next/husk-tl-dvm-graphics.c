@@ -1426,6 +1426,44 @@ NAT(G_pathLength)
     CGPathRelease(p);
     return true;
 }
+/* (float[] path, int n, float[] out) -> the path as polylines: x,y pairs, each contour opened by a NaN,NaN pair (a second NaN,NaN
+   right after a contour's points marks it closed); returns the floats needed, writing as many as fit (PathMeasure, Path.approximate) */
+NAT(G_pathFlatten)
+{
+    (void)self;
+    float *f = arr_data(a[0].l), *o = arr_data(a[2].l);
+    uint32_t cap = arr_len(a[2].l);
+    *ret = Ii(0);
+    if (!f) return true;
+    CGPathRef p = build_path(f, a[1].i);
+    __block struct fl { CGPoint last, first; uint32_t n; bool open; } st = { 0 };
+    __block float *out = o; __block uint32_t ocap = cap;
+    void (^put)(float, float) = ^(float x, float y) { if (out && st.n + 2 <= ocap) { out[st.n] = x; out[st.n + 1] = y; } st.n += 2; };
+    CGPathApplyWithBlock(p, ^(const CGPathElement *e) {
+        CGPoint *pt = e->points;
+        switch (e->type) {
+        case kCGPathElementMoveToPoint: put(NAN, NAN); put(pt[0].x, pt[0].y); st.last = st.first = pt[0]; st.open = true; break;
+        case kCGPathElementAddLineToPoint: if (!st.open) { put(NAN, NAN); put(st.last.x, st.last.y); st.open = true; } put(pt[0].x, pt[0].y); st.last = pt[0]; break;
+        case kCGPathElementAddQuadCurveToPoint: case kCGPathElementAddCurveToPoint: {
+            if (!st.open) { put(NAN, NAN); put(st.last.x, st.last.y); st.open = true; }
+            int np = e->type == kCGPathElementAddQuadCurveToPoint ? 2 : 3;
+            CGPoint p0 = st.last;
+            double ext = hypot(pt[np - 1].x - p0.x, pt[np - 1].y - p0.y) + hypot(pt[0].x - p0.x, pt[0].y - p0.y);
+            int steps = ext < 8 ? 4 : ext < 64 ? 8 : ext < 512 ? 16 : 32;
+            for (int i = 1; i <= steps; i++) {
+                double t = (double)i / steps, u = 1 - t; CGPoint q;
+                if (np == 2) { q.x = u * u * p0.x + 2 * u * t * pt[0].x + t * t * pt[1].x; q.y = u * u * p0.y + 2 * u * t * pt[0].y + t * t * pt[1].y; }
+                else { q.x = u * u * u * p0.x + 3 * u * u * t * pt[0].x + 3 * u * t * t * pt[1].x + t * t * t * pt[2].x; q.y = u * u * u * p0.y + 3 * u * u * t * pt[0].y + 3 * u * t * t * pt[1].y + t * t * t * pt[2].y; }
+                put((float)q.x, (float)q.y);
+            }
+            st.last = pt[np - 1]; break; }
+        case kCGPathElementCloseSubpath: if (st.open) { put(NAN, NAN); st.open = false; st.last = st.first; } break;
+        }
+    });
+    *ret = Ii((int32_t)st.n);
+    CGPathRelease(p);
+    return true;
+}
 
 /* ================================================================== the frame on screen */
 
@@ -1515,6 +1553,7 @@ static const struct { const char *name, *sig; dvm_native_fn fn; } k_gfx[] = {
     { "pathBounds", "([FI[F)V", G_pathBounds },
     { "pathContains", "([FIIFF)Z", G_pathContains },
     { "pathLength", "([FI[F)F", G_pathLength },
+    { "pathFlatten", "([FI[F)I", G_pathFlatten },
     { "present", "(J)V", G_present },
     { NULL, NULL, NULL },
 };
