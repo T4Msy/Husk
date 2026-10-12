@@ -22,6 +22,39 @@ public class ProgressBar extends View {
     private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private long mStart = android.os.SystemClock.uptimeMillis();
     private boolean mAnimating;
+    /*
+     * Android's ProgressBar always has a progress and an indeterminate drawable (its theme supplies them), and apps rely on it:
+     * getIndeterminateDrawable().setColorFilter(...) is how a button's loader is coloured. When Husk draws the Material track or
+     * arc itself, these stand in for the drawables: they remember the colour an app sets through a filter or a tint, the view's
+     * own drawing uses it, and drawn on their own they paint the same arc or track.
+     */
+    final class BuiltIn extends Drawable {
+        final boolean spinner;
+        BuiltIn(boolean spinner) { this.spinner = spinner; }
+        Integer colour() {
+            if (mColorFilter instanceof PorterDuffColorFilter) return ((PorterDuffColorFilter) mColorFilter).getColor();
+            if (mTintList != null) return mTintList.getColorForState(getState(), mTintList.getDefaultColor());
+            return null;
+        }
+        @Override public void setColorFilter(ColorFilter f) { super.setColorFilter(f); invalidateSelf(); ProgressBar.this.invalidate(); }
+        @Override public void setTintList(ColorStateList t) { super.setTintList(t); ProgressBar.this.invalidate(); }
+        @Override public void draw(Canvas c) {
+            Rect b = getBounds();
+            if (b.isEmpty()) return;
+            int save = c.save();
+            c.translate(b.left, b.top);
+            drawBuiltIn(c, b.width(), b.height(), spinner, spinner ? mIndeterminateTint : mProgressTint, this);
+            c.restoreToCount(save);
+        }
+        @Override public int getIntrinsicWidth() { return spinner ? mMinWidth : -1; }
+        @Override public int getIntrinsicHeight() { return spinner ? mMinHeight : (int) dp(4); }
+        @Override public boolean isStateful() { return true; }
+        @Override public void setAlpha(int a) {}
+        @Override public int getOpacity() { return PixelFormat.TRANSLUCENT; }
+    }
+    private final BuiltIn mBuiltInSpinner = new BuiltIn(true), mBuiltInBar = new BuiltIn(false);
+    { mBuiltInSpinner.setCallback(this); mBuiltInBar.setCallback(this); }
+    private int builtInColour(BuiltIn d, ColorStateList t) { Integer c = d.colour(); return c != null ? c : tint(t, accent()); }
     public ProgressBar(Context c) { this(c, null); }
     public ProgressBar(Context c, AttributeSet a) { this(c, a, android.R.attr.progressBarStyle); }
     public ProgressBar(Context c, AttributeSet a, int s) { this(c, a, s, 0); }
@@ -60,14 +93,22 @@ public class ProgressBar extends View {
     private float dp(float v) { return v * getResources().getDisplayMetrics().density; }
     public synchronized boolean isIndeterminate() { return mIndeterminate; }
     public synchronized void setIndeterminate(boolean i) { if ((!mOnlyIndeterminate || i) && i != mIndeterminate) { mIndeterminate = i; if (i) startAnimation(); else stopAnimation(); invalidate(); } }
-    public Drawable getIndeterminateDrawable() { return mIndeterminateDrawable; }
-    public void setIndeterminateDrawable(Drawable d) { if (mIndeterminateDrawable != null) mIndeterminateDrawable.setCallback(null); mIndeterminateDrawable = d; mAppIndeterminate = d != null; if (d != null) d.setCallback(this); requestLayout(); invalidate(); }
+    public Drawable getIndeterminateDrawable() { return mIndeterminateDrawable != null ? mIndeterminateDrawable : mBuiltInSpinner; }
+    public void setIndeterminateDrawable(Drawable d) {
+        if (d == mBuiltInSpinner) d = null;
+        if (mIndeterminateDrawable != null) mIndeterminateDrawable.setCallback(null);
+        mIndeterminateDrawable = d; mAppIndeterminate = d != null;
+        if (d != null) d.setCallback(this);
+        updateDrawableBounds(getWidth(), getHeight());
+        requestLayout(); invalidate();
+    }
     public void setIndeterminateDrawableTiled(Drawable d) { setIndeterminateDrawable(d); }
     public void setIndeterminateTintList(ColorStateList t) { mIndeterminateTint = t; invalidate(); }
     public ColorStateList getIndeterminateTintList() { return mIndeterminateTint; }
     public void setIndeterminateTintMode(PorterDuff.Mode m) {}
-    public Drawable getProgressDrawable() { return mProgressDrawable; }
+    public Drawable getProgressDrawable() { return mProgressDrawable != null ? mProgressDrawable : mBuiltInBar; }
     public void setProgressDrawable(Drawable d) {
+        if (d == mBuiltInBar) d = null;
         if (mProgressDrawable == d) return;
         if (mProgressDrawable != null) mProgressDrawable.setCallback(null);
         mProgressDrawable = d; mAppDrawable = d != null;
@@ -76,7 +117,7 @@ public class ProgressBar extends View {
         refreshProgress();
     }
     public void setProgressDrawableTiled(Drawable d) { setProgressDrawable(d); }
-    public Drawable getCurrentDrawable() { return mIndeterminate ? mIndeterminateDrawable : mProgressDrawable; }
+    public Drawable getCurrentDrawable() { return mIndeterminate ? getIndeterminateDrawable() : getProgressDrawable(); }
     public void setProgressTintList(ColorStateList t) { mProgressTint = t; if (mProgressDrawable != null) { Drawable l = layer(android.R.id.progress); if (l != null) l.setTintList(t); } invalidate(); }
     public ColorStateList getProgressTintList() { return mProgressTint; }
     public void setProgressTintMode(PorterDuff.Mode m) {}
@@ -129,13 +170,14 @@ public class ProgressBar extends View {
     @Override protected void onAttachedToWindow() { super.onAttachedToWindow(); if (mIndeterminate) startAnimation(); }
     @Override protected void onDetachedFromWindow() { stopAnimation(); super.onDetachedFromWindow(); }
     @Override protected void onVisibilityChanged(View v, int vis) { super.onVisibilityChanged(v, vis); if (mIndeterminate) { if (vis == VISIBLE && getVisibility() == VISIBLE) startAnimation(); else stopAnimation(); } }
-    @Override protected boolean verifyDrawable(Drawable who) { return who == mProgressDrawable || who == mIndeterminateDrawable || super.verifyDrawable(who); }
+    @Override protected boolean verifyDrawable(Drawable who) { return who == mProgressDrawable || who == mIndeterminateDrawable || who == mBuiltInSpinner || who == mBuiltInBar || super.verifyDrawable(who); }
     @Override public void invalidateDrawable(Drawable d) { if (verifyDrawable(d)) { Rect b = d.getBounds(); invalidate(b.left, b.top, b.right, b.bottom); } else super.invalidateDrawable(d); }
     @Override protected void drawableStateChanged() { super.drawableStateChanged(); int[] s = getDrawableState(); if (mProgressDrawable != null && mProgressDrawable.isStateful()) mProgressDrawable.setState(s); if (mIndeterminateDrawable != null && mIndeterminateDrawable.isStateful()) mIndeterminateDrawable.setState(s); }
     @Override protected void onSizeChanged(int w, int h, int ow, int oh) { updateDrawableBounds(w, h); }
     private void updateDrawableBounds(int w, int h) {
         w -= getPaddingLeft() + getPaddingRight(); h -= getPaddingTop() + getPaddingBottom();
         if (mProgressDrawable != null) mProgressDrawable.setBounds(0, 0, w, h);
+        mBuiltInSpinner.setBounds(0, 0, w, h); mBuiltInBar.setBounds(0, 0, w, h);
         if (mIndeterminateDrawable != null) {
             int right = w, bottom = h, top = 0, left = 0;
             int iw = mIndeterminateDrawable.getIntrinsicWidth(), ih = mIndeterminateDrawable.getIntrinsicHeight();
@@ -153,6 +195,36 @@ public class ProgressBar extends View {
         return 0xFF6750A4;
     }
     private int tint(ColorStateList t, int def) { return t != null ? t.getColorForState(getDrawableState(), def) : def; }
+    /* The Material track or arc, at (0,0) in a w x h box: the view's own drawing and the stand-in drawables share it. */
+    void drawBuiltIn(Canvas c, int w, int h, boolean indeterminate, ColorStateList tintList, BuiltIn d) {
+        long t = android.os.SystemClock.uptimeMillis() - mStart;
+        int col = builtInColour(d, tintList);
+        if (indeterminate && mHorizontal) {
+            mPaint.setStyle(Paint.Style.FILL);
+            mPaint.setColor((col & 0xFFFFFF) | 0x40000000);
+            float th = Math.min(h, dp(4)), top = (h - th) / 2;
+            c.drawRect(0, top, w, top + th, mPaint);
+            mPaint.setColor(col);
+            float f = (t % 2000) / 2000f, start = (f * 1.5f - 0.5f) * w, end = start + w * 0.5f;
+            c.drawRect(Math.max(0, start), top, Math.min(w, end), top + th, mPaint);
+        } else if (indeterminate) {
+            float size = Math.min(w, h), stroke = Math.max(dp(2), size / 12f), r = size / 2 - stroke;
+            mPaint.setStyle(Paint.Style.STROKE); mPaint.setStrokeWidth(stroke); mPaint.setStrokeCap(Paint.Cap.ROUND); mPaint.setColor(col);
+            float cx = w / 2f, cy = h / 2f;
+            float cycle = (t % 1333) / 1333f, sweep = 20 + 250 * (float) (0.5 - 0.5 * Math.cos(cycle * 2 * Math.PI)), rot = (t % 2000) / 2000f * 360f + cycle * 180f;
+            c.drawArc(new RectF(cx - r, cy - r, cx + r, cy + r), rot, sweep, false, mPaint);
+            mPaint.setStrokeCap(Paint.Cap.BUTT);
+        } else {
+            int bg = tint(mProgressBgTint, (col & 0xFFFFFF) | 0x40000000);
+            float th = Math.min(h, dp(4)), top = (h - th) / 2;
+            mPaint.setStyle(Paint.Style.FILL);
+            mPaint.setColor(bg); c.drawRect(0, top, w, top + th, mPaint);
+            int range = mMax - mMin;
+            if (range > 0 && mSecondaryProgress > mMin) { mPaint.setColor((col & 0xFFFFFF) | 0x80000000); c.drawRect(0, top, w * (mSecondaryProgress - mMin) / (float) range, top + th, mPaint); }
+            mPaint.setColor(col);
+            c.drawRect(0, top, w * getScale(), top + th, mPaint);
+        }
+    }
     @Override protected synchronized void onDraw(Canvas c) {
         super.onDraw(c);
         int save = c.save();
@@ -163,38 +235,11 @@ public class ProgressBar extends View {
             if (mIndeterminateDrawable != null && mAppIndeterminate) {
                 if (mIndeterminateDrawable instanceof AnimationDrawable) mIndeterminateDrawable.draw(c);
                 else { c.rotate((t % 1333) / 1333f * 360f, w / 2f, h / 2f); mIndeterminateDrawable.draw(c); }
-            } else if (mHorizontal) {
-                int col = tint(mIndeterminateTint, accent());
-                mPaint.setStyle(Paint.Style.FILL);
-                mPaint.setColor((col & 0xFFFFFF) | 0x40000000);
-                float th = Math.min(h, dp(4)), top = (h - th) / 2;
-                c.drawRect(0, top, w, top + th, mPaint);
-                mPaint.setColor(col);
-                float f = (t % 2000) / 2000f, start = (f * 1.5f - 0.5f) * w, end = start + w * 0.5f;
-                c.drawRect(Math.max(0, start), top, Math.min(w, end), top + th, mPaint);
-            } else {
-                int col = tint(mIndeterminateTint, accent());
-                float size = Math.min(w, h), stroke = Math.max(dp(2), size / 12f), r = size / 2 - stroke;
-                mPaint.setStyle(Paint.Style.STROKE); mPaint.setStrokeWidth(stroke); mPaint.setStrokeCap(Paint.Cap.ROUND); mPaint.setColor(col);
-                float cx = w / 2f, cy = h / 2f;
-                float cycle = (t % 1333) / 1333f, sweep = 20 + 250 * (float) (0.5 - 0.5 * Math.cos(cycle * 2 * Math.PI)), rot = (t % 2000) / 2000f * 360f + cycle * 180f;
-                c.drawArc(new RectF(cx - r, cy - r, cx + r, cy + r), rot, sweep, false, mPaint);
-                mPaint.setStrokeCap(Paint.Cap.BUTT);
-            }
+            } else drawBuiltIn(c, w, h, true, mIndeterminateTint, mBuiltInSpinner);
             if (mAnimating) postInvalidateOnAnimation();
         } else if (mProgressDrawable != null) {
             mProgressDrawable.draw(c);
-        } else {
-            int col = tint(mProgressTint, accent());
-            int bg = tint(mProgressBgTint, (col & 0xFFFFFF) | 0x40000000);
-            float th = Math.min(h, dp(4)), top = (h - th) / 2;
-            mPaint.setStyle(Paint.Style.FILL);
-            mPaint.setColor(bg); c.drawRect(0, top, w, top + th, mPaint);
-            int range = mMax - mMin;
-            if (range > 0 && mSecondaryProgress > mMin) { mPaint.setColor((col & 0xFFFFFF) | 0x80000000); c.drawRect(0, top, w * (mSecondaryProgress - mMin) / (float) range, top + th, mPaint); }
-            mPaint.setColor(col);
-            c.drawRect(0, top, w * getScale(), top + th, mPaint);
-        }
+        } else drawBuiltIn(c, w, h, false, mProgressTint, mBuiltInBar);
         c.restoreToCount(save);
     }
     @Override protected synchronized void onMeasure(int ws, int hs) {

@@ -25,6 +25,7 @@
 #include <sys/stat.h>
 #include <time.h>
 
+#include "husk-tl-audio.h"
 #include "husk-tl-dvm-internal.h"
 #include "husk-tl-internal.h"
 
@@ -445,7 +446,109 @@ NAT(A_decRead)
 NAT(A_decSeek) { (void)self; (void)ret; decoder *d = (decoder *)(uintptr_t)a[0].j; if (d) dec_seek(d, (int64_t)a[1].i * d->rate / 1000); return true; }
 NAT(A_decClose) { (void)self; (void)ret; dec_close((decoder *)(uintptr_t)a[0].j); return true; }
 
+/* ---- the microphone, for android.media.AudioRecord: one open per record, reads at the record's rate and channel count */
+#define MAX_RECORDS 8
+static struct { bool used, open; int rate, channels; uint64_t frames; } R[MAX_RECORDS];
+NAT(A_recOpen)
+{
+    (void)self;
+    pthread_mutex_lock(&M.mu);
+    int id = -1;
+    for (int i = 0; i < MAX_RECORDS; i++) if (!R[i].used) { id = i; break; }
+    if (id >= 0) { R[id].used = true; R[id].open = false; R[id].rate = a[0].i > 0 ? a[0].i : 44100; R[id].channels = a[1].i == 2 ? 2 : 1; R[id].frames = 0; }
+    pthread_mutex_unlock(&M.mu);
+    *ret = I(id);
+    return true;
+}
+NAT(A_recStart)
+{
+    (void)self;
+    int id = a[0].i;
+    bool ok = false;
+    if (id >= 0 && id < MAX_RECORDS && R[id].used) {
+        if (!R[id].open) R[id].open = tl_audioin_open(R[id].rate, R[id].channels);
+        ok = R[id].open;
+    }
+    *ret = I(ok ? 1 : 0);
+    return true;
+}
+NAT(A_recStop)
+{
+    (void)self; (void)ret;
+    int id = a[0].i;
+    if (id >= 0 && id < MAX_RECORDS && R[id].used && R[id].open) { tl_audioin_close(); R[id].open = false; }
+    return true;
+}
+NAT(A_recClose)
+{
+    (void)self; (void)ret;
+    int id = a[0].i;
+    if (id >= 0 && id < MAX_RECORDS && R[id].used) { if (R[id].open) tl_audioin_close(); R[id].used = false; R[id].open = false; }
+    return true;
+}
+/* read(id, short[] buf, off, n, blocking): n samples (frames * channels) */
+NAT(A_recRead)
+{
+    (void)self;
+    int id = a[0].i; jobj *arr = a[1].l; int off = a[2].i, n = a[3].i;
+    if (id < 0 || id >= MAX_RECORDS || !R[id].used || !R[id].open || !arr || off < 0 || n <= 0 || (uint32_t)(off + n) > arr->arr.len) { *ret = I(-3); return true; }
+    int ch = R[id].channels;
+    int got = tl_audioin_read((int16_t *)arr->arr.data + off, n / ch, R[id].rate, ch, a[4].z);
+    if (got < 0) got = 0;
+    R[id].frames += (uint64_t)got;
+    *ret = I(got * ch);
+    return true;
+}
+/* readBytes(id, byte[] buf, off, n, encoding, blocking): encoding 2 = 16-bit, 3 = 8-bit, 4 = float */
+NAT(A_recReadBytes)
+{
+    (void)self;
+    int id = a[0].i; jobj *arr = a[1].l; int off = a[2].i, n = a[3].i, fmt = a[4].i;
+    if (id < 0 || id >= MAX_RECORDS || !R[id].used || !R[id].open || !arr || off < 0 || n <= 0 || (uint32_t)(off + n) > arr->arr.len) { *ret = I(-3); return true; }
+    int ch = R[id].channels, bytes_per = fmt == 3 ? 1 : fmt == 4 ? 4 : 2;
+    int frames = n / (bytes_per * ch);
+    if (frames <= 0) { *ret = I(0); return true; }
+    int16_t *tmp = malloc((size_t)frames * (size_t)ch * sizeof(int16_t));
+    if (!tmp) { *ret = I(-1); return true; }
+    int got = tl_audioin_read(tmp, frames, R[id].rate, ch, a[5].z);
+    if (got < 0) got = 0;
+    uint8_t *dst = (uint8_t *)arr->arr.data + off;
+    if (fmt == 3) for (int i = 0; i < got * ch; i++) dst[i] = (uint8_t)((tmp[i] >> 8) + 128);
+    else if (fmt == 4) { float *f = (float *)dst; for (int i = 0; i < got * ch; i++) f[i] = tmp[i] / 32768.0f; }
+    else memcpy(dst, tmp, (size_t)got * (size_t)ch * sizeof(int16_t));
+    free(tmp);
+    R[id].frames += (uint64_t)got;
+    *ret = I(got * ch * bytes_per);
+    return true;
+}
+NAT(A_recReadFloat)
+{
+    (void)self;
+    int id = a[0].i; jobj *arr = a[1].l; int off = a[2].i, n = a[3].i;
+    if (id < 0 || id >= MAX_RECORDS || !R[id].used || !R[id].open || !arr || off < 0 || n <= 0 || (uint32_t)(off + n) > arr->arr.len) { *ret = I(-3); return true; }
+    int ch = R[id].channels, frames = n / ch;
+    int16_t *tmp = malloc((size_t)frames * (size_t)ch * sizeof(int16_t));
+    if (!tmp) { *ret = I(-1); return true; }
+    int got = tl_audioin_read(tmp, frames, R[id].rate, ch, a[4].z);
+    if (got < 0) got = 0;
+    float *f = (float *)arr->arr.data + off;
+    for (int i = 0; i < got * ch; i++) f[i] = tmp[i] / 32768.0f;
+    free(tmp);
+    R[id].frames += (uint64_t)got;
+    *ret = I(got * ch);
+    return true;
+}
+NAT(A_recFrames) { (void)self; int id = a[0].i; *ret = J(id >= 0 && id < MAX_RECORDS && R[id].used ? (int64_t)R[id].frames : 0); return true; }
+
 static const struct { const char *name, *sig; dvm_native_fn fn; } k_audio[] = {
+    { "recOpen", "(II)I", A_recOpen },
+    { "recStart", "(I)I", A_recStart },
+    { "recStop", "(I)V", A_recStop },
+    { "recClose", "(I)V", A_recClose },
+    { "recRead", "(I[SIIZ)I", A_recRead },
+    { "recReadBytes", "(I[BIIIZ)I", A_recReadBytes },
+    { "recReadFloat", "(I[FIIZ)I", A_recReadFloat },
+    { "recFrames", "(I)J", A_recFrames },
     { "trackOpen", "(II)I", A_trackOpen },
     { "trackWrite", "(I[SIIZ)I", A_trackWrite },
     { "trackWriteBytes", "(I[BIIIZ)I", A_trackWriteBytes },

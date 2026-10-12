@@ -5,7 +5,9 @@
  * speakers have room -- that is what paces the game's mixer) and then calls the game's callback so it can queue the next one.
  *
  * OpenSL's objects and interfaces are pointers to tables of functions, so each object here starts with the table pointer the guest
- * dereferences, and the interface the guest is given is the address of that pointer. Recording, effects and 3D audio are not offered.
+ * dereferences, and the interface the guest is given is the address of that pointer. A recorder (Oboe records WhatsApp's voice notes
+ * over OpenSL ES) is the mirror image: its thread fills each queued buffer from the host microphone (husk-tl-audio.c) and calls the
+ * guest's callback. Effects and 3D audio are not offered.
  */
 #include <pthread.h>
 #include <stdatomic.h>
@@ -17,6 +19,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "husk-tl-audio.h"
 #include "husk-tl-bionic.h"
 
 extern void (*tl_cocos_audio_hook)(const int16_t *samples, int frames, int channels, int rate);
@@ -24,6 +27,8 @@ extern void (*tl_cocos_audio_hook)(const int16_t *samples, int frames, int chann
 enum {
     SL_OK = 0, SL_PARAMETER_INVALID = 2, SL_FEATURE_UNSUPPORTED = 12, SL_BUFFER_INSUFFICIENT = 7,
     SL_PLAYING = 3, SL_PAUSED = 2, SL_STOPPED = 1,
+    SL_RECORDING = 3, SL_RECORD_PAUSED = 2, SL_RECORD_STOPPED = 1,
+    SL_ANDROID_DATAFORMAT_PCM_EX = 4, SL_ANDROID_PCM_REPRESENTATION_FLOAT = 3,
     SL_OBJECT_UNREALIZED = 1, SL_OBJECT_REALIZED = 2,
     SL_DATAFORMAT_PCM = 2, SL_DATALOCATOR_BUFFERQUEUE = 6, SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE = 0x800007BD,
 };
@@ -111,14 +116,14 @@ static const sl_iid *const g_SL_IID_ANDROIDACOUSTICECHOCANCELLATION2 = &k_iid_x_
 typedef struct { const void *const *vt; } sl_if;     /* an interface: the guest sees a pointer to the table pointer */
 
 #define MAX_QUEUE 16
-enum { K_ENGINE = 1, K_MIX, K_PLAYER };
+enum { K_ENGINE = 1, K_MIX, K_PLAYER, K_RECORDER };
 
 typedef struct sl_object {
     const void *vt_object;                 /* must be first: SLObjectItf points here */
     int kind;
     int state;
     /* the interfaces an object can hand out */
-    const void *vt_engine, *vt_play, *vt_volume, *vt_bq, *vt_config;
+    const void *vt_engine, *vt_play, *vt_volume, *vt_bq, *vt_config, *vt_record;
     /* a player's queue */
     pthread_mutex_t mu;
     struct { const void *data; uint32_t size; } q[MAX_QUEUE];
@@ -127,6 +132,9 @@ typedef struct sl_object {
     void (*bq_cb)(void *caller, void *ctx);
     void *bq_ctx;
     int channels, rate;
+    bool float_samples;                    /* a recorder's sink asks for 32-bit float PCM */
+    bool mic_open;
+    uint64_t rec_frames;                   /* frames delivered to the recorder's buffers */
     atomic_int play_state;
     atomic_bool thread_run;
     pthread_t thread;
@@ -137,7 +145,17 @@ static sl_object *obj_of_object(const void *itf) { return (sl_object *)itf; }
 #define OBJ_FROM(itf, field) ((sl_object *)((const char *)(itf) - offsetof(sl_object, field)))
 
 /* ---- SLObjectItf */
-static uint32_t o_Realize(const void *self, uint32_t async) { (void)async; sl_object *o = obj_of_object(self); o->state = SL_OBJECT_REALIZED; return SL_OK; }
+static uint32_t o_Realize(const void *self, uint32_t async)
+{
+    (void)async;
+    sl_object *o = obj_of_object(self);
+    if (o->kind == K_RECORDER && !o->mic_open) {
+        o->mic_open = tl_audioin_open(o->rate, o->channels);
+        if (!o->mic_open) { tl_log_line("opensl: the microphone could not be opened; the recorder is not realized"); return 3; } /* SL_RESULT_RESOURCE_ERROR */
+    }
+    o->state = SL_OBJECT_REALIZED;
+    return SL_OK;
+}
 static uint32_t o_Resume(const void *self, uint32_t async) { (void)self; (void)async; return SL_OK; }
 static uint32_t o_GetState(const void *self, uint32_t *state) { if (state) *state = (uint32_t)obj_of_object(self)->state; return SL_OK; }
 static uint32_t o_GetInterface(const void *self, const sl_iid *iid, const void **out)
@@ -148,7 +166,9 @@ static uint32_t o_GetInterface(const void *self, const sl_iid *iid, const void *
     if (iid == &k_iid_play && o->kind == K_PLAYER) { *out = &o->vt_play; return SL_OK; }
     if (iid == &k_iid_volume && (o->kind == K_PLAYER || o->kind == K_MIX)) { *out = &o->vt_volume; return SL_OK; }
     if ((iid == &k_iid_asbq || iid == &k_iid_bq) && o->kind == K_PLAYER) { *out = &o->vt_bq; return SL_OK; }
-    if (iid == &k_iid_androidcfg && o->kind == K_PLAYER) { *out = &o->vt_config; return SL_OK; }
+    if (iid == &k_iid_androidcfg && (o->kind == K_PLAYER || o->kind == K_RECORDER)) { *out = &o->vt_config; return SL_OK; }
+    if ((iid == &k_iid_asbq || iid == &k_iid_bq) && o->kind == K_RECORDER) { *out = &o->vt_bq; return SL_OK; }
+    if (iid == &k_iid_record && o->kind == K_RECORDER) { *out = &o->vt_record; return SL_OK; }
     *out = NULL;
     return SL_FEATURE_UNSUPPORTED;
 }
@@ -158,7 +178,8 @@ static void player_stop_thread(sl_object *o);
 static void o_Destroy(const void *self)
 {
     sl_object *o = obj_of_object(self);
-    if (o->kind == K_PLAYER) player_stop_thread(o);
+    if (o->kind == K_PLAYER || o->kind == K_RECORDER) player_stop_thread(o);
+    if (o->kind == K_RECORDER && o->mic_open) { tl_audioin_close(); o->mic_open = false; }
     free(o);
 }
 static uint32_t o_SetPriority(const void *self, int32_t p, uint32_t pre) { (void)self; (void)p; (void)pre; return SL_OK; }
@@ -227,6 +248,68 @@ static uint32_t p_GetPlayState(const void *self, uint32_t *state) { sl_object *o
 static uint32_t p_unsupported(void) { return SL_FEATURE_UNSUPPORTED; }
 static uint32_t p_ok(void) { return SL_OK; }
 static const void *const k_vt_play[] = { p_SetPlayState, p_GetPlayState, p_unsupported, p_unsupported, p_ok, p_ok, p_ok, p_ok, p_ok, p_ok, p_ok, p_ok };
+
+/* ---- SLRecordItf and the recorder's thread: each queued buffer is filled from the microphone, then the guest's callback runs */
+static void *recorder_pump(void *arg)
+{
+    sl_object *o = arg;
+    pthread_setname_np("opensl-record");
+    while (atomic_load(&o->thread_run)) {
+        if (atomic_load(&o->play_state) != SL_RECORDING) { usleep(2000); continue; }
+        pthread_mutex_lock(&o->mu);
+        void *data = NULL; uint32_t size = 0;
+        if (o->qcount > 0) { data = (void *)o->q[o->qhead].data; size = o->q[o->qhead].size; }
+        pthread_mutex_unlock(&o->mu);
+        if (!data) { usleep(1000); continue; }
+        int ch = o->channels > 0 ? o->channels : 1, rate = o->rate > 0 ? o->rate : 48000;
+        int bytes_per = o->float_samples ? 4 : 2;
+        int frames = (int)(size / ((uint32_t)bytes_per * (uint32_t)ch));
+        if (frames <= 0) frames = 1;
+        /* read in slices so a stop is noticed within a few milliseconds */
+        int done = 0;
+        while (done < frames && atomic_load(&o->play_state) == SL_RECORDING && atomic_load(&o->thread_run)) {
+            int want = frames - done; if (want > rate / 50) want = rate / 50; if (want <= 0) want = 1;
+            if (o->float_samples) {
+                int16_t *tmp = malloc((size_t)want * (size_t)ch * sizeof(int16_t));
+                int got = tmp ? tl_audioin_read(tmp, want, rate, ch, true) : -1;
+                if (got < 0) { free(tmp); struct timespec ts = { 0, (long)((double)want * 1e9 / rate) }; nanosleep(&ts, NULL); memset((float *)data + (size_t)done * ch, 0, (size_t)want * ch * 4); got = want; }
+                else { float *f = (float *)data + (size_t)done * ch; for (int i = 0; i < got * ch; i++) f[i] = tmp[i] / 32768.0f; free(tmp); }
+                done += got;
+            } else {
+                int got = tl_audioin_read((int16_t *)data + (size_t)done * ch, want, rate, ch, true);
+                if (got < 0) { struct timespec ts = { 0, (long)((double)want * 1e9 / rate) }; nanosleep(&ts, NULL); memset((int16_t *)data + (size_t)done * ch, 0, (size_t)want * ch * 2); got = want; }
+                done += got;
+            }
+        }
+        if (done < frames) { usleep(1000); continue; }          /* stopped mid-buffer: leave it queued, as Android does */
+        o->rec_frames += (uint64_t)frames;
+        pthread_mutex_lock(&o->mu);
+        if (o->qcount > 0) { o->qhead = (o->qhead + 1) % MAX_QUEUE; o->qcount--; o->qindex++; }
+        pthread_mutex_unlock(&o->mu);
+        if (o->bq_cb) o->bq_cb(&o->vt_bq, o->bq_ctx);
+    }
+    return NULL;
+}
+static uint32_t r_SetRecordState(const void *self, uint32_t state)
+{
+    sl_object *o = OBJ_FROM(self, vt_record);
+    atomic_store(&o->play_state, (int)state);
+    if (state == SL_RECORDING) {
+        if (!o->mic_open) o->mic_open = tl_audioin_open(o->rate, o->channels);
+        if (!o->thread_started) {
+            atomic_store(&o->thread_run, true);
+            pthread_attr_t a; pthread_attr_init(&a); pthread_attr_setstacksize(&a, 1u << 20);
+            o->thread_started = pthread_create(&o->thread, &a, recorder_pump, o) == 0;
+            pthread_attr_destroy(&a);
+        }
+    }
+    return SL_OK;
+}
+static uint32_t r_GetRecordState(const void *self, uint32_t *state) { sl_object *o = OBJ_FROM(self, vt_record); if (state) *state = (uint32_t)atomic_load(&o->play_state); return SL_OK; }
+static uint32_t r_GetPosition(const void *self, uint32_t *ms) { sl_object *o = OBJ_FROM(self, vt_record); if (ms) *ms = o->rate > 0 ? (uint32_t)(o->rec_frames * 1000 / (uint64_t)o->rate) : 0; return SL_OK; }
+static uint32_t r_ok(void) { return SL_OK; }
+static uint32_t r_RegisterCallback(const void *self, void *cb, void *ctx) { (void)self; (void)cb; (void)ctx; return SL_OK; }
+static const void *const k_vt_record[] = { r_SetRecordState, r_GetRecordState, r_ok, r_GetPosition, r_RegisterCallback, r_ok, r_ok, r_ok, r_ok, r_ok, r_ok, r_ok };
 
 /* ---- SLAndroidSimpleBufferQueueItf */
 static uint32_t q_Enqueue(const void *self, const void *buf, uint32_t size)
@@ -297,9 +380,31 @@ static uint32_t e_CreateAudioPlayer(const void *self, const void **out, const sl
     *out = o;
     return SL_OK;
 }
+typedef struct { uint32_t type, channels, rate_mhz, bits, container, mask, endian, representation; } sl_pcm_ex;
+static uint32_t e_CreateAudioRecorder(const void *self, const void **out, const sl_data *src, const sl_data *snk, uint32_t n, const void *ids, const void *req)
+{
+    (void)self; (void)src; (void)n; (void)ids; (void)req;
+    sl_object *o = new_object(K_RECORDER);
+    if (!o) return 3;
+    o->vt_record = k_vt_record; o->vt_bq = k_vt_bq; o->vt_config = k_vt_config; o->vt_volume = k_vt_volume;
+    o->channels = 1; o->rate = 48000;
+    if (snk && snk->format) {
+        const sl_pcm *f = snk->format;
+        if (f->type == SL_DATAFORMAT_PCM || f->type == SL_ANDROID_DATAFORMAT_PCM_EX) {
+            o->channels = (int)f->channels; o->rate = (int)(f->rate_mhz / 1000);
+            if (f->type == SL_ANDROID_DATAFORMAT_PCM_EX) o->float_samples = ((const sl_pcm_ex *)f)->representation == SL_ANDROID_PCM_REPRESENTATION_FLOAT && f->bits == 32;
+        }
+    }
+    if (o->channels < 1 || o->channels > 2) o->channels = 1;
+    if (o->rate <= 0) o->rate = 48000;
+    atomic_store(&o->play_state, SL_RECORD_STOPPED);
+    tl_log_line("opensl: audio recorder (%d channel(s), %d Hz, %s)", o->channels, o->rate, o->float_samples ? "float" : "16-bit");
+    *out = o;
+    return SL_OK;
+}
 static uint32_t e_Unsupported(void) { return SL_FEATURE_UNSUPPORTED; }
 static const void *const k_vt_engine[] = {
-    e_Unsupported, e_Unsupported, e_CreateAudioPlayer, e_Unsupported, e_Unsupported, e_Unsupported, e_Unsupported, e_CreateMix,
+    e_Unsupported, e_Unsupported, e_CreateAudioPlayer, e_CreateAudioRecorder, e_Unsupported, e_Unsupported, e_Unsupported, e_CreateMix,
     e_Unsupported, e_Unsupported, e_Unsupported, e_Unsupported, e_Unsupported, e_Unsupported, e_Unsupported
 };
 

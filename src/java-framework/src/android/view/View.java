@@ -1583,9 +1583,19 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
     public android.window.OnBackInvokedDispatcher findOnBackInvokedDispatcher() { return null; }
     public android.view.View findViewByAccessibilityIdTraversal(int p0) { return this; }
     public android.view.View findViewByAutofillIdTraversal(int p0) { return this; }
-    public android.view.View findViewByPredicate(java.util.function.Predicate p0) { return this; }
-    public android.view.View findViewByPredicateInsideOut(android.view.View p0, java.util.function.Predicate p1) { return this; }
-    protected android.view.View findViewByPredicateTraversal(java.util.function.Predicate p0, android.view.View p1) { return this; }
+    @SuppressWarnings("unchecked") public final <T extends View> T findViewByPredicate(java.util.function.Predicate<View> predicate) { return (T) findViewByPredicateTraversal(predicate, null); }
+    @SuppressWarnings("unchecked") public final <T extends View> T findViewByPredicateInsideOut(View start, java.util.function.Predicate<View> predicate) {
+        View childToSkip = null;
+        for (;;) {
+            T view = (T) start.findViewByPredicateTraversal(predicate, childToSkip);
+            if (view != null || start == this) return view;
+            ViewParent parent = start.getParent();
+            if (parent == null || !(parent instanceof View)) return null;
+            childToSkip = start;
+            start = (View) parent;
+        }
+    }
+    protected <T extends View> T findViewByPredicateTraversal(java.util.function.Predicate<View> predicate, View childToSkip) { return predicate.test(this) ? (T) this : null; }
     public void finishMovingTask() {}
     public void generateDisplayHash(java.lang.String p0, android.graphics.Rect p1, java.util.concurrent.Executor p2, android.view.displayhash.DisplayHashResultCallback p3) {}
     public java.lang.CharSequence getAccessibilityPaneTitle() { return null; }

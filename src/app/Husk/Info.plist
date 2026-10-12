@@ -74,6 +74,8 @@
 	<array>
 		<string>_remotepairing-pairable-host._tcp</string>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Android apps running in Husk record voice messages and make calls with the microphone.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Husk uses the local network to pair with this iPhone for JIT, without a computer.</string>
 	<key>NSSupportsLiveActivities</key>

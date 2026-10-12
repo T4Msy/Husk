@@ -1,6 +1,9 @@
 package android.media;
 
-/** Recording: no microphone is connected through Husk, so a record produces silence at the pace a microphone would. */
+/**
+ * Recording from the iPhone's microphone (husk.Audio's rec* natives, husk-tl-dvm-audio.c / husk-tl-audio.c). When the microphone
+ * cannot be opened (no permission yet, no input), a record produces silence at the pace a microphone would, as it used to.
+ */
 public class AudioRecord implements AudioRouting {
     public static final int STATE_UNINITIALIZED = 0, STATE_INITIALIZED = 1, RECORDSTATE_STOPPED = 1, RECORDSTATE_RECORDING = 3;
     public static final int SUCCESS = 0, ERROR = -1, ERROR_BAD_VALUE = -2, ERROR_INVALID_OPERATION = -3, ERROR_DEAD_OBJECT = -6, READ_BLOCKING = 0, READ_NON_BLOCKING = 1;
@@ -8,6 +11,12 @@ public class AudioRecord implements AudioRouting {
     private final int mRate, mChannels, mEncoding, mMask, mFrames, mSource;
     private int mState = STATE_INITIALIZED, mRecording = RECORDSTATE_STOPPED;
     private long mStart;
+    private int mId = -1;
+    private boolean mLive;
+    private OnRecordPositionUpdateListener mListener;
+    private android.os.Handler mListenerHandler;
+    private int mMarker, mPeriod;
+    private long mNextPeriod;
     public AudioRecord(int source, int sampleRate, int channelConfig, int audioFormat, int bufferSizeInBytes) {
         mRate = sampleRate > 0 ? sampleRate : 44100; mChannels = channelConfig == AudioFormat.CHANNEL_IN_STEREO ? 2 : 1;
         mEncoding = audioFormat == AudioFormat.ENCODING_DEFAULT ? AudioFormat.ENCODING_PCM_16BIT : audioFormat;
@@ -15,6 +24,7 @@ public class AudioRecord implements AudioRouting {
         int bps = mEncoding == AudioFormat.ENCODING_PCM_FLOAT ? 4 : mEncoding == AudioFormat.ENCODING_PCM_8BIT ? 1 : 2;
         int bytes = bufferSizeInBytes > 0 ? bufferSizeInBytes : getMinBufferSize(mRate, mMask, mEncoding);
         mFrames = Math.max(1, bytes / (bps * mChannels));
+        mId = husk.Audio.recOpen(mRate, mChannels);
     }
     public int getBufferSizeInFrames() { return mFrames; }
     public int getChannelConfiguration() { return mMask; }
@@ -22,7 +32,7 @@ public class AudioRecord implements AudioRouting {
     public AudioAttributes getAudioAttributes() { return new AudioAttributes.Builder().build(); }
     public int getTimestamp(AudioTimestamp t, int base) {
         if (mRecording != RECORDSTATE_RECORDING || t == null) return ERROR_INVALID_OPERATION;
-        long now = System.nanoTime(); t.nanoTime = now; t.framePosition = (now - mStart) * mRate / 1000000000L; return SUCCESS;
+        long now = System.nanoTime(); t.nanoTime = now; t.framePosition = framesRead(); return SUCCESS;
     }
     public static class Builder {
         private AudioFormat f = new AudioFormat.Builder().setChannelMask(AudioFormat.CHANNEL_IN_MONO).build(); private int size = 4096;
@@ -52,21 +62,66 @@ public class AudioRecord implements AudioRouting {
     public int getRecordingState() { return mRecording; }
     public int getAudioSessionId() { return 0; }
     public int getAudioSource() { return mSource; }
-    public void startRecording() { mRecording = RECORDSTATE_RECORDING; mStart = System.nanoTime(); }
-    public void stop() { mRecording = RECORDSTATE_STOPPED; }
-    public void release() { stop(); mState = STATE_UNINITIALIZED; }
+    public void startRecording() {
+        if (mState != STATE_INITIALIZED) throw new IllegalStateException("startRecording() called on an uninitialized AudioRecord.");
+        mRecording = RECORDSTATE_RECORDING; mStart = System.nanoTime(); mNextPeriod = mPeriod;
+        mLive = mId >= 0 && husk.Audio.recStart(mId) == 1;
+        if (!mLive) android.util.Log.w("AudioRecord", "no microphone: recording silence");
+    }
+    public void stop() { if (mRecording == RECORDSTATE_RECORDING && mId >= 0) husk.Audio.recStop(mId); mRecording = RECORDSTATE_STOPPED; mLive = false; }
+    public void release() { stop(); if (mId >= 0) { husk.Audio.recClose(mId); mId = -1; } mState = STATE_UNINITIALIZED; }
+    @Override protected void finalize() { release(); }
     private void pace(int frames) { try { Thread.sleep(Math.max(1, frames * 1000L / mRate)); } catch (InterruptedException e) { Thread.currentThread().interrupt(); } }
+    private long framesRead() { return mLive ? husk.Audio.recFrames(mId) : (System.nanoTime() - mStart) * mRate / 1000000000L; }
+    /** Marker and period callbacks, after a read, the way the platform's native thread posts them. */
+    private void notifyAfterRead() {
+        final OnRecordPositionUpdateListener l = mListener;
+        if (l == null) return;
+        long pos = framesRead();
+        boolean marker = mMarker > 0 && pos >= mMarker, period = mPeriod > 0 && pos >= mNextPeriod;
+        if (marker) mMarker = 0;
+        if (period) mNextPeriod = pos - pos % mPeriod + mPeriod;
+        if (!marker && !period) return;
+        final boolean m = marker, p = period;
+        Runnable r = () -> { if (m) l.onMarkerReached(this); if (p) l.onPeriodicNotification(this); };
+        if (mListenerHandler != null) mListenerHandler.post(r); else r.run();
+    }
+    public void setRecordPositionUpdateListener(OnRecordPositionUpdateListener l) { setRecordPositionUpdateListener(l, null); }
+    public void setRecordPositionUpdateListener(OnRecordPositionUpdateListener l, android.os.Handler h) { mListener = l; mListenerHandler = h != null ? h : (android.os.Looper.myLooper() != null ? new android.os.Handler() : null); }
+    public int setNotificationMarkerPosition(int frames) { mMarker = frames; return SUCCESS; }
+    public int getNotificationMarkerPosition() { return mMarker; }
+    public int setPositionNotificationPeriod(int frames) { mPeriod = frames; mNextPeriod = framesRead() + frames; return SUCCESS; }
+    public int getPositionNotificationPeriod() { return mPeriod; }
     public int read(byte[] b, int off, int n) { return read(b, off, n, READ_BLOCKING); }
-    public int read(byte[] b, int off, int n, int mode) { if (mRecording != RECORDSTATE_RECORDING) return ERROR_INVALID_OPERATION; java.util.Arrays.fill(b, off, off + n, (byte) 0); if (mode == READ_BLOCKING) pace(n / 2 / mChannels); return n; }
+    public int read(byte[] b, int off, int n, int mode) {
+        if (mRecording != RECORDSTATE_RECORDING) return ERROR_INVALID_OPERATION;
+        if (b == null || off < 0 || n < 0 || off + n > b.length) return ERROR_BAD_VALUE;
+        if (mLive) { int r = husk.Audio.recReadBytes(mId, b, off, n, mEncoding == AudioFormat.ENCODING_PCM_FLOAT ? 4 : mEncoding == AudioFormat.ENCODING_PCM_8BIT ? 3 : 2, mode == READ_BLOCKING); if (r >= 0) { notifyAfterRead(); return r; } }
+        java.util.Arrays.fill(b, off, off + n, (byte) 0); if (mode == READ_BLOCKING) pace(n / 2 / mChannels); notifyAfterRead(); return n;
+    }
     public int read(short[] b, int off, int n) { return read(b, off, n, READ_BLOCKING); }
-    public int read(short[] b, int off, int n, int mode) { if (mRecording != RECORDSTATE_RECORDING) return ERROR_INVALID_OPERATION; java.util.Arrays.fill(b, off, off + n, (short) 0); if (mode == READ_BLOCKING) pace(n / mChannels); return n; }
-    public int read(float[] b, int off, int n, int mode) { if (mRecording != RECORDSTATE_RECORDING) return ERROR_INVALID_OPERATION; java.util.Arrays.fill(b, off, off + n, 0f); if (mode == READ_BLOCKING) pace(n / mChannels); return n; }
+    public int read(short[] b, int off, int n, int mode) {
+        if (mRecording != RECORDSTATE_RECORDING) return ERROR_INVALID_OPERATION;
+        if (b == null || off < 0 || n < 0 || off + n > b.length) return ERROR_BAD_VALUE;
+        if (mLive) { int r = husk.Audio.recRead(mId, b, off, n, mode == READ_BLOCKING); if (r >= 0) { notifyAfterRead(); return r; } }
+        java.util.Arrays.fill(b, off, off + n, (short) 0); if (mode == READ_BLOCKING) pace(n / mChannels); notifyAfterRead(); return n;
+    }
+    public int read(float[] b, int off, int n, int mode) {
+        if (mRecording != RECORDSTATE_RECORDING) return ERROR_INVALID_OPERATION;
+        if (b == null || off < 0 || n < 0 || off + n > b.length) return ERROR_BAD_VALUE;
+        if (mLive) { int r = husk.Audio.recReadFloat(mId, b, off, n, mode == READ_BLOCKING); if (r >= 0) { notifyAfterRead(); return r; } }
+        java.util.Arrays.fill(b, off, off + n, 0f); if (mode == READ_BLOCKING) pace(n / mChannels); notifyAfterRead(); return n;
+    }
     public int read(java.nio.ByteBuffer b, int n) { return read(b, n, READ_BLOCKING); }
-    public int read(java.nio.ByteBuffer b, int n, int mode) { if (mRecording != RECORDSTATE_RECORDING) return ERROR_INVALID_OPERATION; for (int i = 0; i < n; i++) b.put(b.position() + i, (byte) 0); if (mode == READ_BLOCKING) pace(n / 2 / mChannels); return n; }
-    public void setRecordPositionUpdateListener(OnRecordPositionUpdateListener l) {}
-    public void setRecordPositionUpdateListener(OnRecordPositionUpdateListener l, android.os.Handler h) {}
-    public int setNotificationMarkerPosition(int m) { return SUCCESS; }
-    public int setPositionNotificationPeriod(int p) { return SUCCESS; }
+    public int read(java.nio.ByteBuffer b, int n, int mode) {
+        if (mRecording != RECORDSTATE_RECORDING) return ERROR_INVALID_OPERATION;
+        if (b == null || n < 0) return ERROR_BAD_VALUE;
+        n = Math.min(n, b.remaining());
+        byte[] tmp = new byte[n];
+        int r = read(tmp, 0, n, mode);
+        if (r > 0) { int p = b.position(); for (int i = 0; i < r; i++) b.put(p + i, tmp[i]); if (!b.isDirect()) b.position(p + r); }
+        return r;
+    }
     public AudioDeviceInfo getRoutedDevice() { return null; }
     public boolean setPreferredDevice(AudioDeviceInfo d) { return true; }
     public AudioDeviceInfo getPreferredDevice() { return null; }
@@ -80,9 +135,7 @@ public class AudioRecord implements AudioRouting {
     public android.media.AudioRecordingConfiguration getActiveRecordingConfiguration() { return null; }
     public android.media.metrics.LogSessionId getLogSessionId() { Object v = huskFill.get("LogSessionId"); return v != null ? (android.media.metrics.LogSessionId) v : android.media.metrics.LogSessionId.LOG_SESSION_ID_NONE; }
     public android.os.PersistableBundle getMetrics() { return null; }
-    public int getNotificationMarkerPosition() { return 0; }
     public int getPortId() { return 0; }
-    public int getPositionNotificationPeriod() { return 0; }
     public java.util.List getRoutedDevices() { return new java.util.ArrayList(); }
     public boolean isHotwordLookbackStream() { return false; }
     public boolean isHotwordStream() { return false; }

@@ -636,7 +636,11 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
     public android.window.OnBackInvokedDispatcher findOnBackInvokedDispatcherForChild(android.view.View p0, android.view.View p1) { return null; }
     public android.view.View findViewByAccessibilityIdTraversal(int p0) { return null; }
     public android.view.View findViewByAutofillIdTraversal(int p0) { return null; }
-    protected android.view.View findViewByPredicateTraversal(java.util.function.Predicate p0, android.view.View p1) { return null; }
+    @Override protected <T extends View> T findViewByPredicateTraversal(java.util.function.Predicate<View> predicate, View childToSkip) {
+        if (predicate.test(this)) return (T) this;
+        for (int i = 0; i < mChildrenCount; i++) { View child = mChildren[i]; if (child == childToSkip) continue; T v = child.findViewByPredicateTraversal(predicate, childToSkip); if (v != null) return v; }
+        return null;
+    }
     public boolean getChildLocalHitRegion(android.view.View p0, android.graphics.Region p1, android.graphics.Matrix p2, boolean p3) { return false; }
     public boolean getChildVisibleRect(android.view.View p0, android.graphics.Rect p1, android.graphics.Point p2, boolean p3) { return false; }
     public android.view.animation.Animation.AnimationListener getLayoutAnimationListener() { return null; }
