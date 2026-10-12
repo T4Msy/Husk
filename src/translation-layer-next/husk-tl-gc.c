@@ -431,6 +431,22 @@ static void payload_regions(task_t task, void *ctx, unsigned type, vm_range_t *r
 
 static void probe_check(uintptr_t a, uintptr_t e) { for (int k = 0; k < NPROBES; k++) if (g_probe[k] >= a && g_probe[k] < e) g_probe_seen[k] = true; }
 
+static int excl_cmp(const void *a, const void *b)
+{
+    uintptr_t x = ((const uintptr_t *)a)[0], y = ((const uintptr_t *)b)[0];
+    return x < y ? -1 : x > y;
+}
+
+/* The first exclusion that ends after p (they are sorted and do not overlap). */
+static int excl_from(uintptr_t p)
+{
+    int lo = 0, hi = g_nexcl;
+    while (lo < hi) { int mid = (lo + hi) >> 1; if (g_excl[mid].hi <= p) lo = mid + 1; else hi = mid; }
+    return lo;
+}
+
+static void scan_page_part(uintptr_t p, uintptr_t e) { probe_check(p, e); g_region_bytes += e - p; scan_range((const void *)p, (const void *)e); }
+
 /* [a, e) less the exclusions, page by page where the page is in memory */
 static void scan_resident(uintptr_t a, uintptr_t e)
 {
@@ -440,20 +456,18 @@ static void scan_resident(uintptr_t a, uintptr_t e)
         uintptr_t chunk_end = e;
         if ((chunk_end - a) / pg > sizeof(vec)) chunk_end = a + sizeof(vec) * pg;
         if (mincore((void *)a, chunk_end - a, (void *)vec) != 0) { a = chunk_end; continue; }
+        int x = excl_from(a);
         for (uintptr_t p = a; p < chunk_end; p += pg) {
             if (!(vec[(p - a) / pg] & 1)) continue;
-            uintptr_t pe = p + pg;
-            bool skip = false;
-            for (int x = 0; x < g_nexcl && !skip; x++) if (p < g_excl[x].hi && pe > g_excl[x].lo) {
-                /* partly excluded: the parts outside */
-                if (p < g_excl[x].lo) { probe_check(p, g_excl[x].lo); scan_range((const void *)p, (const void *)g_excl[x].lo); g_region_bytes += g_excl[x].lo - p; }
-                if (pe > g_excl[x].hi) { probe_check(g_excl[x].hi, pe); scan_range((const void *)g_excl[x].hi, (const void *)pe); g_region_bytes += pe - g_excl[x].hi; }
-                skip = true;
+            uintptr_t pe = p + pg, cur = p;
+            while (x < g_nexcl && g_excl[x].hi <= cur) x++;
+            /* the parts of the page outside every exclusion */
+            for (int y = x; y < g_nexcl && g_excl[y].lo < pe; y++) {
+                if (g_excl[y].lo > cur) scan_page_part(cur, g_excl[y].lo);
+                if (g_excl[y].hi > cur) cur = g_excl[y].hi;
+                if (cur >= pe) break;
             }
-            if (skip) continue;
-            probe_check(p, pe);
-            g_region_bytes += pg;
-            scan_range((const void *)p, (const void *)pe);
+            if (cur < pe) scan_page_part(cur, pe);
         }
         a = chunk_end;
     }
@@ -479,6 +493,7 @@ static bool scan_all_writable(void)
     if (g_payload && g_payload->introspect && g_payload->introspect->enumerator)
         g_payload->introspect->enumerator(mach_task_self(), NULL, MALLOC_PTR_REGION_RANGE_TYPE, (vm_address_t)g_payload, self_reader, payload_regions);
     if (g_nexcl < MAX_EXCL) { g_excl[g_nexcl].lo = (uintptr_t)g_stack; g_excl[g_nexcl].hi = (uintptr_t)g_stack + g_stack_cap * sizeof(uintptr_t); g_nexcl++; }
+    qsort(g_excl, (size_t)g_nexcl, sizeof(g_excl[0]), excl_cmp);
     for (int k = 0; k < NPROBES; k++) g_probe_seen[k] = false;
     vm_address_t addr = 0; natural_t depth = 0;
     for (int guard = 0; guard < 200000; guard++) {
