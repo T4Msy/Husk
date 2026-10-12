@@ -29,6 +29,9 @@
 #include <dlfcn.h>
 #include <objc/message.h>
 #include <objc/runtime.h>
+/* the autorelease pool entry points live in the ObjC runtime but are not declared by its public headers */
+extern void *objc_autoreleasePoolPush(void);
+extern void objc_autoreleasePoolPop(void *pool);
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdint.h>
