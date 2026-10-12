@@ -50,6 +50,7 @@ public class Window {
     private ViewGroup mContentParent;
     private int mFeatures, mLocalFeatures;
     private WindowManager mWindowManager;
+    private boolean mTranslucent;
     private boolean mFloating, mDecorFits = true, mActive, mDestroyed, mIsActivityWindow;
     private int mStatusBarColor, mNavigationBarColor;
     private CharSequence mTitle;
@@ -66,6 +67,7 @@ public class Window {
         Context c = mContext;
         TypedArray a = c.obtainStyledAttributes(husk.S.Window);
         mFloating = a.getBoolean(husk.S.Window_windowIsFloating, false);
+        mTranslucent = a.getBoolean(husk.S.Window_windowIsTranslucent, false);
         if (a.getBoolean(husk.S.Window_windowNoTitle, false)) mFeatures |= 1 << FEATURE_NO_TITLE;
         else if (a.getBoolean(husk.S.Window_windowActionBar, false) && (mFeatures & (1 << FEATURE_NO_TITLE)) == 0) mFeatures |= 1 << FEATURE_ACTION_BAR;
         if (a.getBoolean(husk.S.Window_windowFullscreen, false)) mAttrs.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
@@ -138,6 +140,8 @@ public class Window {
     public void setFeatureDrawable(int f, Drawable d) {}
     public void setFeatureInt(int f, int v) {}
     public boolean isFloating() { ensureStyle(); return mFloating; }
+    /** An opaque window over the whole screen: what is under it does not show (Android stops drawing the activities below). */
+    public boolean huskCoversBelow() { ensureStyle(); return !mFloating && !mTranslucent; }
     public boolean isActive() { return mActive; }
     public void makeActive() { mActive = true; }
     public final boolean isDestroyed() { return mDestroyed; }

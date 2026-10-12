@@ -277,7 +277,22 @@ public final class ViewRoot implements ViewParent {
         int gen = sScreen.getGenerationId();
         Paint dim = null;
         boolean drew = false;
-        for (ViewRoot r : roots) {
+        // Windows under an opaque full-screen activity window are not seen: drawn from that window up, as Android draws only the
+        // activity on top (a chat over the chat list redrew the whole list every frame). Not while that window moves or fades in.
+        int first = 0;
+        for (int i = roots.size() - 1; i > 0; i--) {
+            ViewRoot r = roots.get(i);
+            if (r.mRemoved || r.mView.getVisibility() != View.VISIBLE) continue;
+            View v = r.mView;
+            if (r.mLp.type == WindowManager.LayoutParams.TYPE_BASE_APPLICATION && v instanceof DecorView && ((DecorView) v).getWindowHusk().huskCoversBelow()
+                && r.mX <= 0 && r.mY <= 0 && r.mX + r.mW >= sw && r.mY + r.mH >= sh && r.mLp.alpha >= 1f
+                && v.getAlpha() >= 1f && v.getTranslationX() == 0 && v.getTranslationY() == 0 && v.getScaleX() == 1f && v.getScaleY() == 1f && v.getAnimation() == null) {
+                first = i;
+                break;
+            }
+        }
+        for (int ri = first; ri < roots.size(); ri++) {
+            ViewRoot r = roots.get(ri);
             if (r.mRemoved || r.mView.getVisibility() != View.VISIBLE) continue;
             if ((r.mLp.flags & WindowManager.LayoutParams.FLAG_DIM_BEHIND) != 0 && r.mLp.dimAmount > 0) {
                 if (dim == null) dim = new Paint();

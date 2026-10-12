@@ -1111,6 +1111,7 @@ static void *app_main(void *arg)
 {
     (void)arg;
     pthread_setname_np("main");
+    { void dvm_prof_start(void); dvm_prof_start(); }
     jvalue a[2] = { L(dvm_new_string_utf8(A.activity)), L(A.application[0] ? dvm_new_string_utf8(A.application) : NULL) };
     jvalue r;
     if (!tl_dvm_call_static("husk/AppRunner", "run", "(Ljava/lang/String;Ljava/lang/String;)V", a, &r)) {

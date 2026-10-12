@@ -116,8 +116,8 @@ static inline uint8_t *state_of(uintptr_t p, jobj **cell)
 
 static atomic_bool g_enabled;
 static _Atomic size_t g_since;                      /* bytes made since the last collection */
-static size_t g_threshold = 32u << 20;
-static size_t g_floor __attribute__((unused)) = 32u << 20;
+static size_t g_threshold = 128u << 20;
+static size_t g_floor __attribute__((unused)) = 128u << 20;
 static bool g_fixed __attribute__((unused));                              /* TL_GC_MB set the threshold */
 static _Thread_local bool t_collecting;
 static atomic_bool g_off;                           /* the collector found it cannot see the whole heap: never sweep again */
@@ -670,11 +670,14 @@ static void collect(const char *why)
     }
     atomic_store(&g_since, 0);
     if (!g_fixed) {
-        size_t t = g_live_bytes / 2;
+        /* memory is there to be used: the more is made between collections, the fewer pauses. As much again as is live (128 MiB
+           to 512 MiB), less only when the phone runs short */
+        size_t t = g_live_bytes;
         if (t < g_floor) t = g_floor;
-        if (t > (192u << 20)) t = 192u << 20;
+        if (t > (512u << 20)) t = 512u << 20;
         size_t left = mem_left();
-        if (left && left < (700u << 20)) t = g_floor / 2;
+        if (left && left < (1200u << 20)) t = 64u << 20;
+        if (left && left < (600u << 20)) t = 24u << 20;
         g_threshold = t;
     }
     size_t live = g_cells;

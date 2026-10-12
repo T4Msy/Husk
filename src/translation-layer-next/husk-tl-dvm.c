@@ -10,6 +10,7 @@
 #include <pthread.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "husk-tl-bionic.h"
@@ -648,10 +649,68 @@ tl_jclass *dvm_object_class(jobj *o)
     return o->cls;
 }
 
+/* A class's memo: a table only ever added to (an answer never changes once its class is linked), so it is read without a lock --
+ * an entry's value is written before its key, a full table is replaced by a bigger copy and the old one left for readers still in it.
+ * Keys: a call site's mref (the virtual or interface call's target on this receiver class), mref|1 (an invoke-super's target from
+ * this class), tl_jclass|2 (whether this class is assignable to that one). */
+typedef struct { _Atomic(uintptr_t) key; void *val; } memo_e;
+typedef struct { uint32_t cap, n; memo_e e[]; } memo_t;
+static pthread_mutex_t g_memo_lock = PTHREAD_MUTEX_INITIALIZER;
+
+static inline uint32_t memo_hash(uintptr_t k) { k ^= k >> 29; k *= 0x9E3779B97F4A7C15ull; return (uint32_t)(k >> 32); }
+
+static inline bool memo_get(dvm_class *c, uintptr_t key, void **val)
+{
+    memo_t *t = __atomic_load_n((memo_t **)&c->memo, __ATOMIC_ACQUIRE);
+    if (!t) return false;
+    uint32_t m = t->cap - 1, i = memo_hash(key) & m;
+    for (;;) {
+        uintptr_t k = __atomic_load_n((uintptr_t *)&t->e[i].key, __ATOMIC_ACQUIRE);
+        if (k == key) { *val = t->e[i].val; return true; }
+        if (!k) return false;
+        i = (i + 1) & m;
+    }
+}
+
+static void memo_put(dvm_class *c, uintptr_t key, void *val)
+{
+    pthread_mutex_lock(&g_memo_lock);
+    memo_t *t = (memo_t *)c->memo;
+    if (!t || (t->n + 1) * 2 > t->cap) {
+        uint32_t cap = t ? t->cap * 2 : 16;
+        memo_t *nt = calloc(1, sizeof(memo_t) + (size_t)cap * sizeof(memo_e));
+        nt->cap = cap;
+        if (t) for (uint32_t i = 0; i < t->cap; i++) {
+            uintptr_t k = (uintptr_t)t->e[i].key;
+            if (!k) continue;
+            uint32_t j = memo_hash(k) & (cap - 1);
+            while (nt->e[j].key) j = (j + 1) & (cap - 1);
+            nt->e[j].val = t->e[i].val; nt->e[j].key = k; nt->n++;
+        }
+        __atomic_store_n((memo_t **)&c->memo, nt, __ATOMIC_RELEASE);
+        t = nt;
+    }
+    uint32_t m = t->cap - 1, i = memo_hash(key) & m;
+    while (t->e[i].key && t->e[i].key != key) i = (i + 1) & m;
+    if (!t->e[i].key) { t->e[i].val = val; __atomic_store_n((uintptr_t *)&t->e[i].key, key, __ATOMIC_RELEASE); t->n++; }
+    pthread_mutex_unlock(&g_memo_lock);
+}
+
+static bool assignable_slow(tl_jclass *sub, tl_jclass *sup);
 bool dvm_assignable(tl_jclass *sub, tl_jclass *sup)
 {
     if (!sub || !sup) return false;
     if (sub == sup) return true;
+    dvm_class *dc = sub->dvm && !sub->linking && !sup->linking ? dvm_class_of(sub) : NULL;
+    void *v;
+    if (dc && memo_get(dc, (uintptr_t)sup | 2, &v)) return v == (void *)1;
+    bool r = assignable_slow(sub, sup);
+    if (dc && !sub->linking && !sup->linking) memo_put(dc, (uintptr_t)sup | 2, r ? (void *)1 : (void *)2);
+    return r;
+}
+
+static bool assignable_slow(tl_jclass *sub, tl_jclass *sup)
+{
     const char *sn = sub->name, *pn = sup->name;
     if (!strcmp(pn, "java/lang/Object")) { dvm_class *dc = dvm_class_of(sub); return !dc || !dc->prim; }
     if (sn[0] == '[') {
@@ -879,6 +938,65 @@ static int arg_words(const dvm_method *m)
 _Thread_local dvm_method *t_frames[8192];
 _Thread_local uint32_t t_pcs[8192];             /* each frame's pc at its last call out: the line a stack trace shows */
 _Thread_local int t_depth;
+
+/* The profiler: a thread that looks, 250 times a second, at which method the app's main thread is in (and what called it), and
+ * every 30 s logs where that thread's time went -- so a report from a phone says what makes an app slow there. */
+static dvm_method *volatile *g_prof_frames;
+static volatile int *g_prof_depth;
+typedef struct { dvm_method *m, *caller; uint32_t n; } prof_e;
+#define PROF_CAP 4096
+static prof_e g_prof[PROF_CAP];
+static uint32_t g_prof_total;
+
+static void *prof_main(void *arg)
+{
+    (void)arg;
+    pthread_setname_np("husk-profiler");
+    struct timespec tick = { 0, 4000000 };
+    uint64_t round = 0;
+    for (;;) {
+        nanosleep(&tick, NULL);
+        int d = *g_prof_depth;
+        if (d > 8192) d = 8192;
+        dvm_method *m = d > 0 ? g_prof_frames[d - 1] : NULL, *c = d > 1 ? g_prof_frames[d - 2] : NULL;
+        uint32_t h = (uint32_t)(((uintptr_t)m >> 4) * 2654435761u ^ ((uintptr_t)c >> 4) * 40503u) & (PROF_CAP - 1);
+        for (int probe = 0; probe < 64; probe++, h = (h + 1) & (PROF_CAP - 1)) {
+            if (g_prof[h].n && (g_prof[h].m != m || g_prof[h].caller != c)) continue;
+            g_prof[h].m = m; g_prof[h].caller = c; g_prof[h].n++;
+            break;
+        }
+        g_prof_total++;
+        if (++round % 7500) continue;                       /* 30 s */
+        prof_e top[14]; int nt = 0;
+        for (int i = 0; i < PROF_CAP; i++) {
+            if (!g_prof[i].n) continue;
+            int k = nt < 14 ? nt++ : 13;
+            if (k == 13 && top[13].n >= g_prof[i].n) continue;
+            top[k] = g_prof[i];
+            while (k > 0 && top[k].n > top[k - 1].n) { prof_e t = top[k]; top[k] = top[k - 1]; top[k - 1] = t; k--; }
+        }
+        char b[3600]; int o = snprintf(b, sizeof(b), "prof: the main thread's last 30 s, by method (and its caller):");
+        for (int i = 0; i < nt && o < (int)sizeof(b) - 300; i++)
+            o += snprintf(b + o, sizeof(b) - o, "\n  %5.1f%% %s.%s <- %s.%s", 100.0 * top[i].n / (g_prof_total ? g_prof_total : 1),
+                          top[i].m ? top[i].m->cls->name : "(nothing: idle between messages)", top[i].m ? top[i].m->name : "",
+                          top[i].caller ? top[i].caller->cls->name : "-", top[i].caller ? top[i].caller->name : "");
+        tl_log_line("%s", b);
+        memset(g_prof, 0, sizeof(g_prof)); g_prof_total = 0;
+    }
+    return NULL;
+}
+
+/* Called on the app's main thread, once. TL_PROF=0 turns the profiler off. */
+void dvm_prof_start(void);
+void dvm_prof_start(void)
+{
+    const char *e = getenv("TL_PROF");
+    if (e && !strcmp(e, "0")) return;
+    g_prof_frames = (dvm_method *volatile *)t_frames; g_prof_depth = &t_depth;
+    pthread_t th; pthread_attr_t at; pthread_attr_init(&at); pthread_attr_setdetachstate(&at, PTHREAD_CREATE_DETACHED);
+    pthread_create(&th, &at, prof_main, NULL);
+    pthread_attr_destroy(&at);
+}
 
 /* The source line of a pc in a method, from its debug info; -1 without one. */
 int dvm_line_of(dvm_method *m, uint32_t pc)
@@ -1436,6 +1554,8 @@ static bool invoke_regs(dvm_method *caller, int kind, uint32_t midx, int count, 
         if (target && !dvm_ensure_init(target->cls)) return false;
         break;
     case 1: {                                                      /* super: from the caller's superclass */
+        void *hitv;
+        if (memo_get(caller->cls, (uintptr_t)r | 1, &hitv)) { target = hitv; break; }
         dvm_class *sc = caller->cls->super;
         dvm_class *rc = dvm_class_of(r->cls);
         if (rc && (rc->flags & 0x200)) {
@@ -1449,17 +1569,21 @@ static bool invoke_regs(dvm_method *caller, int kind, uint32_t midx, int count, 
             for (tl_jclass *k = caller->cls->jc->super; k; k = k->super) if (!dvm_class_of(k)) { r->hm = tl_jni_method(k, r->name, r->sig, false); break; }
         }
         if (!target && r->hm) { *result = tl_jni_invoke(self, r->hm, true, params); return !tl_jni_pending(); }
+        if (target && !caller->cls->jc->linking) memo_put(caller->cls, (uintptr_t)r | 1, target);
         break;
     }
     case 0: case 4: {                                              /* virtual, interface */
         tl_jclass *rc = dvm_object_class(self);
         dvm_class *dc = dvm_class_of(rc);
+        void *hitv;
+        if (dc && memo_get(dc, (uintptr_t)r, &hitv)) { target = hitv; break; }   /* this call site on this receiver class, answered before */
         if (dc && target && target->vidx >= 0 && !(target->cls->flags & 0x200) && target->vidx < dc->nvtab
             && dc->vtab[target->vidx] && !strcmp(dc->vtab[target->vidx]->name, r->name) && !strcmp(dc->vtab[target->vidx]->sig, r->sig)) {
             target = dc->vtab[target->vidx];
+            if (!rc->linking) memo_put(dc, (uintptr_t)r, target);
         } else if (dc) {
             dvm_method *v = dvm_find_virtual(rc, r->name, r->sig);
-            if (v) target = v;
+            if (v) { target = v; if (!rc->linking) memo_put(dc, (uintptr_t)r, v); }
             else if (!r->hm) {
                 for (tl_jclass *k = rc; k; k = k->super) if (!dvm_class_of(k)) { r->hm = tl_jni_method(k, r->name, r->sig, false); break; }
             }
@@ -1820,9 +1944,14 @@ dispatch:;
             /* String.count: the length and the coder ART keeps there; Husk's strings keep their characters elsewhere */
             if (o->kind == TL_K_STRING && !put && !strcmp(f->df->name, "count")) {
                 int32_t n; const uint16_t *s = tl_dvm_string_chars(o, &n);
-                bool latin1 = true;
-                for (int32_t k = 0; k < n && latin1; k++) if (s[k] > 0xFF) latin1 = false;
-                WI(regs, A4, (n << 1) | (latin1 ? 0 : 1));
+                int coder = o->str.coder;                  /* worked out once: a string never changes */
+                if (!coder) {
+                    bool latin1 = true;
+                    for (int32_t k = 0; k < n && latin1; k++) if (s[k] > 0xFF) latin1 = false;
+                    coder = latin1 ? 1 : 2;
+                    o->str.coder = (int8_t)coder;
+                }
+                WI(regs, A4, (n << 1) | (coder == 1 ? 0 : 1));
                 NEXT(2);
             }
             jvalue *sl = dvm_slots(o);
@@ -2360,7 +2489,7 @@ bool tl_dvm_load_natives(const char *libdir)
     }
     dvm_current_thread();
     g_core_up = true;
-    tl_log_line("dvm: Husk translation layer, T4Msy build gb15");
+    tl_log_line("dvm: Husk translation layer, T4Msy build gb16");
     return ok;
 }
 

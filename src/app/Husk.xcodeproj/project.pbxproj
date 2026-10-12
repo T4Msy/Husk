@@ -1322,6 +1322,7 @@
 					"\"../../build/ios-arm64/sysroot/lib\"",
 					"\"Frameworks\"",
 				);
+				GCC_OPTIMIZATION_LEVEL = 3;
 				INFOPLIST_FILE = Husk/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
