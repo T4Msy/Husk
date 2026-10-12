@@ -223,6 +223,22 @@ public final class ResInflate {
             rd.setDrawable(d);
             return rd;
         }
+        case "animated-rotate": {
+            // frameDuration/framesCount are private attributes the framework resources here do not name: the platform's defaults
+            TypedArray a = attrs(r, t, set, S.RotateDrawable);
+            Drawable d = a.getDrawable(S.RotateDrawable_drawable);
+            AnimatedRotateDrawable rd = new AnimatedRotateDrawable();
+            rd.setPivotX(fraction(a, S.RotateDrawable_pivotX, 0.5f), true); rd.setPivotY(fraction(a, S.RotateDrawable_pivotY, 0.5f), true);
+            a.recycle();
+            for (int i = 0; i < set.getAttributeCount(); i++) {
+                String n = set.getAttributeName(i);
+                if ("frameDuration".equals(n)) rd.setFramesDuration(set.getAttributeIntValue(i, 150));
+                else if ("framesCount".equals(n)) rd.setFramesCount(set.getAttributeIntValue(i, 12));
+            }
+            if (d == null) d = child(r, p, t); else skip(p);
+            rd.setDrawable(d);
+            return rd;
+        }
         case "level-list": {
             LevelListDrawable ld = new LevelListDrawable();
             int depth = p.getDepth() + 1, tt;
