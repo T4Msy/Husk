@@ -389,6 +389,7 @@ static void text_push(const char *kind, const char *utf8)
 }
 void tl_javaapp_text(const char *utf8) { if (utf8 && *utf8) text_push("t", utf8); }
 void tl_javaapp_text_delete(void) { text_push("d", NULL); }
+void tl_javaapp_harness_command(const char *cmd) { if (cmd && *cmd) text_push("c", cmd); }
 void tl_javaapp_text_action(void) { text_push("e", NULL); }
 void tl_javaapp_keyboard_closed(void) { text_push("h", NULL); }
 void tl_javaapp_set_insets(int l, int t, int r, int b, int ime)

@@ -128,6 +128,36 @@ public final class AppRunner {
         }
         return a;
     }
+    /**
+     * Commands from the test harness (tools/javaapp-test.c, "start"/"dump" lines in its control file): start an activity of the
+     * app by class name, or log the view tree of the window on top -- what a screen is made of, with ids, so a missing view can be
+     * found without a device.
+     */
+    public static void harnessCommand(String cmd) {
+        try {
+            if (cmd.startsWith("start ")) {
+                Intent i = new Intent().setComponent(new ComponentName(Native.packageName(), cmd.substring(6).trim()));
+                android.util.Log.i("Husk", "harness: start " + i.getComponent().getClassName());
+                startActivity(top(), i, -1, null);
+            } else if (cmd.startsWith("dump")) {
+                ViewRoot r = ViewRoot.top();
+                StringBuilder sb = new StringBuilder("harness: view tree of ").append(top()).append('\n');
+                if (r != null) dumpView(r.getView(), 0, sb);
+                android.util.Log.i("Husk", sb.toString());
+            }
+        } catch (Throwable t) { android.util.Log.e("Husk", "harness: " + cmd + " failed", t); }
+    }
+    private static void dumpView(android.view.View v, int depth, StringBuilder sb) {
+        for (int i = 0; i < depth; i++) sb.append("  ");
+        sb.append(v.getClass().getName());
+        if (v.getId() != android.view.View.NO_ID) sb.append(" id=0x").append(Integer.toHexString(v.getId()));
+        sb.append(v.getVisibility() == android.view.View.VISIBLE ? "" : v.getVisibility() == android.view.View.INVISIBLE ? " INVISIBLE" : " GONE");
+        sb.append(' ').append(v.getLeft()).append(',').append(v.getTop()).append(' ').append(v.getWidth()).append('x').append(v.getHeight());
+        if (v instanceof android.view.ViewStub) sb.append(" layout=0x").append(Integer.toHexString(((android.view.ViewStub) v).getLayoutResource()));
+        if (v instanceof android.widget.TextView) { CharSequence t = ((android.widget.TextView) v).getText(); if (t != null && t.length() > 0) sb.append(" \"").append(t.length() > 40 ? t.subSequence(0, 40) + "…" : t).append('"'); }
+        sb.append('\n');
+        if (v instanceof android.view.ViewGroup) { android.view.ViewGroup g = (android.view.ViewGroup) v; for (int i = 0; i < g.getChildCount(); i++) dumpView(g.getChildAt(i), depth + 1, sb); }
+    }
     /** The component an activity was started as: its class, or the alias it was reached through. */
     private static String startedAs(Activity a) {
         Intent i = a.getIntent();
