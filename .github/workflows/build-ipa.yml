@@ -164,6 +164,10 @@ jobs:
           grep -n "A05(\|A06(\|A0X(\|/\* 70 \*/\|/\* 6[5-9] \*/\|/\* 7[0-4] \*/" "$F" | head -40
           L=$(grep -n " A05(" "$F" | head -1 | cut -d: -f1); [ -n "$L" ] && sed -n "$((L-2)),$((L+45))p" "$F"
           F2="$RUNNER_TEMP/dec-X.0gC.java"; L=$(grep -n " CIl(" "$F2" | head -1 | cut -d: -f1); [ -n "$L" ] && sed -n "$((L-2)),$((L+25))p" "$F2"
+          # the AtomicIntegerFieldUpdater ClassCastException on a worker thread (X.0oM.Clj): the updater, its field and the class
+          "$RUNNER_TEMP/jadx/bin/jadx" --single-class X.0oM --single-class-output "$RUNNER_TEMP/dec-X.0oM.java" --show-bad-code -q "$RUNNER_TEMP/apk/com.whatsapp.apk" 2>&1 | tail -3
+          echo "---- X.0oM"; grep -n "class \|FieldUpdater\|volatile\| Clj(\|newUpdater" "$RUNNER_TEMP/dec-X.0oM.java" | head -40
+          L=$(grep -n " Clj(" "$RUNNER_TEMP/dec-X.0oM.java" | head -1 | cut -d: -f1); [ -n "$L" ] && sed -n "$((L-2)),$((L+20))p" "$RUNNER_TEMP/dec-X.0oM.java"
       - name: Run WhatsApp in javaapp-test (Husk's Java runtime on this Mac, 120 s)
         run: |
           set +e
