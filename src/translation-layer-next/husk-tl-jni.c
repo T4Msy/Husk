@@ -435,6 +435,45 @@ jvalue tl_jni_get_static(const char *cls, const char *name, const char *sig)
     return *field_slot(NULL, f);
 }
 
+/* -------------------------------------------------- recent type lookups (for the abort dump)
+ * A thread's last few JNI type lookups -- class, method/field name and signature, and the guest return address so the caller
+ * library is named. Type and member NAMES only: never an argument value, a string's contents, a phone number, a code or a
+ * token. It is dumped when guest code aborts (tl_jni_dump_recent, called from the abort hook) to tell a Husk mis-resolution
+ * from the app's own code reaching a genuinely missing member -- e.g. whether a "[B.<clinit>" lookup came from libopenjdk's
+ * ObjectStreamClass (benign) or from the app's own native code. */
+#include "husk-tl-ld.h"
+#define JNI_RING 64
+static __thread struct { const void *caller; char text[112]; } t_ring[JNI_RING];
+static __thread uint32_t t_ring_n;
+static void jni_note(const void *caller, const char *fmt, ...)
+{
+    struct { const void *caller; char text[112]; } *e = &t_ring[t_ring_n % JNI_RING];
+    e->caller = caller;
+    va_list ap; va_start(ap, fmt); vsnprintf(e->text, sizeof e->text, fmt, ap); va_end(ap);
+    t_ring_n++;
+}
+static void jni_describe_addr(const void *a, char *out, size_t n)
+{
+    const char *ln = NULL; const void *sa = NULL;
+    const char *sym = a ? tl_ld_symbol_at(a, &ln, &sa) : NULL;
+    if (!ln) { snprintf(out, n, "%p", a); return; }
+    const char *base = strrchr(ln, '/') ? strrchr(ln, '/') + 1 : ln;
+    unsigned long off = (unsigned long)((const char *)a - (const char *)tl_ld_lib_base(tl_ld_lib_of(a)));
+    if (sym && sa) snprintf(out, n, "%s +%#lx (%s+%#lx)", base, off, sym, (unsigned long)((const char *)a - (const char *)sa));
+    else snprintf(out, n, "%s +%#lx", base, off);
+}
+void tl_jni_dump_recent(void)
+{
+    if (!t_ring_n) { tl_log_line("jni: no type lookups recorded on the aborting thread"); return; }
+    uint32_t have = t_ring_n < JNI_RING ? t_ring_n : JNI_RING;
+    tl_log_line("jni: the aborting thread's last %u type lookups (oldest first):", have);
+    for (uint32_t i = 0; i < have; i++) {
+        uint32_t idx = (t_ring_n - have + i) % JNI_RING;
+        char where[180]; jni_describe_addr(t_ring[idx].caller, where, sizeof where);
+        tl_log_line("jni:   %s   <- %s", t_ring[idx].text, where);
+    }
+}
+
 /* ------------------------------------------------------------- exceptions */
 
 static __thread jobj *t_pending;
@@ -575,6 +614,7 @@ static uint32_t jni_GetVersion(void *env) { (void)env; return 0x00010006; }
 static jo jni_FindClass(void *env, const char *name)
 {
     (void)env;
+    const void *caller = __builtin_return_address(0);
     /* ART rewrites '.' as '/' (NormalizeJniClassDescriptor) for code that asks for "a.b.C": GBWhatsApp's mods register their
        natives on classes they name that way */
     char slashed[512];
@@ -597,15 +637,18 @@ static jo jni_FindClass(void *env, const char *name)
         if (misses++ < 40) tl_log_line("jni: FindClass(%s): no DEX defines it", name);
         char msg[200]; snprintf(msg, sizeof(msg), "%s", name);
         tl_jni_throw("java/lang/NoClassDefFoundError", msg);
+        jni_note(caller, "FindClass %s -> NOT FOUND", name);
         return NULL;
     }
     if (array || framework || known || tl_dexidx_has_class(name)) {
         TRACE("jni: FindClass(%s)", name);
+        jni_note(caller, "FindClass %s -> ok", name);
         return tl_jni_class(name)->mirror;
     }
     TRACE("jni: FindClass(%s) -> NoClassDefFoundError", name);
     char msg[200]; snprintf(msg, sizeof(msg), "%s", name);
     tl_jni_throw("java/lang/NoClassDefFoundError", msg);
+    jni_note(caller, "FindClass %s -> NOT FOUND", name);
     return NULL;
 }
 
@@ -716,8 +759,21 @@ static void *jni_GetMethodID_impl(jo cls, const char *name, const char *sig, boo
     }
     return m;
 }
-static void *jni_GetMethodID(void *env, jo cls, const char *name, const char *sig) { (void)env; return jni_GetMethodID_impl(cls, name, sig, false); }
-static void *jni_GetStaticMethodID(void *env, jo cls, const char *name, const char *sig) { (void)env; return jni_GetMethodID_impl(cls, name, sig, true); }
+static void jni_note_lookup(const void *caller, const char *op, jo cls, const char *name, const char *sig, const void *result)
+{
+    const char *cn = cls && cls->kind == TL_K_CLASS ? cls->klass.jc->name : "?";
+    jni_note(caller, "%s %s.%s%s%s -> %s", op, cn, name, sig[0] == '(' ? "" : " ", sig, result ? "ok" : "NOT FOUND");
+}
+static void *jni_GetMethodID(void *env, jo cls, const char *name, const char *sig)
+{
+    (void)env; void *m = jni_GetMethodID_impl(cls, name, sig, false);
+    jni_note_lookup(__builtin_return_address(0), "GetMethodID", cls, name, sig, m); return m;
+}
+static void *jni_GetStaticMethodID(void *env, jo cls, const char *name, const char *sig)
+{
+    (void)env; void *m = jni_GetMethodID_impl(cls, name, sig, true);
+    jni_note_lookup(__builtin_return_address(0), "GetStaticMethodID", cls, name, sig, m); return m;
+}
 
 /* --- Call*Method families --- */
 
@@ -806,8 +862,16 @@ static void *jni_GetFieldID_impl(jo cls, const char *name, const char *sig, bool
     if (!f) { char msg[300]; snprintf(msg, sizeof(msg), "no field \"%s\" %s", name, sig); tl_jni_throw("java/lang/NoSuchFieldError", msg); }
     return f;
 }
-static void *jni_GetFieldID(void *env, jo cls, const char *n, const char *s) { (void)env; return jni_GetFieldID_impl(cls, n, s, false); }
-static void *jni_GetStaticFieldID(void *env, jo cls, const char *n, const char *s) { (void)env; return jni_GetFieldID_impl(cls, n, s, true); }
+static void *jni_GetFieldID(void *env, jo cls, const char *n, const char *s)
+{
+    (void)env; void *f = jni_GetFieldID_impl(cls, n, s, false);
+    jni_note_lookup(__builtin_return_address(0), "GetFieldID", cls, n, s, f); return f;
+}
+static void *jni_GetStaticFieldID(void *env, jo cls, const char *n, const char *s)
+{
+    (void)env; void *f = jni_GetFieldID_impl(cls, n, s, true);
+    jni_note_lookup(__builtin_return_address(0), "GetStaticFieldID", cls, n, s, f); return f;
+}
 
 /* ------------------------------------------------------------- reflection */
 

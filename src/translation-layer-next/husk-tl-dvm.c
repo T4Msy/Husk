@@ -1050,6 +1050,7 @@ int dvm_capture_frames(void **out, uint32_t *pcs, int max)
 
 /* Guest code is aborting on this thread (bionic's abort hook): the exception it may have found pending, and the Java methods under
    the native code, innermost first. Names only: no argument or field values are logged. */
+void tl_jni_dump_recent(void);
 static void dvm_abort_context(void)
 {
     char b[600];
@@ -1060,6 +1061,7 @@ static void dvm_abort_context(void)
         const dvm_method *m = t_frames[i];
         if (m) tl_log_line("dvm:   java %s.%s%s%s @%u", m->cls->name, m->name, m->sig, m->insns ? "" : " (native)", t_pcs[i]);
     }
+    tl_jni_dump_recent();   /* what the thread asked the translation layer to resolve, just before it aborted */
 }
 
 static bool dvm_call_inner(dvm_method *m, jobj *self, const jvalue *params, jvalue *ret);
@@ -2506,7 +2508,7 @@ bool tl_dvm_load_natives(const char *libdir)
     }
     dvm_current_thread();
     g_core_up = true;
-    tl_log_line("dvm: Husk translation layer, T4Msy build gb17");
+    tl_log_line("dvm: Husk translation layer, T4Msy build gb18");
     return ok;
 }
 
