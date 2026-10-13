@@ -76,6 +76,7 @@ void *tl_ld_sym_deep(tl_lib *lib, const char *name, tl_lib **found_in);   /* the
 tl_lib *tl_ld_lib_of(const void *addr);
 void *tl_ld_lib_base(const tl_lib *lib);
 const char *tl_ld_lib_name(const tl_lib *lib);
+const char *tl_ld_lib_soname(const tl_lib *lib);
 const char *tl_ld_symbol_at(const void *addr, const char **lib_name, const void **sym_addr);
 
 /*

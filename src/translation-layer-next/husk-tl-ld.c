@@ -50,7 +50,7 @@ enum {
 #define MAX_DEPS 48
 
 struct tl_lib {
-    char name[96];                 /* as asked for */
+    char name[256];                /* as asked for; an app-container path runs ~140 chars, so a short buffer silently loses the basename */
     char soname[96];
     uint8_t *rx, *rw;              /* image: address of base_vaddr, in each view */
     uint64_t base_vaddr;
@@ -470,6 +470,7 @@ tl_lib *tl_ld_lib_of(const void *addr)
 }
 
 const char *tl_ld_lib_name(const tl_lib *lib) { return lib ? lib->name : NULL; }
+const char *tl_ld_lib_soname(const tl_lib *lib) { return lib ? lib->soname : NULL; }
 /* Each library's writable segments (data, bss, GOT), in their writable view: the collector's roots in the app's own libraries. */
 void tl_ld_each_writable(void (*cb)(const void *start, size_t len, void *user), void *user);
 void tl_ld_each_writable(void (*cb)(const void *start, size_t len, void *user), void *user)
@@ -1876,10 +1877,10 @@ static bool relocate(tl_lib *L)
     patch_image(L, &t, &a, &ad, &sv);
     tl_xmem_flush(L->rx, (L->npages + L->nstub) * PAGE);
     L->state = 2;
-    if (strstr(L->name, "libwhatsapp")) {   /* gb25: probe the ENC= builder's 0x530dfc fork (see tl_probe_*_ret) */
+    if (strstr(L->soname, "libwhatsapp")) {   /* gb26: probe the ENC= builder's 0x530dfc fork (see tl_probe_*_ret); gate on the soname, the name may be a long path */
         bool p1 = tl_ld_probe(L, L->base_vaddr + 0x530e14, tl_probe_strbuild_ret);
         bool p2 = tl_ld_probe(L, L->base_vaddr + 0x530e24, tl_probe_parse_ret);
-        tl_log_line("probe: ENC 0x530dfc fork probes on %s: strbuild=%d parse=%d", L->name, p1, p2);
+        tl_log_line("probe: ENC 0x530dfc fork probes on %s: strbuild=%d parse=%d", L->soname, p1, p2);
     }
     if (G.verbosity >= 1) {
         tl_log_line("ld: %-36s %5.1f MiB  %7zu relocs, %4zu tpidr + %5zu adrp patched%s%s", L->name,

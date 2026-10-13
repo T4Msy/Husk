@@ -509,7 +509,7 @@ static long long b_strtoll(const char *s, char **e, int b) { TL_ERRNO_BEGIN(); l
 static void strtoul_note(void *lr, const char *s, unsigned long r, int base)
 {
     const tl_lib *L = tl_ld_lib_of(lr);
-    const char *ln = L ? tl_ld_lib_name(L) : NULL;
+    const char *ln = L ? tl_ld_lib_soname(L) : NULL;   /* the soname, not the name: the name can be a long path */
     if (!ln || !strstr(ln, "whatsapp")) return;   /* only the registration library */
     static int said;
     if (said++ >= 16) return;
