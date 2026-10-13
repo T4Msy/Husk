@@ -42,6 +42,10 @@ extern const tl_bionic_entry tl_tab_core[];
 extern const tl_bionic_entry tl_tab_str[];
 extern const tl_bionic_entry tl_tab_io[];
 extern const tl_bionic_entry tl_tab_net[];
+/* Route a raw `svc` network syscall (Linux arm64 number) to the libc-import wrapper of the same
+   name, which translates the Linux sockaddr/msghdr/flags to Darwin. Returns false for a non-network
+   number; on true, *out is the wrapper's result (-1 with the guest errno set, on failure). */
+bool tl_net_raw_syscall(long nr, long a0, long a1, long a2, long a3, long a4, long a5, long *out);
 extern const tl_bionic_entry tl_tab_io2[];
 extern const tl_bionic_entry tl_tab_str2[];
 extern const tl_bionic_entry tl_tab_pthread[];

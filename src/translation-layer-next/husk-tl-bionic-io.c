@@ -1386,6 +1386,7 @@ static long futex_call(uint32_t *addr, int op, uint32_t val, const struct timesp
 }
 
 static long linux_syscall_impl(long a0, long a1, long a2, long a3, long a4, long a5, long nr);
+static int b_poll(struct pollfd *fds, unsigned long n, int timeout);   /* defined below; the raw ppoll routes here */
 long tl_linux_syscall(long a0, long a1, long a2, long a3, long a4, long a5, long nr)
 {
     static int trace = -1;
@@ -1452,7 +1453,20 @@ static long linux_syscall_impl(long a0, long a1, long a2, long a3, long a4, long
     case 226: { int r = b_mprotect((void *)a0, (size_t)a1, (int)a2); return r < 0 ? -*tl_guest_errno_ptr() : 0; }
     case 79:  { int r = b_fstatat((int)a0, (const char *)a1, (guest_stat *)a2, (int)a3); return r < 0 ? -*tl_guest_errno_ptr() : 0; }
     case 80:  { int r = b_fstat((int)a0, (guest_stat *)a1); return r < 0 ? -*tl_guest_errno_ptr() : 0; }
+    case 73: {                                                                          /* ppoll: Msys waits on its sockets this way */
+        const struct timespec *ts = (const struct timespec *)a2;
+        int ms = ts ? (int)(ts->tv_sec * 1000 + ts->tv_nsec / 1000000) : -1;            /* NULL timeout = wait forever */
+        int r = b_poll((struct pollfd *)a0, (unsigned long)a1, ms);                     /* guest pollfd/POLLIN match Darwin's */
+        return r < 0 ? -(long)(*tl_guest_errno_ptr()) : r;
+    }
     default: break;
+    }
+    /* The socket family: libwhatsapp's Msys makes some of these as raw `svc` (sendmsg confirmed),
+       not through the libc imports. Route them to the same wrappers the imports use. */
+    {
+        long nv;
+        if (tl_net_raw_syscall(nr, a0, a1, a2, a3, a4, a5, &nv))
+            return nv < 0 ? -(long)(*tl_guest_errno_ptr()) : nv;
     }
     char what[96];
     snprintf(what, sizeof(what), "raw system call %ld is not provided (ENOSYS)", nr);

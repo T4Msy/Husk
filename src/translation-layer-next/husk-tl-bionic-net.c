@@ -512,6 +512,42 @@ static int b_getifaddrs(guest_ifaddrs **out)
 }
 static void b_freeifaddrs(guest_ifaddrs *g) { while (g) { guest_ifaddrs *n = g->next; free(g); g = n; } }
 
+/*
+ * libwhatsapp's Msys makes some socket calls as inline `svc #0` (confirmed on this build: sendmsg,
+ * plus a few raw-syscall sites whose number did not decode, so the whole family is routed for
+ * safety) rather than through the libc imports above. The raw-syscall dispatcher has no networking
+ * of its own, so those used to answer ENOSYS and the registration transport stalled. Route each
+ * Linux arm64 network syscall number to the same wrapper its import uses -- those already translate
+ * the Linux sockaddr/msghdr/flags to Darwin. The wrappers set the guest errno and return -1 on
+ * failure; the caller turns that into the kernel ABI's -errno. Returns false for a non-network nr.
+ */
+bool tl_net_raw_syscall(long nr, long a0, long a1, long a2, long a3, long a4, long a5, long *out)
+{
+    switch (nr) {
+    case 198: *out = b_socket((int)a0, (int)a1, (int)a2); break;
+    case 199: *out = b_socketpair((int)a0, (int)a1, (int)a2, (int *)a3); break;
+    case 200: *out = b_bind((int)a0, (const void *)a1, (socklen_t)a2); break;
+    case 201: *out = b_listen((int)a0, (int)a1); break;
+    case 202: *out = b_accept((int)a0, (void *)a1, (socklen_t *)a2); break;
+    case 242: *out = b_accept4((int)a0, (void *)a1, (socklen_t *)a2, (int)a3); break;
+    case 203: *out = b_connect((int)a0, (const void *)a1, (socklen_t)a2); break;
+    case 204: *out = b_getsockname((int)a0, (void *)a1, (socklen_t *)a2); break;
+    case 205: *out = b_getpeername((int)a0, (void *)a1, (socklen_t *)a2); break;
+    case 206: *out = b_sendto((int)a0, (const void *)a1, (size_t)a2, (int)a3, (const void *)a4, (socklen_t)a5); break;
+    case 207: *out = b_recvfrom((int)a0, (void *)a1, (size_t)a2, (int)a3, (void *)a4, (socklen_t *)a5); break;
+    case 208: *out = b_setsockopt((int)a0, (int)a1, (int)a2, (const void *)a3, (socklen_t)a4); break;
+    case 209: *out = b_getsockopt((int)a0, (int)a1, (int)a2, (void *)a3, (socklen_t *)a4); break;
+    case 210: *out = b_shutdown((int)a0, (int)a1); break;
+    case 211: *out = b_sendmsg((int)a0, (const guest_msghdr *)a1, (int)a2); break;
+    case 212: *out = b_recvmsg((int)a0, (guest_msghdr *)a1, (int)a2); break;
+    default: return false;
+    }
+    /* One line the first time each number is serviced: evidence that the registration transport did
+       reach this gap (it used to answer ENOSYS here). Number only -- no address, payload or errno. */
+    { char note[48]; snprintf(note, sizeof(note), "net: raw syscall %ld now serviced", nr); tl_note_once(note); }
+    return true;
+}
+
 const tl_bionic_entry tl_tab_net[] = {
     TL_WRAP("getifaddrs", b_getifaddrs), TL_WRAP("freeifaddrs", b_freeifaddrs),
     TL_WRAP("socket", b_socket), TL_WRAP("socketpair", b_socketpair), TL_WRAP("bind", b_bind), TL_WRAP("connect", b_connect),
