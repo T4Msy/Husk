@@ -1048,6 +1048,20 @@ int dvm_capture_frames(void **out, uint32_t *pcs, int max)
     return n;
 }
 
+/* Guest code is aborting on this thread (bionic's abort hook): the exception it may have found pending, and the Java methods under
+   the native code, innermost first. Names only: no argument or field values are logged. */
+static void dvm_abort_context(void)
+{
+    char b[600];
+    if (tl_dvm_describe_pending(b, sizeof(b))) tl_log_line("dvm:   exception pending on the aborting thread: %s", b);
+    else tl_log_line("dvm:   no exception pending on the aborting thread");
+    int d = t_depth < 8192 ? t_depth : 8192;
+    for (int i = d - 1, n = 0; i >= 0 && n < 24; i--, n++) {
+        const dvm_method *m = t_frames[i];
+        if (m) tl_log_line("dvm:   java %s.%s%s%s @%u", m->cls->name, m->name, m->sig, m->insns ? "" : " (native)", t_pcs[i]);
+    }
+}
+
 static bool dvm_call_inner(dvm_method *m, jobj *self, const jvalue *params, jvalue *ret);
 /* TL_DVM_CALLS: comma-separated cls.method entries (class names with slashes) */
 static bool watch_hit(const char *w, const dvm_method *m)
@@ -2221,6 +2235,7 @@ bool tl_dvm_start(const char *const *boot, int nboot)
     if (!cdef_find("java/lang/Object")) { tl_log_line("dvm: no java/lang/Object on the boot class path"); return false; }
     dvm_natives_init();
     tl_dvm = &k_hooks;
+    tl_guest_abort_hook = dvm_abort_context;
     g_running = true;
     /* classes declared before the runtime started (Husk's own Java world): those it has bytecode for become its */
     tl_jni_each_declared(reattach);
@@ -2491,7 +2506,7 @@ bool tl_dvm_load_natives(const char *libdir)
     }
     dvm_current_thread();
     g_core_up = true;
-    tl_log_line("dvm: Husk translation layer, T4Msy build gb16");
+    tl_log_line("dvm: Husk translation layer, T4Msy build gb17");
     return ok;
 }
 

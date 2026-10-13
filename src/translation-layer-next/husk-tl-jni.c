@@ -708,7 +708,9 @@ static void *jni_GetMethodID_impl(jo cls, const char *name, const char *sig, boo
     TRACE("jni: Get%sMethodID(%s, %s%s) -> %s", is_static ? "Static" : "", cls->klass.jc->name, name, sig,
           m->fn ? "implemented" : m->exists ? "exists, not implemented" : "NOT FOUND");
     if (!m->exists) {
-        char msg[300]; snprintf(msg, sizeof(msg), "no %smethod \"%s\" %s in class L%s;", is_static ? "static " : "", name, sig, cls->klass.jc->name);
+        /* ART's wording, with the class's descriptor: "Lpkg/Name;" for a class, the name itself for an array ("[B") */
+        const char *cn = cls->klass.jc->name; bool arr = cn[0] == '[';
+        char msg[600]; snprintf(msg, sizeof(msg), "no %s method \"%s%s%s.%s%s\"", is_static ? "static" : "non-static", arr ? "" : "L", cn, arr ? "" : ";", name, sig);
         tl_jni_throw("java/lang/NoSuchMethodError", msg);
         return NULL;
     }

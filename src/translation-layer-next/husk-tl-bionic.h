@@ -57,6 +57,7 @@ void *tl_vk_resolve(const char *name);    /* husk-tl-vulkan.m: Vulkan by name, t
 bool tl_vk_available(void);                /* a MoltenVK was configured, so libvulkan.so can be opened */
 
 extern void (*tl_guest_exit_hook)(int status);   /* set by an app host: exit() from guest code calls it instead of exiting */
+extern void (*tl_guest_abort_hook)(void);        /* set by the Java runtime: logs what the aborting thread was doing in Java */
 
 void *tl_bionic_find(const char *name);
 bool  tl_bionic_is_system_lib(const char *soname);

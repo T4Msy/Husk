@@ -234,3 +234,69 @@ jobs:
         with:
           name: whatsapp-probe
           path: ${{ runner.temp }}/out
+
+  # corvus-experimental-v3 (a modified WhatsApp 2.21.19.3 that keeps that version's native libraries) aborts in libwhatsapp.so when
+  # it asks for the registration code; Husk's report names the call site only as "<export>+<offset>". This finds the code at that
+  # site in the official 2.21.19 libwhatsapp.so (whatsapp.com's own APK of the time, from the Internet Archive): the app is run
+  # until it has unpacked its libraries (no registration, no phone number), and the frames are disassembled. Nothing is kept but
+  # the printed disassembly.
+  abort-site:
+    name: Where libwhatsapp 2.21.19 calls abort (analysis)
+    needs: runtime
+    runs-on: macos-26
+    continue-on-error: true
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: runtime, path: build }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21' }
+      - name: "Regression: JNI <clinit> lookups, as ObjectStreamClass makes them (Husk vs the host JVM)"
+        run: |
+          set -e
+          T="$RUNNER_TEMP/clinit"; mkdir -p "$T/classes" "$T/dex"
+          javac --release 8 -d "$T/classes" tests/dvm/ClinitLookup.java
+          curl -fsSL --retry 5 -o "$RUNNER_TEMP/r8.jar" "$R8_JAR"
+          java -cp "$RUNNER_TEMP/r8.jar" com.android.tools.r8.D8 --release --min-api 26 --output "$T/dex" "$T"/classes/*.class
+          want="$(java -cp "$T/classes" ClinitLookup)"
+          ./tools/regress/build.sh tools/java-test.c "$T/java-test" 2>&1 | tail -3
+          got="$(TL_ART="$PWD/build/java-runtime/com.android.art" "$T/java-test" "$T/dex/classes.dex" ClinitLookup run 2>"$T/log" | sed -n 's/^RESULT "\(.*\)"$/\1/p')"
+          grep -E 'clinit|NoSuchMethodError|abort|CRASH' "$T/log" | head -20 || true
+          echo "host JVM: $want"; echo "Husk:     $got"
+          [ -n "$got" ] && [ "$got" = "$want" ] || { tail -40 "$T/log"; echo "::error::ClinitLookup differs from the host JVM"; exit 1; }
+          # the error names the array class by its descriptor, as ART does ("[B", not "L[B;")
+          grep -F 'no static method "[B.<clinit>()V"' "$T/log" || { echo "::error::NoSuchMethodError for [B.<clinit> not raised as expected"; exit 1; }
+      - name: Official WhatsApp 2.21.19 APK (inspected here only, not redistributed)
+        run: |
+          python3 -m venv "$RUNNER_TEMP/py" && "$RUNNER_TEMP/py/bin/pip" -q install androguard pyelftools
+          mkdir -p "$RUNNER_TEMP/apk"
+          "$RUNNER_TEMP/py/bin/python" scripts/ci/old_whatsapp.py 202109 202111 2.21.19 "$RUNNER_TEMP/apk/com.whatsapp.apk" \
+            || "$RUNNER_TEMP/py/bin/python" scripts/ci/old_whatsapp.py 202108 202112 2.21.1 "$RUNNER_TEMP/apk/com.whatsapp.apk"
+          shasum -a 256 "$RUNNER_TEMP/apk/com.whatsapp.apk"
+          unzip -l "$RUNNER_TEMP/apk/com.whatsapp.apk" | grep -E 'lib/|\.spk|\.so' | head -30
+      - name: Unpack its native libraries by running it (Husk's Java runtime on this Mac, up to the first screen)
+        run: |
+          set +e
+          ./tools/regress/build.sh tools/javaapp-test.c "$RUNNER_TEMP/javaapp-test" 2>&1 | tail -5
+          R="$PWD/build/java-runtime"
+          sudo mkdir -p /Volumes/GTAV/husk2/modules/jars /Volumes/GTAV/husk2/tmp && sudo chown -R "$USER" /Volumes/GTAV
+          cp "$R/org.apache.http.legacy.jar" /Volumes/GTAV/husk2/modules/jars/
+          mkdir -p "$R/com.android.conscrypt/cacerts" && cp build/android-system/cacerts/* "$R/com.android.conscrypt/cacerts/"
+          printf 'wait 90000\nquit\n' > "$RUNNER_TEMP/ctl"
+          EGL="$(find /Applications -name libEGL.dylib 2>/dev/null | grep -v '\.dSYM' | head -1)"
+          DYLD_LIBRARY_PATH="$(dirname "$EGL")" TL_ANGLE_EGL="$EGL" TL_ANGLE_GLES="$(dirname "$EGL")/libGLESv2.dylib" \
+          TL_ART="$R/com.android.art" TL_FRAMEWORK="$R/husk-framework.dex" TL_FRAMEWORK_RES="$R/framework-res.apk" \
+          TL_PACKAGE=com.whatsapp TL_DATA="$RUNNER_TEMP/data" TL_CTL="$RUNNER_TEMP/ctl" TL_AUDIO_MUTE=1 \
+            perl -e 'alarm shift; exec @ARGV' 200 "$RUNNER_TEMP/javaapp-test" "$RUNNER_TEMP/apk/com.whatsapp.apk" 120 > "$RUNNER_TEMP/run.log" 2>&1
+          grep -E 'JNI_OnLoad|clinit|abort|CRASH|SoLoader: Loaded' "$RUNNER_TEMP/run.log" | head -40
+          find "$RUNNER_TEMP/data" -name '*.so' | head -40
+      - name: The frames of the abort in corvus-experimental-v3's report
+        run: |
+          W="$(find "$RUNNER_TEMP/data" -name libwhatsapp.so | head -1)"
+          [ -z "$W" ] && W="$(unzip -Z1 "$RUNNER_TEMP/apk/com.whatsapp.apk" | grep 'arm64-v8a/libwhatsapp.so' | head -1)" && unzip -o -q "$RUNNER_TEMP/apk/com.whatsapp.apk" "$W" -d "$RUNNER_TEMP/x" && W="$RUNNER_TEMP/x/$W"
+          ls -l "$W"; shasum -a 256 "$W"
+          # abort() called from libwhatsapp.so Java_com_whatsapp_SqliteShell_executeMetaCommand+0x4a3170 (return address 0x11d838210);
+          # the guest frames under it: 0x11d83809c, 0x11d816268, 0x11d8032cc (the last called by the interpreter: the JNI method)
+          "$RUNNER_TEMP/py/bin/python" scripts/ci/abort_site.py "$W" Java_com_whatsapp_SqliteShell_executeMetaCommand 0x4a3170 \
+            0x11d838210 0x11d83809c 0x11d816268 0x11d8032cc

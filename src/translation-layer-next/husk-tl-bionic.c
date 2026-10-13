@@ -313,7 +313,7 @@ int tl_vai_android_log_buf_print(tl_va_frame *f)
 TL_VA_STUB(tl_va_android_log_buf_print, tl_vai_android_log_buf_print);
 extern void tl_va_android_log_buf_print(void);
 
-static void guest_abort(const char *why);
+static void guest_abort(const char *why, void *lr, void *fp);
 
 int tl_vai_android_log_assert(tl_va_frame *f)
 {
@@ -323,7 +323,7 @@ int tl_vai_android_log_assert(tl_va_frame *f)
     if (fmt) { tl_va_start(f, 3, 0, &ap); tl_format(text, sizeof(text), fmt, &ap); }
     else snprintf(text, sizeof(text), "assertion failed: %s", f->gp[0] ? (const char *)f->gp[0] : "?");
     log_emit(7, (const char *)f->gp[1], text);
-    guest_abort("__android_log_assert");
+    guest_abort("__android_log_assert", NULL, NULL);
     return 0;
 }
 TL_VA_STUB(tl_va_android_log_assert, tl_vai_android_log_assert);
@@ -349,14 +349,19 @@ static void bionic_closelog(void) {}
 
 /* --------------------------------------------------- C runtime and aborts */
 
+/* An address in guest code as "<library file> +<offset from its base> (<nearest export>+<distance>)". The offset is what a
+   disassembler of the library is given; the export is only the closest exported name before it, which says little once the
+   distance is large (most of a library's functions are not exported), so it comes second. */
 static void describe_caller(void *lr, char *out, size_t n)
 {
     const char *ln = NULL; const void *sa = NULL;
     const char *sym = tl_ld_symbol_at(lr, &ln, &sa);
     extern void *tl_ld_lib_base(const tl_lib *L);
-    if (ln && sym) snprintf(out, n, "%s %s+%#lx", ln, sym, sa ? (unsigned long)((const char *)lr - (const char *)sa) : 0ul);
-    else if (ln) snprintf(out, n, "%s +%#lx", ln, (unsigned long)((const char *)lr - (const char *)tl_ld_lib_base(tl_ld_lib_of(lr))));
-    else snprintf(out, n, "%p", lr);
+    if (!ln) { snprintf(out, n, "%p", lr); return; }
+    const char *base = strrchr(ln, '/') ? strrchr(ln, '/') + 1 : ln;
+    unsigned long off = (unsigned long)((const char *)lr - (const char *)tl_ld_lib_base(tl_ld_lib_of(lr)));
+    if (sym && sa) snprintf(out, n, "%s +%#lx (%s+%#lx)", base, off, sym, (unsigned long)((const char *)lr - (const char *)sa));
+    else snprintf(out, n, "%s +%#lx", base, off);
 }
 /* the guest's frames above an exit or abort, by frame pointer */
 static void log_guest_frames(void *fp)
@@ -372,11 +377,25 @@ static void log_guest_frames(void *fp)
     }
 }
 
-static void guest_abort(const char *why)
+/* When set, a guest exit() ends the guest, not the app that is hosting it. The hook does not return. */
+void (*tl_guest_exit_hook)(int status);
+/* When set, called as guest code aborts, before the process goes: what the thread was doing in Java. */
+void (*tl_guest_abort_hook)(void);
+
+/* The abort still happens: the guest asked for it. What is logged first is what is needed to find out why: the call site as a
+   library offset, the guest frames above it (fp: the frame of the function the guest called), and the Java side of the thread. */
+__attribute__((noinline)) static void abort_context(void *fp)
+{
+    if (fp) log_guest_frames(fp);
+    if (tl_guest_abort_hook) tl_guest_abort_hook();
+}
+
+__attribute__((noinline, noreturn)) static void guest_abort(const char *why, void *lr, void *fp)
 {
     char where[200];
-    describe_caller(__builtin_return_address(0), where, sizeof(where));
+    if (lr) describe_caller(lr, where, sizeof(where)); else snprintf(where, sizeof(where), "?");
     tl_log_line("bionic: guest abort (%s) at %s", why, where);
+    abort_context(fp);
     abort();
 }
 
@@ -385,11 +404,9 @@ static void bionic_abort(void)
     char where[200];
     describe_caller(__builtin_return_address(0), where, sizeof(where));
     tl_log_line("bionic: abort() called from %s", where);
+    abort_context(__builtin_frame_address(0));
     abort();
 }
-
-/* When set, a guest exit() ends the guest, not the app that is hosting it. The hook does not return. */
-void (*tl_guest_exit_hook)(int status);
 
 static void bionic_exit(int status)
 {
@@ -401,7 +418,7 @@ static void bionic_exit(int status)
     exit(status);
 }
 
-static void bionic___stack_chk_fail(void) { guest_abort("stack smashing detected"); }
+static void bionic___stack_chk_fail(void) { guest_abort("stack smashing detected", __builtin_return_address(0), __builtin_frame_address(0)); }
 
 static void bionic___assert2(const char *file, int line, const char *func, const char *expr)
 {
