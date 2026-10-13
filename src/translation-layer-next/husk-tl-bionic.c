@@ -403,9 +403,13 @@ __attribute__((noinline, noreturn)) static void guest_abort(const char *why, voi
    checking function held at the branch. abort() is a leaf the guest reaches with `bl`, so on entry to our handler the guest's
    callee-saved registers x19..x29 are still live and untouched — the values the aborting function was testing. We snapshot them
    before the C prologue of the real handler can clobber any, then hand off. The abort still happens: nothing here suppresses it. */
-static uint64_t g_abort_x[11];   /* x19,x20,x21,x22,x23,x24,x25,x26,x27,x28,x29 */
+/* Non-static (external linkage) so the separate __asm__ block below can name them: clang may rename file-local symbols, and the
+   Mach-O assembler then cannot resolve them from inline asm. Mirrors the tl_va_clobber / tl_va_common convention in husk-tl-va.c. */
+extern uint64_t tl_abort_regs[11];
+extern void tl_bionic_abort_impl(void);
+uint64_t tl_abort_regs[11];   /* x19,x20,x21,x22,x23,x24,x25,x26,x27,x28,x29 */
 
-__attribute__((noinline, noreturn, used)) static void bionic_abort_impl(void)
+__attribute__((noinline, noreturn, used)) void tl_bionic_abort_impl(void)
 {
     char where[200];
     /* lr is unchanged (the snapshot trampoline tail-called us with `b`), so it still points just past the guest's `bl abort`. */
@@ -413,24 +417,24 @@ __attribute__((noinline, noreturn, used)) static void bionic_abort_impl(void)
     tl_log_line("bionic: abort() called from %s", where);
     /* The captured callee-saved registers, so an abort with no message can still be pinned to the value that was null/false. */
     tl_log_line("bionic: abort regs x19=%#llx x20=%#llx x21=%#llx x22=%#llx x23=%#llx x24=%#llx",
-                (unsigned long long)g_abort_x[0], (unsigned long long)g_abort_x[1], (unsigned long long)g_abort_x[2],
-                (unsigned long long)g_abort_x[3], (unsigned long long)g_abort_x[4], (unsigned long long)g_abort_x[5]);
-    abort_context((void *)g_abort_x[10]);  /* x29 = the aborting frame's fp: walk the guest frames above it */
+                (unsigned long long)tl_abort_regs[0], (unsigned long long)tl_abort_regs[1], (unsigned long long)tl_abort_regs[2],
+                (unsigned long long)tl_abort_regs[3], (unsigned long long)tl_abort_regs[4], (unsigned long long)tl_abort_regs[5]);
+    abort_context((void *)tl_abort_regs[10]);  /* x29 = the aborting frame's fp: walk the guest frames above it */
     abort();
 }
 
 __attribute__((naked, noinline, used)) static void bionic_abort(void)
 {
     __asm__ volatile(
-        "adrp x16, _g_abort_x@PAGE\n"
-        "add  x16, x16, _g_abort_x@PAGEOFF\n"
+        "adrp x16, _tl_abort_regs@PAGE\n"
+        "add  x16, x16, _tl_abort_regs@PAGEOFF\n"
         "stp  x19, x20, [x16, #0]\n"
         "stp  x21, x22, [x16, #16]\n"
         "stp  x23, x24, [x16, #32]\n"
         "stp  x25, x26, [x16, #48]\n"
         "stp  x27, x28, [x16, #64]\n"
         "str  x29,      [x16, #80]\n"
-        "b    _bionic_abort_impl\n"
+        "b    _tl_bionic_abort_impl\n"
     );
 }
 
