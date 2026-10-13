@@ -476,9 +476,29 @@ void tl_note_missing_file(const char *path)
     const char *dot = strrchr(path, '.');
     if (strstr(path, "/obb/") && dot && !strcmp(dot, ".obb")) { said = true; tl_log_line("husk: the app's expansion file (OBB) is missing: %s", path); }
 }
+/* The guest's cryptographically secure randomness. Code that opens /dev/urandom -- libc++'s std::random_device, BoringSSL's
+ * seeding, and WhatsApp's libsignal auth-key (Curve25519) generation -- treats a short read or an error as fatal: the key
+ * generation then fails and registration aborts in native code. iOS does serve /dev/urandom, but to remove it as a variable it
+ * is served here straight from the host's CSPRNG (arc4random), which cannot fail or short-read. getrandom(2) and the raw
+ * getrandom syscall already come from the same source. */
+void arc4random_buf(void *, size_t);
+static bool g_urandom_fd[4096];
+static bool is_urandom_path(const char *p)
+{
+    return p && (!strcmp(p, "/dev/urandom") || !strcmp(p, "/dev/random") || !strcmp(p, "/dev/srandom")
+                 || !strcmp(p, "/dev/hwrng") || !strcmp(p, "/dev/hw_random"));
+}
+
 static int b_open(const char *path, int flags, unsigned mode)
 {
     char buf[1024]; static __thread char content[32768];
+    if (is_urandom_path(path) && (flags & 3) == O_RDONLY) {
+        int fd = open("/dev/null", O_RDONLY);                         /* a real descriptor the guest can poll/close; reads are intercepted */
+        if (fd >= 0 && fd < 4096) { g_urandom_fd[fd] = true; static int said; if (said++ < 4) tl_log_line("crypto: %s served from the host CSPRNG (fd %d)", path, fd); }
+        else if (fd >= 0) close(fd), fd = -1;
+        if (fd < 0) tl_set_guest_errno(2);
+        return fd;
+    }
     jar_entry jar;
     if (jar_lookup(path, &jar)) {
         if (!jar.found || jar.dir || (flags & 3) != 0) { tl_set_guest_errno(jar.dir ? 21 : 2); ftrace_open_jar(path, -1); return -1; }
@@ -526,7 +546,7 @@ static bool net_trace_fd(int fd);
 static int g_evfd_peer[1024];
 void tl_eventfd_register(int rd, int wr) { if (rd >= 0 && rd < 1024) g_evfd_peer[rd] = wr + 1; }
 static int evfd_peer(int fd) { return fd >= 0 && fd < 1024 ? g_evfd_peer[fd] - 1 : -1; }
-static int b_close(int fd) { if (evfd_peer(fd) >= 0) { close(evfd_peer(fd)); g_evfd_peer[fd] = 0; } if (vfd_is(fd)) g_vfd[fd].on = false; bool sock = net_trace_fd(fd); TL_ERRNO_BEGIN(); int r = close(fd); tl_atomic_closed(fd); TL_ERRNO_END(); if (sock) tl_log_line("net: close(fd %d)", fd); return r; }
+static int b_close(int fd) { if (fd >= 0 && fd < 4096) g_urandom_fd[fd] = false; if (evfd_peer(fd) >= 0) { close(evfd_peer(fd)); g_evfd_peer[fd] = 0; } if (vfd_is(fd)) g_vfd[fd].on = false; bool sock = net_trace_fd(fd); TL_ERRNO_BEGIN(); int r = close(fd); tl_atomic_closed(fd); TL_ERRNO_END(); if (sock) tl_log_line("net: close(fd %d)", fd); return r; }
 /* close() as the guest calls it (for other shims that close on its behalf: fdsan's close_with_tag) */
 int tl_guest_close(int fd) { return b_close(fd); }
 static bool net_trace_fd(int fd)
@@ -539,6 +559,11 @@ static bool net_trace_fd(int fd)
 }
 static long b_read(int fd, void *p, size_t n)
 {
+    if (fd >= 0 && fd < 4096 && g_urandom_fd[fd]) {
+        if (n) arc4random_buf(p, n);
+        static int said; if (said++ < 4) tl_log_line("crypto: guest read %zu random bytes from the host CSPRNG (fd %d)", n, fd);
+        return (long)n;
+    }
     if (vfd_is(fd)) {
         vfd *v = &g_vfd[fd];
         if (v->pos >= v->size) return 0;
@@ -1398,7 +1423,7 @@ static long linux_syscall_impl(long a0, long a1, long a2, long a3, long a4, long
     case 113: { int r = clock_gettime(clock_to_darwin((int)a0), (struct timespec *)a1); return r < 0 ? -tl_errno_to_guest(errno) : 0; }
     case 169: return b_gettimeofday((int64_t *)a0, (void *)a1);
     case 93: case 94: tl_log_line("bionic: exit(%ld) by raw system call", a0); exit((int)a0);
-    case 278: arc4random_buf((void *)a0, (size_t)a1); return a1;                        /* getrandom */
+    case 278: { if ((size_t)a1) arc4random_buf((void *)a0, (size_t)a1); static int said; if (said++ < 4) tl_log_line("crypto: getrandom syscall %ld bytes from the host CSPRNG", (long)a1); return a1; } /* getrandom */
     case 283: return 0;                                                                 /* membarrier */
     case 134: case 135: return 0;                                                       /* rt_sigaction, rt_sigprocmask: accepted */
     case 233: return 0;                                                                 /* madvise */
