@@ -442,7 +442,7 @@ jvalue tl_jni_get_static(const char *cls, const char *name, const char *sig)
  * from the app's own code reaching a genuinely missing member -- e.g. whether a "[B.<clinit>" lookup came from libopenjdk's
  * ObjectStreamClass (benign) or from the app's own native code. */
 #include "husk-tl-ld.h"
-#define JNI_RING 64
+#define JNI_RING 96
 static __thread struct { const void *caller; char text[112]; } t_ring[JNI_RING];
 static __thread uint32_t t_ring_n;
 static void jni_note(const void *caller, const char *fmt, ...)
@@ -466,7 +466,7 @@ void tl_jni_dump_recent(void)
 {
     if (!t_ring_n) { tl_log_line("jni: no type lookups recorded on the aborting thread"); return; }
     uint32_t have = t_ring_n < JNI_RING ? t_ring_n : JNI_RING;
-    tl_log_line("jni: the aborting thread's last %u type lookups (oldest first):", have);
+    tl_log_line("jni: the aborting thread's last %u JNI type and instanceof ops (oldest first):", have);
     for (uint32_t i = 0; i < have; i++) {
         uint32_t idx = (t_ring_n - have + i) % JNI_RING;
         char where[180]; jni_describe_addr(t_ring[idx].caller, where, sizeof where);
@@ -662,17 +662,30 @@ static bool assignable(tl_jclass *sub, tl_jclass *sup)
     return sub && sup && dvm_assignable(sub, sup);
 }
 static uint8_t jni_IsAssignableFrom(void *env, jo a, jo b) { (void)env; return (a && b && a->kind == TL_K_CLASS && b->kind == TL_K_CLASS) ? assignable(a->klass.jc, b->klass.jc) : 0; }
+static const char *jni_obj_class_name(jo obj)
+{
+    tl_jclass *dvm_object_class(jobj *o);
+    if (!obj) return "null";
+    tl_jclass *oc = dvm_object_class(obj);
+    if (!oc && obj->kind == TL_K_CLASS) return "java/lang/Class";
+    return oc ? oc->name : "?";
+}
 static uint8_t jni_IsInstanceOf(void *env, jo obj, jo cls)
 {
     (void)env;
-    if (!obj) return 1;
-    if (!cls || cls->kind != TL_K_CLASS) return 0;
-    /* what getClass() says: a class object is a java.lang.Class (Dex2C's check-cast of one asks this) */
-    tl_jclass *dvm_object_class(jobj *o);
-    tl_jclass *oc = dvm_object_class(obj);
-    if (!oc && obj->kind == TL_K_CLASS) oc = tl_jni_class("java/lang/Class");
-    if (!oc) return 0;
-    return assignable(oc, cls->klass.jc);
+    uint8_t r;
+    if (!obj) r = 1;
+    else if (!cls || cls->kind != TL_K_CLASS) r = 0;
+    else {
+        /* what getClass() says: a class object is a java.lang.Class (Dex2C's check-cast of one asks this) */
+        tl_jclass *dvm_object_class(jobj *o);
+        tl_jclass *oc = dvm_object_class(obj);
+        if (!oc && obj->kind == TL_K_CLASS) oc = tl_jni_class("java/lang/Class");
+        r = oc ? assignable(oc, cls->klass.jc) : 0;
+    }
+    jni_note(__builtin_return_address(0), "IsInstanceOf obj=%s is %s -> %s",
+             jni_obj_class_name(obj), cls && cls->kind == TL_K_CLASS ? cls->klass.jc->name : "?", r ? "true" : "false");
+    return r;
 }
 
 static int32_t jni_Throw(void *env, jo t) { (void)env; t_pending = t; return 0; }
@@ -735,6 +748,7 @@ static jo jni_GetObjectClass(void *env, jo o)
 {
     (void)env;
     if (!o) return NULL;
+    jni_note(__builtin_return_address(0), "GetObjectClass -> %s", jni_obj_class_name(o));
     if (o->kind == TL_K_CLASS) return tl_jni_class("java/lang/Class")->mirror;
     return o->cls ? o->cls->mirror : NULL;
 }
