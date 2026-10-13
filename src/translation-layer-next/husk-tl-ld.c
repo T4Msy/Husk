@@ -738,6 +738,20 @@ static bool stub_in_range(const uint8_t *site, const uint8_t *stub)
     return to > -(1 << 25) && to < (1 << 25);
 }
 
+/* gb25 diagnostic probes for the corvus registration ENC= builder. The abort's third component comes from libwhatsapp's 0x530dfc,
+   which is x22 = 0x530c88(0x54172c(url_cstr)). Static reading says both sublcalls must return non-null here, yet x22 is null at
+   runtime. These two probes read, non-destructively, the actual return of each sublall so we can see which one nulls — regs[i] is
+   guest xi captured by tl_probe_common before the (non-PC-relative) site instruction runs. They log values only (a heap pointer or
+   0), never any string content, so nothing sensitive leaks. Offsets are specific to this corvus libwhatsapp.so. */
+static void tl_probe_strbuild_ret(uint64_t *regs)   /* at +0x530e14 (mov x19,x0): x0 = 0x54172c String-build return */
+{
+    static int n; if (n++ < 8) tl_log_line("probe: ENC 0x54172c (String build) -> %#llx", (unsigned long long)regs[0]);
+}
+static void tl_probe_parse_ret(uint64_t *regs)      /* at +0x530e24 (mov x20,x0): x0 = 0x530c88 return */
+{
+    static int n; if (n++ < 8) tl_log_line("probe: ENC 0x530c88 (parse) -> %#llx", (unsigned long long)regs[0]);
+}
+
 /*
  * A 32-byte slot for a site, as writable and executable addresses, from whichever of the library's two stub pools is
  * within branch range of the site (a branch reaches 128 MiB, and Minecraft's code spans 220 MiB). `*lit` is the
@@ -1862,6 +1876,11 @@ static bool relocate(tl_lib *L)
     patch_image(L, &t, &a, &ad, &sv);
     tl_xmem_flush(L->rx, (L->npages + L->nstub) * PAGE);
     L->state = 2;
+    if (strstr(L->name, "libwhatsapp")) {   /* gb25: probe the ENC= builder's 0x530dfc fork (see tl_probe_*_ret) */
+        bool p1 = tl_ld_probe(L, L->base_vaddr + 0x530e14, tl_probe_strbuild_ret);
+        bool p2 = tl_ld_probe(L, L->base_vaddr + 0x530e24, tl_probe_parse_ret);
+        tl_log_line("probe: ENC 0x530dfc fork probes on %s: strbuild=%d parse=%d", L->name, p1, p2);
+    }
     if (G.verbosity >= 1) {
         tl_log_line("ld: %-36s %5.1f MiB  %7zu relocs, %4zu tpidr + %5zu adrp patched%s%s", L->name,
                     (double)(L->npages * PAGE) / 1048576.0, count, t, a,
