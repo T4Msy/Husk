@@ -501,30 +501,9 @@ static v2u64 b_wcstold(const wchar_t *s, wchar_t **end) { TL_ERRNO_BEGIN(); doub
 static long b_strtol(const char *s, char **e, int b) { TL_ERRNO_BEGIN(); long r = strtol(s, e, b); TL_ERRNO_END(); return r; }
 static long long b_strtoll(const char *s, char **e, int b) { TL_ERRNO_BEGIN(); long long r = strtoll(s, e, b); TL_ERRNO_END(); return r; }
 
-/* The registration ENC= builder aborts on a null third component. The gb23 overflow-only probe stayed silent, which (the only
-   non-abort failure in the MCFURL URL parser being a port > 65535) means the parser was never reached and the null is upstream,
-   in the managed-String build. To confirm that fork we log every strtoul call that originates in libwhatsapp — caller offset,
-   result, base, and leading-digit count, never any input bytes. If the MCFURL port site never appears during registration, the
-   parser is indeed not reached. */
-static void strtoul_note(void *lr, const char *s, unsigned long r, int base)
-{
-    const tl_lib *L = tl_ld_lib_of(lr);
-    const char *ln = L ? tl_ld_lib_soname(L) : NULL;   /* the soname, not the name: the name can be a long path */
-    if (!ln || !strstr(ln, "whatsapp")) return;   /* only the registration library */
-    static int said;
-    if (said++ >= 16) return;
-    size_t digits = 0;
-    if (s) { const char *p = s; while (*p == ' ' || *p == '\t') p++; if (*p == '+' || *p == '-') p++;
-             while (digits < 65536 && p[digits] >= '0' && p[digits] <= '9') digits++; }
-    const char *bn = strrchr(ln, '/') ? strrchr(ln, '/') + 1 : ln;
-    unsigned long off = (unsigned long)((const char *)lr - (const char *)tl_ld_lib_base(L));
-    tl_log_line("bionic: strtoul(base=%d) = %#lx%s from %s +%#lx; %zu leading digits",
-                base, r, (r >> 16) ? " (>0xffff)" : "", bn, off, digits);
-}
 static unsigned long b_strtoul(const char *s, char **e, int b)
 {
     TL_ERRNO_BEGIN(); unsigned long r = strtoul(s, e, b); TL_ERRNO_END();
-    strtoul_note(__builtin_return_address(0), s, r, b);
     return r;
 }
 static unsigned long long b_strtoull(const char *s, char **e, int b) { TL_ERRNO_BEGIN(); unsigned long long r = strtoull(s, e, b); TL_ERRNO_END(); return r; }
