@@ -437,6 +437,19 @@ static void tl_enc_param_probe(void)
         }
         tl_log_line("bionic:   %s: len=%zu valid_utf8=%s first_bad_off=%ld",
                     name[i], n, bad < 0 ? "yes" : "no", bad);
+        /* Structural prefix only: the leading run of URL-structural bytes (scheme://host/path). We stop at the first byte that is
+           not an unreserved/structural URL char — in particular at '?', '=', '&', '#' and '%' — so query values, where a phone
+           number, code or token would live, are never emitted. Anything past the stop is omitted entirely. */
+        char pre[49]; size_t m = 0;
+        for (; m < n && m < sizeof(pre) - 1; m++) {
+            unsigned char c = p[m];
+            int structural = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')
+                           || c == ':' || c == '/' || c == '.' || c == '-' || c == '_' || c == '~';
+            if (!structural) break;
+            pre[m] = (char)c;
+        }
+        pre[m] = 0;
+        tl_log_line("bionic:   %s: structural prefix [%s]%s", name[i], pre, m < n ? " (truncated at first non-structural byte)" : "");
     }
 }
 

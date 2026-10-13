@@ -501,29 +501,30 @@ static v2u64 b_wcstold(const wchar_t *s, wchar_t **end) { TL_ERRNO_BEGIN(); doub
 static long b_strtol(const char *s, char **e, int b) { TL_ERRNO_BEGIN(); long r = strtol(s, e, b); TL_ERRNO_END(); return r; }
 static long long b_strtoll(const char *s, char **e, int b) { TL_ERRNO_BEGIN(); long long r = strtoll(s, e, b); TL_ERRNO_END(); return r; }
 
-/* MCFURL (the registration URL parser inside libwhatsapp) rejects a URL whose :port exceeds 65535, which it tests as
-   strtoul(port,…) >> 16 != 0; on the guest that rejection nulls a component and aborts registration. When strtoul returns such a
-   value we log the exact call — the numeric result, base, guest caller offset, and how many leading digits the input held — with
-   no input bytes, so nothing sensitive leaks. A huge result from only a few digits would mean strtoul itself is wrong here; a huge
-   result from a long digit run would mean the parser handed strtoul the wrong substring. */
-static void strtoul_wide_note(void *lr, const char *s, unsigned long r, int base)
+/* The registration ENC= builder aborts on a null third component. The gb23 overflow-only probe stayed silent, which (the only
+   non-abort failure in the MCFURL URL parser being a port > 65535) means the parser was never reached and the null is upstream,
+   in the managed-String build. To confirm that fork we log every strtoul call that originates in libwhatsapp — caller offset,
+   result, base, and leading-digit count, never any input bytes. If the MCFURL port site never appears during registration, the
+   parser is indeed not reached. */
+static void strtoul_note(void *lr, const char *s, unsigned long r, int base)
 {
+    const tl_lib *L = tl_ld_lib_of(lr);
+    const char *ln = L ? tl_ld_lib_name(L) : NULL;
+    if (!ln || !strstr(ln, "whatsapp")) return;   /* only the registration library */
     static int said;
-    if (said++ >= 6) return;
+    if (said++ >= 16) return;
     size_t digits = 0;
     if (s) { const char *p = s; while (*p == ' ' || *p == '\t') p++; if (*p == '+' || *p == '-') p++;
              while (digits < 65536 && p[digits] >= '0' && p[digits] <= '9') digits++; }
-    const tl_lib *L = tl_ld_lib_of(lr);
-    const char *ln = L ? tl_ld_lib_name(L) : NULL;
-    const char *base_name = ln ? (strrchr(ln, '/') ? strrchr(ln, '/') + 1 : ln) : "?";
-    unsigned long off = L ? (unsigned long)((const char *)lr - (const char *)tl_ld_lib_base(L)) : (unsigned long)lr;
-    tl_log_line("bionic: strtoul(base=%d) = %#lx (> 0xffff) from %s +%#lx; input had %zu leading digits",
-                base, r, base_name, off, digits);
+    const char *bn = strrchr(ln, '/') ? strrchr(ln, '/') + 1 : ln;
+    unsigned long off = (unsigned long)((const char *)lr - (const char *)tl_ld_lib_base(L));
+    tl_log_line("bionic: strtoul(base=%d) = %#lx%s from %s +%#lx; %zu leading digits",
+                base, r, (r >> 16) ? " (>0xffff)" : "", bn, off, digits);
 }
 static unsigned long b_strtoul(const char *s, char **e, int b)
 {
     TL_ERRNO_BEGIN(); unsigned long r = strtoul(s, e, b); TL_ERRNO_END();
-    if ((r >> 16) != 0) strtoul_wide_note(__builtin_return_address(0), s, r, b);
+    strtoul_note(__builtin_return_address(0), s, r, b);
     return r;
 }
 static unsigned long long b_strtoull(const char *s, char **e, int b) { TL_ERRNO_BEGIN(); unsigned long long r = strtoull(s, e, b); TL_ERRNO_END(); return r; }
