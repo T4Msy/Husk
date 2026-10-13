@@ -409,17 +409,52 @@ extern uint64_t tl_abort_regs[11];
 extern void tl_bionic_abort_impl(void);
 uint64_t tl_abort_regs[11];   /* x19,x20,x21,x22,x23,x24,x25,x26,x27,x28,x29 */
 
+/* The corvus registration ENC= builder (libwhatsapp +0x50c210) aborts when one of its three components is null. The register dump
+   names which one; for the string component this adds *why* without logging any content. That component is built by UTF-8-decoding
+   a C string into a managed String, which yields null on invalid UTF-8. The two string objects it reads keep their backing char*
+   at field +0x20. We report only each one's NULL-ness, byte length, UTF-8 validity and the offset of the first invalid byte — never
+   a byte of the content — so no phone number, code or token can leak, while still localising which input carries the bad bytes. */
+#define TL_ENC_BUILDER_ABORT_OFF 0x50c210UL
+static void tl_enc_param_probe(void)
+{
+    static const char *const name[2] = { "ENC-blob(x20)", "ENC-concat(x21)" };
+    for (int i = 0; i < 2; i++) {
+        uintptr_t obj = (uintptr_t)tl_abort_regs[1 + i];   /* x20 then x21 */
+        if (!obj) { tl_log_line("bionic:   %s: object is NULL", name[i]); continue; }
+        const unsigned char *p = *(const unsigned char *const *)(obj + 0x20);
+        if (!p) { tl_log_line("bionic:   %s: backing string is NULL", name[i]); continue; }
+        size_t n = 0; const size_t cap = 1u << 16;
+        while (n < cap && p[n]) n++;
+        long bad = -1;
+        for (size_t j = 0; j < n; ) {
+            unsigned c = p[j];
+            size_t need = c < 0x80 ? 0 : (c & 0xe0) == 0xc0 ? 1 : (c & 0xf0) == 0xe0 ? 2 : (c & 0xf8) == 0xf0 ? 3 : 99;
+            if (need == 99 || j + need >= n) { bad = (long)j; break; }
+            int ok = 1;
+            for (size_t k = 1; k <= need; k++) if ((p[j + k] & 0xc0) != 0x80) { ok = 0; break; }
+            if (!ok) { bad = (long)j; break; }
+            j += need + 1;
+        }
+        tl_log_line("bionic:   %s: len=%zu valid_utf8=%s first_bad_off=%ld",
+                    name[i], n, bad < 0 ? "yes" : "no", bad);
+    }
+}
+
 __attribute__((noinline, noreturn, used)) void tl_bionic_abort_impl(void)
 {
     char where[200];
+    void *lr = __builtin_return_address(0);
     /* lr is unchanged (the snapshot trampoline tail-called us with `b`), so it still points just past the guest's `bl abort`. */
-    describe_caller(__builtin_return_address(0), where, sizeof(where));
+    describe_caller(lr, where, sizeof(where));
     tl_log_line("bionic: abort() called from %s", where);
     /* The captured callee-saved registers, so an abort with no message can still be pinned to the value that was null/false. */
     tl_log_line("bionic: abort regs x19=%#llx x20=%#llx x21=%#llx x22=%#llx x23=%#llx x24=%#llx",
                 (unsigned long long)tl_abort_regs[0], (unsigned long long)tl_abort_regs[1], (unsigned long long)tl_abort_regs[2],
                 (unsigned long long)tl_abort_regs[3], (unsigned long long)tl_abort_regs[4], (unsigned long long)tl_abort_regs[5]);
     abort_context((void *)tl_abort_regs[10]);  /* x29 = the aborting frame's fp: walk the guest frames above it */
+    const tl_lib *L = tl_ld_lib_of(lr);
+    if (L && (unsigned long)((const char *)lr - (const char *)tl_ld_lib_base(L)) == TL_ENC_BUILDER_ABORT_OFF)
+        tl_enc_param_probe();
     abort();
 }
 
