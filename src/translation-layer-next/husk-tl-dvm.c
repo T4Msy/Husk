@@ -2493,6 +2493,7 @@ bool tl_dvm_load_library(const char *name_or_path)
 bool tl_dvm_load_natives(const char *libdir)
 {
     tl_ld_add_search_dir(libdir);
+    void tl_tls_tap_install(void); tl_tls_tap_install();   /* observe registration's TLS plaintext (before the app's libssl loads) */
     bool ok = tl_jni_load_library("libjavacore.so");
     ok = tl_jni_load_library("libopenjdk.so") && ok;
     /* core-icu4j's natives (charset converters, ICU's Java side), which ART loads with the runtime */
@@ -2508,7 +2509,7 @@ bool tl_dvm_load_natives(const char *libdir)
     }
     dvm_current_thread();
     g_core_up = true;
-    tl_log_line("dvm: Husk translation layer, T4Msy build gb32");
+    tl_log_line("dvm: Husk translation layer, T4Msy build gb33");
     return ok;
 }
 
