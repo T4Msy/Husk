@@ -1121,12 +1121,31 @@ static char *from_utf16(const uint16_t *u, size_t n)
 }
 
 static jo jni_NewString(void *env, const uint16_t *chars, int32_t len) { (void)env; char *s = from_utf16(chars, (size_t)len); jo o = tl_jni_new_string(s); free(s); return o; }
+/*
+ * gb35 registration-number probe. The server rejects the registration with {"param":"in",
+ * "failure_reason":"bad_format"}; the number is encrypted inside ENC= on the wire, so to see the value the
+ * client actually assembled, log number-shaped strings as they cross JNI (the native ENC= builder pulls the
+ * phone number from Java through GetStringUTFChars; Java-made numbers appear via NewStringUTF). A string is
+ * number-shaped when it is 1..18 bytes and at least 60% ASCII digits -- catches "55", a DDD, and the national
+ * number, while skipping tokens and UUIDs. Budgeted so it cannot flood the log.
+ */
+static void jni_num_probe(const char *s)
+{
+    static int budget = 60;
+    if (!s || budget <= 0) return;
+    size_t n = strlen(s), d = 0;
+    if (n < 1 || n > 18) return;
+    for (size_t i = 0; i < n; i++) if (s[i] >= '0' && s[i] <= '9') d++;
+    if (d * 10 < n * 6) return;                 /* fewer than 60% digits: not a number */
+    budget--;
+    tl_log_line("num-probe: jni string \"%s\" (%zu chars, %zu digits)", s, n, d);
+}
 static int32_t jni_GetStringLength(void *env, jo s) { (void)env; return (int32_t)utf16_len(tl_jni_string(s) ? tl_jni_string(s) : ""); }
 static const uint16_t *jni_GetStringChars(void *env, jo s, uint8_t *copy) { (void)env; if (copy) *copy = 1; return to_utf16(tl_jni_string(s) ? tl_jni_string(s) : "", NULL); }
 static void jni_ReleaseStringChars(void *env, jo s, const uint16_t *c) { (void)env; (void)s; free((void *)c); }
-static jo jni_NewStringUTF(void *env, const char *utf) { (void)env; return utf ? tl_jni_new_string(utf) : NULL; }
+static jo jni_NewStringUTF(void *env, const char *utf) { (void)env; jni_num_probe(utf); return utf ? tl_jni_new_string(utf) : NULL; }
 static int32_t jni_GetStringUTFLength(void *env, jo s) { (void)env; return (int32_t)strlen(tl_jni_string(s) ? tl_jni_string(s) : ""); }
-static const char *jni_GetStringUTFChars(void *env, jo s, uint8_t *copy) { (void)env; if (copy) *copy = 1; return strdup(tl_jni_string(s) ? tl_jni_string(s) : ""); }
+static const char *jni_GetStringUTFChars(void *env, jo s, uint8_t *copy) { (void)env; if (copy) *copy = 1; const char *u = tl_jni_string(s) ? tl_jni_string(s) : ""; jni_num_probe(u); return strdup(u); }
 static void jni_ReleaseStringUTFChars(void *env, jo s, const char *c) { (void)env; (void)s; free((void *)c); }
 static void jni_GetStringRegion(void *env, jo s, int32_t start, int32_t len, uint16_t *buf)
 {
