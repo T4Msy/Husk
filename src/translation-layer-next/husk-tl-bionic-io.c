@@ -94,6 +94,17 @@ static int synth_file(const char *content)
     return fd;
 }
 
+/* /proc/sys/kernel/random/boot_id: one UUID, stable for the life of the process (the host has no /proc to read it from). */
+static char g_boot_id[40];
+static pthread_once_t g_boot_id_once = PTHREAD_ONCE_INIT;
+static void mint_boot_id(void)
+{
+    unsigned char u[16]; arc4random_buf(u, sizeof u);
+    u[6] = (u[6] & 0x0f) | 0x40; u[8] = (u[8] & 0x3f) | 0x80;  /* RFC 4122 version 4 */
+    snprintf(g_boot_id, sizeof g_boot_id, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x\n",
+             u[0],u[1],u[2],u[3], u[4],u[5], u[6],u[7], u[8],u[9], u[10],u[11],u[12],u[13],u[14],u[15]);
+}
+
 static const char *synth_content(const char *path, char *buf, size_t n)
 {
     if (!strcmp(path, "/proc/cpuinfo")) {
@@ -122,6 +133,24 @@ static const char *synth_content(const char *path, char *buf, size_t n)
     }
     if (!strcmp(path, "/proc/self/status")) {
         snprintf(buf, n, "Name:\tapp_process64\nState:\tR (running)\nTgid:\t%d\nPid:\t%d\nPPid:\t1\nUid:\t10001\t10001\t10001\t10001\nThreads:\t8\nVmRSS:\t  300000 kB\n", getpid(), getpid());
+        return buf;
+    }
+    /*
+     * The kernel's random UUIDs. boot_id is one UUID that stays the same for the life of a boot; the host
+     * has no /proc, so we mint one on first use and keep it. /proc/sys/kernel/random/uuid gives a fresh one
+     * on every read. WhatsApp's integrity hashing reads boot_id during registration; without it the hash is
+     * never built and the server gets an incomplete attestation.
+     */
+    if (!strcmp(path, "/proc/sys/kernel/random/boot_id")) {
+        pthread_once(&g_boot_id_once, mint_boot_id);
+        snprintf(buf, n, "%s", g_boot_id);
+        return buf;
+    }
+    if (!strcmp(path, "/proc/sys/kernel/random/uuid")) {
+        unsigned char u[16]; arc4random_buf(u, sizeof u);
+        u[6] = (u[6] & 0x0f) | 0x40; u[8] = (u[8] & 0x3f) | 0x80;  /* RFC 4122 version 4 */
+        snprintf(buf, n, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x\n",
+                 u[0],u[1],u[2],u[3], u[4],u[5], u[6],u[7], u[8],u[9], u[10],u[11],u[12],u[13],u[14],u[15]);
         return buf;
     }
     return NULL;
