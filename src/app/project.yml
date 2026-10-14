@@ -48,6 +48,9 @@ targets:
       - path: ../translation-layer-next
         excludes:
           - "husk-tl-unity-app.h"
+          # Host-side unit tests (each has its own main()); built by CI on Linux, never linked into the app.
+          - "tests"
+          - "tests/**"
       # The messages the app and its JIT helper exchange.
       - path: HuskJITHelper/HuskJITMessages.swift
       # The download Live Activity's attributes, shared with the widget that draws it.
