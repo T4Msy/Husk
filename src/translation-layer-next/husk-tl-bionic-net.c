@@ -21,6 +21,7 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <pthread.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -138,6 +139,23 @@ static int msg_flags_to_darwin(int f)
 static int g_net_trace = -1;
 #define NTRACE(...) do { if (g_net_trace < 0) g_net_trace = getenv("TL_NET_TRACE") ? 1 : 0; if (g_net_trace) tl_log_line("net: " __VA_ARGS__); } while (0)
 
+/*
+ * Always-on, capped transport breadcrumbs for the registration-network diagnosis: the DNS result,
+ * the connect result, the async-connect SO_ERROR, and the byte counts / error categories of each
+ * send and recv. Status and sizes only -- never payload, query string, phone, token or code, so
+ * nothing sensitive leaks. Capped so a long-running session cannot be flooded; enough for one
+ * registration handshake. This answers, from the log alone, whether the transport reaches the
+ * server and exchanges data, or fails -- and where.
+ */
+static void net_evt(const char *fmt, ...)
+{
+    static int n;
+    if (n >= 200) return;
+    n++;
+    char buf[160]; va_list ap; va_start(ap, fmt); vsnprintf(buf, sizeof(buf), fmt, ap); va_end(ap);
+    tl_log_line("net: %s", buf);
+}
+
 static void quiet_sigpipe(int fd)
 {
     int one = 1;
@@ -190,7 +208,11 @@ static int b_connect(int fd, const void *g, socklen_t glen)
     socklen_t n = sa_to_darwin(g, glen, &s);
     if (!n) { tl_set_guest_errno(G_EAFNOSUPPORT); return -1; }
     TL_ERRNO_BEGIN(); int r = connect(fd, (struct sockaddr *)&s, n); int e = errno; TL_ERRNO_END();
-    { char ip[64] = "?"; if (s.ss_family == AF_INET) inet_ntop(AF_INET, &((struct sockaddr_in *)&s)->sin_addr, ip, sizeof(ip)); NTRACE("connect(fd %d, %s) -> %d errno %d", fd, ip, r, e); }
+    { char ip[64] = "?"; int port = 0;
+      if (s.ss_family == AF_INET) { inet_ntop(AF_INET, &((struct sockaddr_in *)&s)->sin_addr, ip, sizeof(ip)); port = ntohs(((struct sockaddr_in *)&s)->sin_port); }
+      else if (s.ss_family == AF_INET6) { inet_ntop(AF_INET6, &((struct sockaddr_in6 *)&s)->sin6_addr, ip, sizeof(ip)); port = ntohs(((struct sockaddr_in6 *)&s)->sin6_port); }
+      NTRACE("connect(fd %d, %s) -> %d errno %d", fd, ip, r, e);
+      net_evt("connect fd=%d %s:%d -> %d errno=%d", fd, ip, port, r, r < 0 ? e : 0); }
     return r;
 }
 
@@ -215,11 +237,11 @@ static int b_accept4(int fd, void *g, socklen_t *glen, int flags) { return accep
 
 static long b_send(int fd, const void *p, size_t n, int flags)
 {
-    TL_ERRNO_BEGIN(); long r = send(fd, p, n, msg_flags_to_darwin(flags)); int e = errno; TL_ERRNO_END(); NTRACE("send(fd %d, %zu) -> %ld errno %d", fd, n, r, r < 0 ? e : 0); return r;
+    TL_ERRNO_BEGIN(); long r = send(fd, p, n, msg_flags_to_darwin(flags)); int e = errno; TL_ERRNO_END(); NTRACE("send(fd %d, %zu) -> %ld errno %d", fd, n, r, r < 0 ? e : 0); net_evt("send fd=%d -> %ld errno=%d", fd, r, r < 0 ? e : 0); return r;
 }
 static long b_recv(int fd, void *p, size_t n, int flags)
 {
-    TL_ERRNO_BEGIN(); long r = recv(fd, p, n, msg_flags_to_darwin(flags)); int e = errno; TL_ERRNO_END(); NTRACE("recv(fd %d, %zu) -> %ld errno %d", fd, n, r, r < 0 ? e : 0); return r;
+    TL_ERRNO_BEGIN(); long r = recv(fd, p, n, msg_flags_to_darwin(flags)); int e = errno; TL_ERRNO_END(); NTRACE("recv(fd %d, %zu) -> %ld errno %d", fd, n, r, r < 0 ? e : 0); net_evt("recv fd=%d -> %ld errno=%d", fd, r, r < 0 ? e : 0); return r;
 }
 static long b_sendto(int fd, const void *p, size_t n, int flags, const void *g, socklen_t glen);
 static long b___sendto_chk(int fd, const void *p, size_t n, size_t bl, int flags, const void *g, socklen_t glen) { (void)bl; return b_sendto(fd, p, n, flags, g, glen); }
@@ -227,7 +249,7 @@ static long b_sendto(int fd, const void *p, size_t n, int flags, const void *g, 
 {
     struct sockaddr_storage s; socklen_t sl = 0;
     if (g) { sl = sa_to_darwin(g, glen, &s); if (!sl) { tl_set_guest_errno(G_EAFNOSUPPORT); return -1; } }
-    TL_ERRNO_BEGIN(); long r = sendto(fd, p, n, msg_flags_to_darwin(flags), g ? (struct sockaddr *)&s : NULL, sl); TL_ERRNO_END(); return r;
+    TL_ERRNO_BEGIN(); long r = sendto(fd, p, n, msg_flags_to_darwin(flags), g ? (struct sockaddr *)&s : NULL, sl); int e = errno; TL_ERRNO_END(); net_evt("sendto fd=%d -> %ld errno=%d", fd, r, r < 0 ? e : 0); return r;
 }
 static long b_recvfrom(int fd, void *p, size_t n, int flags, void *g, socklen_t *glen);
 /* FORTIFY's recvfrom: the same, with the size of the buffer it fills. */
@@ -241,6 +263,7 @@ static long b_recvfrom(int fd, void *p, size_t n, int flags, void *g, socklen_t 
     int e = errno;
     TL_ERRNO_END();
     NTRACE("recvfrom(fd %d, %zu) -> %ld errno %d", fd, n, r, r < 0 ? e : 0);
+    net_evt("recvfrom fd=%d -> %ld errno=%d", fd, r, r < 0 ? e : 0);
     return r;
 }
 
@@ -257,7 +280,7 @@ static long b_sendmsg(int fd, const guest_msghdr *g, int flags)
         m.msg_name = &s;
     }
     m.msg_iov = g->iov; m.msg_iovlen = (int)g->iovlen;
-    TL_ERRNO_BEGIN(); long r = sendmsg(fd, &m, msg_flags_to_darwin(flags)); TL_ERRNO_END(); return r;
+    TL_ERRNO_BEGIN(); long r = sendmsg(fd, &m, msg_flags_to_darwin(flags)); int e = errno; TL_ERRNO_END(); net_evt("sendmsg fd=%d -> %ld errno=%d", fd, r, r < 0 ? e : 0); return r;
 }
 static long b_recvmsg(int fd, guest_msghdr *g, int flags)
 {
@@ -272,7 +295,9 @@ static long b_recvmsg(int fd, guest_msghdr *g, int flags)
         g->controllen = 0;
         g->flags = 0;
     }
+    int e = errno;
     TL_ERRNO_END();
+    net_evt("recvmsg fd=%d -> %ld errno=%d", fd, r, r < 0 ? e : 0);
     return r;
 }
 /* sendmmsg / recvmmsg: Darwin has neither; one message at a time (QUIC and DNS libraries batch with them) */
@@ -361,6 +386,8 @@ static int b_getsockopt(int fd, int level, int name, void *val, socklen_t *len)
     if (r == 0 && level == G_SOL_SOCKET && name == 4 && *len >= sizeof(int)) *(int *)val = tl_errno_to_guest(*(int *)val);   /* SO_ERROR holds an errno */
     TL_ERRNO_END();
     NTRACE("getsockopt(fd %d, level %d, opt %d) -> %d errno %d value %d", fd, level, name, r, r < 0 ? e : 0, r == 0 && val && *len >= sizeof(int) ? *(int *)val : -1);
+    if (level == G_SOL_SOCKET && name == 4)   /* SO_ERROR: how an async connect reports success (0) or why it failed */
+        net_evt("SO_ERROR fd=%d -> %d", fd, r == 0 && val && *len >= sizeof(int) ? *(int *)val : -1);
     return r;
 }
 
@@ -405,6 +432,7 @@ static int b_getaddrinfo(const char *node, const char *service, const guest_addr
            gh ? gh->ai_family : -1, gh ? gh->ai_flags : -1, gh ? gh->ai_socktype : -1, r);
     if (r) return r;                                                /* EAI_* values agree with bionic's */
     guest_addrinfo *head = NULL, **tail = &head;
+    int naddrs = 0;
     for (struct addrinfo *a = dres; a; a = a->ai_next) {
         if (a->ai_family != AF_INET && a->ai_family != AF_INET6 && a->ai_family != AF_UNIX) continue;
         size_t canon = a->ai_canonname ? strlen(a->ai_canonname) + 1 : 0;
@@ -413,9 +441,10 @@ static int b_getaddrinfo(const char *node, const char *service, const guest_addr
         g->ai_addr = (uint8_t *)(g + 1);
         g->ai_addrlen = sa_from_darwin(a->ai_addr, g->ai_addr, 128);
         if (canon) { g->ai_canonname = (char *)(g + 1) + 128; memcpy(g->ai_canonname, a->ai_canonname, canon); }
-        *tail = g; tail = &g->ai_next;
+        *tail = g; tail = &g->ai_next; naddrs++;
     }
     freeaddrinfo(dres);
+    net_evt("resolve %s -> %d addrs", node ? node : "(null)", naddrs);   /* host only: a WhatsApp server name, not user data */
     if (!head) return 8;                                            /* EAI_NONAME */
     *res = head;
     return 0;
