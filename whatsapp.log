@@ -1,0 +1,2303 @@
+[  0.000] dvm: core-oj.jar!classes.dex: 4357 classes (4357 new)
+[  0.006] dvm: core-libart.jar!classes.dex: 570 classes (570 new)
+[  0.087] dvm: okhttp.jar!classes.dex: 241 classes (241 new)
+[  0.093] dvm: bouncycastle.jar!classes.dex: 929 classes (929 new)
+[  0.102] dvm: apache-xml.jar!classes.dex: 659 classes (659 new)
+[  0.234] dvm: core-icu4j.jar!classes.dex: 1796 classes (1796 new)
+[  0.237] dvm: conscrypt.jar!classes.dex: 414 classes (414 new)
+[  0.255] dvm: /Users/runner/work/Husk/Husk/build/java-runtime/husk-framework.dex: 6042 classes (6034 new)
+[  0.259] dvm: org.apache.http.legacy.jar!classes.dex: 453 classes (453 new)
+[  0.273] ld: libc++.so: unresolved import _Unwind_RaiseException
+[  0.273] ld: libc++.so: unresolved import _Unwind_DeleteException
+[  0.273] ld: libc++.so: unresolved import _Unwind_SetGR
+[  0.273] ld: libc++.so: unresolved import _Unwind_SetIP
+[  0.273] ld: libc++.so: unresolved import _Unwind_GetLanguageSpecificData
+[  0.273] ld: libc++.so: unresolved import _Unwind_GetIP
+[  0.273] ld: libc++.so: unresolved import _Unwind_GetRegionStart
+[  0.273] ld: libc++.so: unresolved import _Unwind_Resume
+[  0.313] ld: libjavacore.so: unresolved import capget
+[  0.313] ld: libjavacore.so: unresolved import capset
+[  0.313] ld: libjavacore.so: unresolved import getxattr
+[  0.313] ld: libjavacore.so: unresolved import listxattr
+[  0.313] ld: libjavacore.so: unresolved import removexattr
+[  0.313] ld: libjavacore.so: unresolved import setxattr
+[  0.313] ld: libjavacore.so: unresolved import splice
+[  0.316] E/AsynchronousCloseMonitor: setting blocked thread signal handler failed: Invalid argument
+[  0.317] jni: libjavacore.so JNI_OnLoad -> 0x10006
+[  0.319] ld: libopenjdk.so: unresolved import getgrgid_r
+[  0.319] ld: libopenjdk.so: unresolved import getgrnam_r
+[  0.321] jni: libopenjdk.so JNI_OnLoad -> 0x10006
+[  0.324] ld: libicu_jni.so: unresolved import strtoimax
+[  0.325] D/guest: u_setTimeZoneFilesDirectory("/Users/runner/work/Husk/Husk/build/java-runtime/com.android.art/../com.android.tzdata/etc/tz/versioned/9/icu") succeeded. 
+[  0.327] D/guest: I18n APEX ICU file found: /Users/runner/work/Husk/Husk/build/java-runtime/com.android.art/../com.android.i18n/etc/icu/icudt76l.dat
+[  0.429] jni: libicu_jni.so JNI_OnLoad -> 0x10006
+[  0.429] dvm: loading libcore's natives threw java.io.IOException: No such file or directory
+[  0.433] num-probe: jni string "76.1" (4 chars, 3 digits)
+[  0.433] num-probe: jni string "16.0" (4 chars, 3 digits)
+[  0.449] num-probe: jni string "46.0" (4 chars, 3 digits)
+[  0.449] java E: Ignoring command line argument: -Djava.version
+[  0.449] java E: Ignoring command line argument: -Djava.specification.version
+[  0.449] java E: Ignoring command line argument: -Djava.vendor
+[  0.449] java E: Ignoring command line argument: -Djava.vm.name
+[  0.449] java E: Ignoring command line argument: -Dfile.encoding
+[  0.449] java E: Ignoring command line argument: -Dfile.separator
+[  0.449] java E: Ignoring command line argument: -Dline.separator
+[  0.449] java E: Ignoring command line argument: -Dpath.separator
+[  0.450] dvm: Husk translation layer, T4Msy build gb35
+frames: /Volumes/GTAV/husk2/tmp/husk-jframes-abYoGA
+data: /Users/runner/work/_temp/data
+[  0.451] codewrite: stores into code go through the writable view from now on
+[  0.457] javaapp: com.whatsapp, launcher com.whatsapp.Main, application com.whatsapp.AppShell
+[  0.460] gc: on; a collection every 16 MiB made (payload zone separate)
+[  0.602] egl: ANGLE loaded, off-screen, frames to /Volumes/GTAV/husk2/tmp/husk-jframes-abYoGA
+[  0.704] dvm: com.whatsapp.apk!classes.dex: 5827 classes (5827 new)
+[  0.717] dvm: com.whatsapp.apk!classes2.dex: 1899 classes (1899 new)
+[  0.746] dvm: com.whatsapp.apk!classes3.dex: 6052 classes (6052 new)
+[  0.791] dvm: com.whatsapp.apk!classes4.dex: 11334 classes (11334 new)
+[  0.827] dvm: com.whatsapp.apk!classes5.dex: 8101 classes (8101 new)
+[  0.872] dvm: com.whatsapp.apk!classes6.dex: 8189 classes (8189 new)
+[  0.920] dvm: com.whatsapp.apk!classes7.dex: 10649 classes (10649 new)
+[  0.994] dvm: com.whatsapp.apk!classes8.dex: 9179 classes (9179 new)
+[  1.063] dvm: com.whatsapp.apk!classes9.dex: 11210 classes (11210 new)
+[  1.112] dvm: com.whatsapp.apk!classes10.dex: 9948 classes (9948 new)
+[  1.156] dvm: com.whatsapp.apk!classes11.dex: 11201 classes (11201 new)
+[  1.216] dvm: com.whatsapp.apk!classes12.dex: 13163 classes (13163 new)
+[  1.227] dvm: com.whatsapp.apk!classes13.dex: 1505 classes (1505 new)
+[  1.260] num-probe: jni string "cp367" (5 chars, 3 digits)
+[  1.260] num-probe: jni string "646" (3 chars, 3 digits)
+[  1.260] num-probe: jni string "cp367" (5 chars, 3 digits)
+[  1.261] num-probe: jni string "ISO_8859-1:1987" (15 chars, 9 digits)
+[  1.261] num-probe: jni string "cp819" (5 chars, 3 digits)
+[  1.261] num-probe: jni string "cp819" (5 chars, 3 digits)
+[  1.261] num-probe: jni string "8859_1" (6 chars, 5 digits)
+[  1.261] num-probe: jni string "ISO_8859-1:1987" (15 chars, 9 digits)
+[  1.261] num-probe: jni string "819" (3 chars, 3 digits)
+[  1.322] egl: display 0x131db8100 (ANGLE over Metal)
+[  1.495] ld: libssl.so: unresolved import _Unwind_RaiseException
+[  1.495] ld: libssl.so: unresolved import _Unwind_DeleteException
+[  1.495] ld: libssl.so: unresolved import _Unwind_Resume
+[  1.495] ld: libssl.so: unresolved import _Unwind_SetGR
+[  1.495] ld: libssl.so: unresolved import _Unwind_SetIP
+[  1.495] ld: libssl.so: unresolved import _Unwind_GetLanguageSpecificData
+[  1.495] ld: libssl.so: unresolved import _Unwind_GetIP
+[  1.495] ld: libssl.so: unresolved import _Unwind_GetRegionStart
+[  1.497] ld: libcrypto.so: skipped BORINGSSL_integrity_test
+[  1.499] jni: libjavacrypto.so JNI_OnLoad -> 0x10006
+[  1.499] crypto: getrandom syscall 1 bytes from the host CSPRNG
+[  1.499] crypto: getrandom syscall 32 bytes from the host CSPRNG
+[  1.499] net: socket(domain 1, type 0x1, proto 0)
+[  1.499] net: connect(fd 16, ?) -> -1 errno 2
+[  1.499] net: connect fd=16 ?:0 -> -1 errno=2
+[  1.499] net: close(fd 16)
+[  1.499] crypto: getrandom syscall 496 bytes from the host CSPRNG
+[  1.923] gc:   roots: every writable page in memory (168.0 MiB, 263 payload ranges left out)
+[  1.924] gc: #1 (threshold) freed 0 of 69302 objects (0.0 MiB); 69302 live (23.8 MiB); paused 125.2 ms (stop 0.1, mark 125.1), sweep 0.7 ms; scanned 171.7 MiB (10 threads' stacks 0.3 MiB, pages 168.0 MiB); next after 16 MiB; 0 MiB left
+[  2.094] gc:   roots: every writable page in memory (168.5 MiB, 270 payload ranges left out)
+[  2.094] gc: #2 (threshold) freed 28479 of 70148 objects (3.3 MiB); 41669 live (40.8 MiB); paused 92.2 ms (stop 0.1, mark 92.1), sweep 4.1 ms; scanned 172.1 MiB (10 threads' stacks 0.3 MiB, pages 168.5 MiB); next after 16 MiB; 0 MiB left
+[  2.588] gc: #3 (threshold) freed 280 of 155908 objects (0.0 MiB); 155628 live (56.6 MiB); paused 106.8 ms (stop 0.1, mark 106.7), sweep 1.4 ms; scanned 179.4 MiB (11 threads' stacks 0.8 MiB, pages 175.2 MiB); next after 16 MiB; 0 MiB left
+[  2.979] gc: #4 (threshold) freed 89697 of 301944 objects (10.0 MiB); 212247 live (62.4 MiB); paused 105.2 ms (stop 0.1, mark 105.1), sweep 7.7 ms; scanned 180.2 MiB (11 threads' stacks 0.5 MiB, pages 176.3 MiB); next after 16 MiB; 0 MiB left
+[  3.395] gc: #5 (threshold) freed 115776 of 351031 objects (12.1 MiB); 235255 live (66.3 MiB); paused 112.6 ms (stop 0.1, mark 112.5), sweep 7.8 ms; scanned 181.7 MiB (11 threads' stacks 0.5 MiB, pages 177.8 MiB); next after 16 MiB; 0 MiB left
+[  3.809] gc: #6 (threshold) freed 116675 of 372664 objects (13.1 MiB); 255989 live (69.2 MiB); paused 110.2 ms (stop 0.2, mark 110.0), sweep 9.0 ms; scanned 183.3 MiB (11 threads' stacks 0.6 MiB, pages 179.4 MiB); next after 16 MiB; 0 MiB left
+[  4.179] gc: #7 (threshold) freed 102421 of 397769 objects (11.2 MiB); 295348 live (73.9 MiB); paused 106.3 ms (stop 0.1, mark 106.2), sweep 6.7 ms; scanned 184.0 MiB (11 threads' stacks 0.5 MiB, pages 180.1 MiB); next after 16 MiB; 0 MiB left
+[  4.587] gc: #8 (threshold) freed 119230 of 438846 objects (13.0 MiB); 319616 live (76.7 MiB); paused 120.9 ms (stop 0.1, mark 120.8), sweep 20.2 ms; scanned 185.4 MiB (11 threads' stacks 0.6 MiB, pages 181.5 MiB); next after 16 MiB; 0 MiB left
+[  4.935] gc: #9 (threshold) freed 143317 of 463215 objects (15.7 MiB); 319898 live (76.7 MiB); paused 131.6 ms (stop 0.1, mark 131.5), sweep 15.8 ms; scanned 186.2 MiB (11 threads' stacks 0.5 MiB, pages 182.4 MiB); next after 16 MiB; 0 MiB left
+[  5.523] gc: #10 (threshold) freed 143579 of 463499 objects (15.7 MiB); 319920 live (76.7 MiB); paused 158.0 ms (stop 0.2, mark 157.8), sweep 13.5 ms; scanned 186.4 MiB (11 threads' stacks 0.6 MiB, pages 182.5 MiB); next after 16 MiB; 0 MiB left
+[  6.140] gc: #11 (threshold) freed 143596 of 463520 objects (15.7 MiB); 319924 live (76.7 MiB); paused 192.2 ms (stop 0.2, mark 192.0), sweep 16.5 ms; scanned 187.1 MiB (11 threads' stacks 0.6 MiB, pages 183.2 MiB); next after 16 MiB; 0 MiB left
+[  6.707] gc: #12 (threshold) freed 143600 of 463524 objects (15.7 MiB); 319924 live (76.7 MiB); paused 124.6 ms (stop 0.2, mark 124.5), sweep 9.6 ms; scanned 188.2 MiB (10 threads' stacks 0.5 MiB, pages 184.4 MiB); next after 16 MiB; 0 MiB left
+[  6.718] egl: window 804x1748 -> off-screen surface 0x1
+[  6.836] javaapp: render thread ready (ES 3 available), 804x1748
+[  7.231] gc: #13 (threshold) freed 143600 of 463524 objects (15.7 MiB); 319924 live (76.7 MiB); paused 131.6 ms (stop 0.1, mark 131.4), sweep 9.3 ms; scanned 188.9 MiB (13 threads' stacks 0.6 MiB, pages 185.0 MiB); next after 16 MiB; 0 MiB left
+[  7.719] I/FirebaseApp: Device unlocked: initializing all Firebase APIs for app [DEFAULT]
+[  7.727] W/FirebaseMessaging: Failed to resolve IID implementation package, falling back
+[  7.796] I/FirebaseInitProvider: FirebaseApp initialization successful
+[  7.802] crypto: getrandom syscall 32 bytes from the host CSPRNG
+[  7.831] I/ProcessNameUtil: getMyProcessName
+[  7.832] I/ProcessNameUtil: isSecondaryProcess/process name: com.whatsapp/processing time: 1 ms
+[  7.845] num-probe: jni string "f058632f.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "0d69c7e1.0" (10 chars, 6 digits)
+[  7.845] num-probe: jni string "34d996fb.0" (10 chars, 6 digits)
+[  7.845] num-probe: jni string "252252d2.0" (10 chars, 8 digits)
+[  7.845] num-probe: jni string "93851c9e.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "f459871d.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "399e7759.0" (10 chars, 8 digits)
+[  7.845] num-probe: jni string "c559d742.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "e13665f9.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "85cde254.0" (10 chars, 6 digits)
+[  7.845] num-probe: jni string "1f58a078.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "31188b5e.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "b936d1c6.0" (10 chars, 6 digits)
+[  7.845] num-probe: jni string "cb1c3204.0" (10 chars, 6 digits)
+[  7.845] num-probe: jni string "4c3982f2.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "33ee480d.0" (10 chars, 6 digits)
+[  7.845] num-probe: jni string "b872f2b4.0" (10 chars, 6 digits)
+[  7.845] num-probe: jni string "1e44ef15.0" (10 chars, 6 digits)
+[  7.845] num-probe: jni string "d7746a63.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "41a3f684.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "e442e424.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "5f47b495.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "7e067d03.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "6b483515.0" (10 chars, 8 digits)
+[  7.845] num-probe: jni string "8d6437c3.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "d16a5865.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "04f60c28.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "69105f4f.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "48a195d8.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "1e8e7201.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "e8651083.0" (10 chars, 8 digits)
+[  7.845] num-probe: jni string "9591a472.0" (10 chars, 8 digits)
+[  7.845] num-probe: jni string "e7c037b4.0" (10 chars, 6 digits)
+[  7.845] num-probe: jni string "302904dd.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "5d139d02.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "455f1b52.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "882de061.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "304d27c3.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "86212b19.0" (10 chars, 8 digits)
+[  7.845] num-probe: jni string "53a1b57a.0" (10 chars, 6 digits)
+[  7.845] num-probe: jni string "595e996b.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "068570d1.0" (10 chars, 8 digits)
+[  7.845] num-probe: jni string "8794b4e3.0" (10 chars, 7 digits)
+[  7.845] num-probe: jni string "fd08c599.0" (10 chars, 6 digits)
+[  7.845] num-probe: jni string "60afe812.0" (10 chars, 6 digits)
+[  7.845] num-probe: jni string "e48193cf.0" (10 chars, 6 digits)
+[  7.845] num-probe: jni string "a81e292b.0" (10 chars, 6 digits)
+[  7.845] num-probe: jni string "98aaf404.0" (10 chars, 6 digits)
+[  7.998] gc: #14 (threshold) freed 174437 of 457337 objects (20.6 MiB); 282900 live (71.8 MiB); paused 136.3 ms (stop 0.1, mark 136.2), sweep 13.3 ms; scanned 204.1 MiB (23 threads' stacks 3.6 MiB, pages 197.1 MiB); next after 16 MiB; 0 MiB left
+[  8.013] net: getaddrinfo(firebaseinstallations.googleapis.com, (null), family 0 flags 0x4 socktype 0) -> 8
+[  8.035] net: getaddrinfo(firebaseinstallations.googleapis.com, (null), family 0 flags 0x400 socktype 1) -> 0
+[  8.035] net: resolve firebaseinstallations.googleapis.com -> 16 addrs
+[  8.035] net: socket(domain 10, type 0x1, proto 0)
+[  8.036] net: connect(fd 26, ::ffff:172.217.117.4) -> -1 errno 36
+[  8.036] net: connect fd=26 ::ffff:172.217.117.4:443 -> -1 errno=36
+[  8.038] net: poll(1 fds, fd[0] 26 ev 0x4, timeout 9999) -> 1 rev 0x4
+[  8.038] net: getsockopt(fd 26, level 1, opt 4) -> 0 errno 0 value 0
+[  8.038] net: SO_ERROR fd=26 -> 0
+[  8.044] net: sendto fd=26 -> 517 errno=0
+[  8.046] net: poll(1 fds, fd[0] 26 ev 0x9, timeout 10000) -> 1 rev 0x1
+[  8.046] net: recvfrom(fd 26, 16709) -> 4479 errno 0
+[  8.046] net: recvfrom fd=26 -> 4479 errno=0
+[  8.085] net: sendto fd=26 -> 80 errno=0
+[  8.089] tls-tap: TX 634: POST /v1/projects/whatsapp-messenger/installations HTTP/1.1..Content-Type: application/json..Accept: application/json..Content-Encoding: gzip..Cache-Control: no-cache..X-Android-Package: com.whatsapp..x-firebase-client: ..X-Android-Cert: 38A0F7D505FE18FEC64FBF343ECAAAF310DBD799..x-goog-api-key: AIzaSyCGOJbGQ95SWrXxl8wk-_cRQZcJl42bvDU..User-Agent: Dalvik/2.1.0 (Linux; U; Android 14)
+[  8.090] net: sendto fd=26 -> 656 errno=0
+[  8.121] W/SoLoader: Initializing SoLoader: 0
+[  8.121] W/SysUtil: Falling back to device supported ABIs: [arm64-v8a], nativeLibraryDir: /Users/runner/work/_temp/data/lib
+[  8.121] I/SoLoader: Recording new base apk path: /Users/runner/work/_temp/apk/com.whatsapp.apk
+Previously recorded 0 base apk paths.
+[  8.122] I/SoLoader: Preparing SO source: DirectorySoSource[root = /vendor/lib64 flags = 2]
+[  8.122] I/SoLoader: Preparing SO source: DirectorySoSource[root = /system_ext/lib64 flags = 2]
+[  8.122] I/SoLoader: Preparing SO source: DirectorySoSource[root = /System/lib64 flags = 2]
+[  8.122] I/SoLoader: Preparing SO source: DirectApkSoSource[root = [/Users/runner/work/_temp/apk/com.whatsapp.apk!/lib/arm64-v8a]]
+[  8.186] net: poll(1 fds, fd[0] 26 ev 0x9, timeout 10000) -> 1 rev 0x1
+[  8.186] net: recvfrom(fd 26, 16709) -> 1542 errno 0
+[  8.186] net: recvfrom fd=26 -> 1542 errno=0
+[  8.187] tls-tap: RX 895: HTTP/1.1 200 OK..Content-Type: application/json; charset=UTF-8..Vary: Origin..Vary: X-Origin..Vary: Referer..Content-Encoding: gzip..Date: Wed, 14 Oct 2026 17:45:24 GMT..Server: ESF..X-XSS-Protection: 0..X-Frame-Options: SAMEORIGIN..X-Content-Type-Options: nosniff..Alt-Svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000..Transfer-Encoding: chunked....00000001.....00000001.....00000
+[  8.190] tls-tap: RX 5: 0....
+[  8.216] E/FirebaseMessaging: Topic sync or token retrieval failed on hard failure exceptions: java.util.concurrent.ExecutionException: java.io.IOException: SERVICE_NOT_AVAILABLE. Won't retry the operation.
+[  8.510] gc: #15 (threshold) freed 121332 of 398937 objects (13.6 MiB); 277605 live (74.0 MiB); paused 133.3 ms (stop 0.1, mark 133.2), sweep 27.1 ms; scanned 210.0 MiB (29 threads' stacks 3.9 MiB, pages 202.7 MiB); next after 16 MiB; 0 MiB left
+[  8.527] I/SoLoader: Preparing SO source: ApplicationSoSource[DirectorySoSource[root = /Users/runner/work/_temp/data/lib flags = 0]]
+[  8.528] W/SoLoader: SoLoader initialized: 8
+[  8.532] jni: libsuperpack.so JNI_OnLoad -> 0x10006
+[  8.563] E/spk: loading so archive library
+[  8.866] W/SoLoader: Loading wa_log on the main thread
+[  8.878] E/spk: re-using previous load of so archive library
+[  8.883] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libwa_log.so, this can be slow
+[  8.885] jni: /Users/runner/work/_temp/data/files/decompressed/libs.spo/libwa_log.so JNI_OnLoad -> 0x10006
+[  8.903] W/SoLoader: Loading essential on the main thread
+[  8.913] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libessential.so, this can be slow
+[  8.929] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libfb.so, this can be slow
+[  8.952] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libglog.so, this can be slow
+[  8.956] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libc++_shared.so, this can be slow
+[  8.964] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libfbsofterror.so, this can be slow
+[  8.988] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libfbjni.so, this can be slow
+[  8.991] jni: /Users/runner/work/_temp/data/files/decompressed/libs.spo/libfbjni.so JNI_OnLoad -> 0x10006
+[  8.992] W/SoLoader: Loading fb on the main thread
+[  8.992] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libfb.so, this can be slow
+[  8.994] jni: /Users/runner/work/_temp/data/files/decompressed/libs.spo/libfb.so JNI_OnLoad -> 0x10006
+[  9.002] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libforce_dlopen.so, this can be slow
+[  9.004] ld: /Users/runner/work/_temp/data/files/decompressed/libs.spo/libessential.so: unresolved import execle
+[  9.005] I/essential-jni: JNI_OnLoad start
+[  9.005] I/essential-jni: fbjni lambda running
+[  9.005] I/essential-jni: JNI_OnLoad lambda complete
+[  9.005] jni: /Users/runner/work/_temp/data/files/decompressed/libs.spo/libessential.so JNI_OnLoad -> 0x10006
+[  9.036] bionic: mprotect asked to make the host's code writable: refused
+[  9.036] bionic: guest installed a handler for fault signal 6: recorded, not installed
+[  9.036] bionic: guest installed a handler for fault signal 7: recorded, not installed
+[  9.036] bionic: guest installed a handler for fault signal 8: recorded, not installed
+[  9.036] bionic: guest installed a handler for fault signal 4: recorded, not installed
+[  9.036] bionic: guest installed a handler for fault signal 11: recorded, not installed
+[  9.036] bionic: guest installed a handler for fault signal 5: recorded, not installed
+[  9.068] ld: libartpalette.so is not in the APK and is not a system library
+[  9.068] W/SigquitBasedANRDetector: Could not open target lib: libartpalette.so
+[  9.127] W/SoLoader: Loading rtvip on the main thread
+[  9.143] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading librtvip.so, this can be slow
+[  9.148] jni: /Users/runner/work/_temp/data/files/decompressed/libs.spo/librtvip.so JNI_OnLoad -> 0x10006
+[  9.148] W/SoLoader: Loading rtvip on the main thread
+[  9.148] E/rtvip: error 1
+[  9.162] W/SoLoader: Loading vlc on the main thread
+[  9.173] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libvlc.so, this can be slow
+[  9.178] W/SoLoader: Loading native_utils on the main thread
+[  9.196] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libnative_utils.so, this can be slow
+[  9.216] jni: /Users/runner/work/_temp/data/files/decompressed/libs.spo/libnative_utils.so JNI_OnLoad -> 0x10006
+[  9.233] W/SoLoader: Loading curve25519 on the main thread
+[  9.250] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libcurve25519.so, this can be slow
+[  9.358] D/Husk: launch com.whatsapp.Main
+[  9.366] D/AppCompatDelegate: Checking for metadata for AppLocalesMetadataHolderService : Service not found
+[ 10.341] jni: UNIMPLEMENTED Java method androidx/window/extensions/WindowExtensionsProvider.getWindowExtensions()Landroidx/window/extensions/WindowExtensions; (returning zero)
+[ 10.341] D/EmbeddingBackend: No supported embedding extension found
+[ 10.460] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libwhatsapp.so, this can be slow
+[ 10.508] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libpyspeech.so, this can be slow
+[ 10.562] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libexecutorch.so, this can be slow
+[ 10.711] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libar-bundle3.so, this can be slow
+[ 10.723] jni: /Users/runner/work/_temp/data/files/decompressed/libs.spo/libar-bundle3.so JNI_OnLoad -> 0x10006
+[ 10.773] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libfortify.so, this can be slow
+[ 10.850] I/PlayCore: UID: [10100]  PID: [4242] SplitInstallListenerRegistry : registerListener
+[ 10.893] egl: swap #1
+[ 10.899] D/Husk: startActivity Intent { cmp=com.whatsapp/.registration.app.EULA (has extras) } -> com.whatsapp.registration.app.EULA
+[ 10.908] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libwhatsappmerged.so, this can be slow
+[ 10.917] D/Husk: launch com.whatsapp.registration.app.EULA
+[ 10.934] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libqpl.so, this can be slow
+[ 10.940] jni: /Users/runner/work/_temp/data/files/decompressed/libs.spo/libqpl.so JNI_OnLoad -> 0x10006
+[ 10.953] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libgraphutil.so, this can be slow
+[ 10.964] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libsimplejni.so, this can be slow
+[ 10.976] jni: /Users/runner/work/_temp/data/files/decompressed/libs.spo/libsimplejni.so JNI_OnLoad -> 0x10006
+[ 10.979] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libgraphstorecerealutil.so, this can be slow
+[ 11.026] jni: /Users/runner/work/_temp/data/files/decompressed/libs.spo/libwhatsappmerged.so JNI_OnLoad -> 0x10006
+[ 11.037] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libar-bundle2.so, this can be slow
+[ 11.061] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libopus_mlow.so, this can be slow
+[ 11.091] jni: /Users/runner/work/_temp/data/files/decompressed/libs.spo/libar-bundle2.so JNI_OnLoad -> 0x10006
+[ 11.196] egl: swap #2
+[ 11.348] jni: /Users/runner/work/_temp/data/files/decompressed/libs.spo/libwhatsapp.so JNI_OnLoad -> 0x10006
+[ 11.759] gc: #16 (threshold) freed 89053 of 372477 objects (12.5 MiB); 283424 live (77.3 MiB); paused 363.4 ms (stop 0.3, mark 363.0), sweep 22.3 ms; scanned 342.9 MiB (50 threads' stacks 7.1 MiB, pages 316.8 MiB); next after 16 MiB; 0 MiB left
+[ 11.845] net: getaddrinfo(v.whatsapp.net, (null), family 0 flags 0x4 socktype 0) -> 8
+[ 11.888] net: getaddrinfo(v.whatsapp.net, (null), family 0 flags 0x400 socktype 1) -> 0
+[ 11.888] net: resolve v.whatsapp.net -> 2 addrs
+[ 11.888] net: socket(domain 10, type 0x1, proto 0)
+[ 11.889] net: connect(fd 61, ::ffff:157.240.241.60) -> -1 errno 36
+[ 11.889] net: connect fd=61 ::ffff:157.240.241.60:443 -> -1 errno=36
+[ 11.896] net: poll(1 fds, fd[0] 61 ev 0x4, timeout 14999) -> 1 rev 0x4
+[ 11.896] net: getsockopt(fd 61, level 1, opt 4) -> 0 errno 0 value 0
+[ 11.896] net: SO_ERROR fd=61 -> 0
+[ 11.897] net: sendto fd=61 -> 517 errno=0
+[ 11.907] net: poll(1 fds, fd[0] 61 ev 0x9, timeout 30000) -> 1 rev 0x1
+[ 11.907] net: recvfrom(fd 61, 16709) -> 3220 errno 0
+[ 11.907] net: recvfrom fd=61 -> 3220 errno=0
+[ 11.940] net: sendto fd=61 -> 64 errno=0
+[ 11.940] net: close(fd 70)
+[ 11.940] net: close(fd 69)
+[ 11.940] net: close(fd 61)
+[ 12.010] I/AppCompatViewInflater: app:theme is now deprecated. Please move to using android:theme instead.
+[ 12.358] I/AppCompatViewInflater: app:theme is now deprecated. Please move to using android:theme instead.
+[ 12.441] E/ShortcutInfoCompatSaver: Failed to load saved values from file /Users/runner/work/_temp/data/files/ShortcutInfoCompatSaver_share_targets/targets.xml. Old state removed, new added
+java.io.FileNotFoundException: /Users/runner/work/_temp/data/files/ShortcutInfoCompatSaver_share_targets/targets.xml: open failed: ENOENT (No such file or directory)
+	at libcore.io.IoBridge.open(IoBridge.java:574)
+	at java.io.FileInputStream.<init>(FileInputStream.java:179)
+	at X.Fva.A0x(:2)
+	at X.NpK.run(:594)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:520)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at java.lang.Thread.run(Thread.java:1563)
+Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+	at libcore.io.Linux.open(Native Method)
+	at libcore.io.ForwardingOs.open(ForwardingOs.java:574)
+	at libcore.io.BlockGuardOs.open(BlockGuardOs.java:274)
+	at libcore.io.IoBridge.open(IoBridge.java:560)
+	... 8 more
+
+[ 12.696] gc: #17 (threshold) freed 47497 of 406129 objects (7.8 MiB); 358632 live (85.5 MiB); paused 221.5 ms (stop 12.5, mark 209.0), sweep 12.0 ms; scanned 360.1 MiB (58 threads' stacks 8.7 MiB, pages 332.4 MiB); next after 16 MiB; 0 MiB left
+[ 12.728] W/ConnectionStatusConfig: Dynamic intent resolution failed: android.os.RemoteException: Failed to acquire ContentProviderClient
+[ 12.729] W/ConnectionStatusConfig: Dynamic lookup for intent failed for action: com.google.android.gms.auth.blockstore.service.START
+[ 12.729] W/GmsClient: unable to connect to service: com.google.android.gms.auth.blockstore.service.START on com.google.android.gms
+[ 12.784] E/ReflectionGuard: NoSuchMethod: WindowExtensionsProvider#getWindowExtensions is not valid
+[ 12.785] jni: UNIMPLEMENTED Java method androidx/window/sidecar/SidecarProvider.getApiVersion()Ljava/lang/String; (returning zero)
+[ 12.831] D/Husk: finish com.whatsapp.Main
+[ 12.855] W/LOTTIE: Animation contains merge paths. Merge paths are only supported on KitKat+ and must be manually enabled by calling enableMergePathsForKitKatAndAbove().
+[ 12.979] W/GmsClient: unable to connect to service: com.google.android.gms.auth.api.accounttransfer.service.START on com.google.android.gms
+[ 13.108] egl: swap #3
+[ 13.152] W/LOTTIE: Animation contains merge paths but they are disabled.
+[ 13.289] net: getaddrinfo(v.whatsapp.net, (null), family 0 flags 0x4 socktype 0) -> 8
+[ 13.336] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[ 13.337] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[ 13.337] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[ 13.337] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[ 13.337] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[ 13.338] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[ 13.350] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[ 13.350] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[ 13.350] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[ 13.499] net: getaddrinfo(v.whatsapp.net, (null), family 0 flags 0x4 socktype 0) -> 8
+[ 13.499] net: socket(domain 10, type 0x1, proto 0)
+[ 13.501] net: connect(fd 70, ::ffff:157.240.241.60) -> -1 errno 36
+[ 13.501] net: connect fd=70 ::ffff:157.240.241.60:443 -> -1 errno=36
+[ 13.503] net: getaddrinfo(v.whatsapp.net, (null), family 0 flags 0x4 socktype 0) -> 8
+[ 13.504] net: getaddrinfo(v.whatsapp.net, (null), family 0 flags 0x4 socktype 0) -> 8
+[ 13.515] net: socket(domain 10, type 0x1, proto 0)
+[ 13.516] net: connect(fd 71, ::ffff:157.240.241.60) -> -1 errno 36
+[ 13.516] net: connect fd=71 ::ffff:157.240.241.60:443 -> -1 errno=36
+[ 13.517] net: socket(domain 10, type 0x1, proto 0)
+[ 13.518] net: poll(1 fds, fd[0] 70 ev 0x4, timeout 59998) -> 1 rev 0x4
+[ 13.518] net: getsockopt(fd 70, level 1, opt 4) -> 0 errno 0 value 0
+[ 13.518] net: SO_ERROR fd=70 -> 0
+[ 13.520] net: connect(fd 72, ::ffff:157.240.241.60) -> -1 errno 36
+[ 13.520] net: connect fd=72 ::ffff:157.240.241.60:443 -> -1 errno=36
+[ 13.525] net: poll(1 fds, fd[0] 71 ev 0x4, timeout 59999) -> 1 rev 0x4
+[ 13.525] net: getsockopt(fd 71, level 1, opt 4) -> 0 errno 0 value 0
+[ 13.525] net: SO_ERROR fd=71 -> 0
+[ 13.528] net: poll(1 fds, fd[0] 72 ev 0x4, timeout 59997) -> 1 rev 0x4
+[ 13.528] net: getsockopt(fd 72, level 1, opt 4) -> 0 errno 0 value 0
+[ 13.528] net: SO_ERROR fd=72 -> 0
+[ 13.580] net: sendto fd=70 -> 517 errno=0
+[ 13.580] net: sendto fd=71 -> 517 errno=0
+[ 13.587] net: sendto fd=72 -> 517 errno=0
+[ 13.590] net: poll(1 fds, fd[0] 71 ev 0x9, timeout 60000) -> 1 rev 0x1
+[ 13.590] net: recvfrom(fd 71, 16709) -> 3221 errno 0
+[ 13.590] net: recvfrom fd=71 -> 3221 errno=0
+[ 13.592] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[ 13.593] net: recvfrom(fd 70, 16709) -> 3220 errno 0
+[ 13.593] net: recvfrom fd=70 -> 3220 errno=0
+[ 13.595] net: poll(1 fds, fd[0] 72 ev 0x9, timeout 60000) -> 1 rev 0x1
+[ 13.595] net: recvfrom(fd 72, 16709) -> 3221 errno 0
+[ 13.595] net: recvfrom fd=72 -> 3221 errno=0
+[ 13.606] net: sendto fd=71 -> 64 errno=0
+[ 13.608] tls-tap: TX 966: POST /v2/reg_onboard_abprop HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: B37F848A-E85D-4025-B172-F064F7C5FFF0..Content-Type: application/x-www-form-urlencoded..Content-Length: 650..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=P0m0PGsO5h2m5nHlsViTUaAC0RZBl-rP6dpMcX9CEAShnGV5lWSFJbDrpNOo9Pe9
+[ 13.608] net: sendto fd=71 -> 988 errno=0
+[ 13.608] net: sendto fd=70 -> 64 errno=0
+[ 13.609] tls-tap: TX 1606: POST /v2/pre_pn_client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: 1824DE9F-552E-4E83-AA09-E29A72FAEFCC..Content-Type: application/x-www-form-urlencoded..Content-Length: 1290..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=-gEG29xI6CcX1NgRkS9eCAAvX3FWXq5WARG4JryuzS_Uh1M7d1tcEQ9ow1IYSUvZ
+[ 13.610] net: sendto fd=70 -> 1628 errno=0
+[ 13.616] net: poll(1 fds, fd[0] 71 ev 0x9, timeout 60000) -> 1 rev 0x1
+[ 13.616] net: recvfrom(fd 71, 16709) -> 185 errno 0
+[ 13.616] net: recvfrom fd=71 -> 185 errno=0
+[ 13.617] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[ 13.617] net: recvfrom(fd 70, 16709) -> 185 errno 0
+[ 13.617] net: recvfrom fd=70 -> 185 errno=0
+[ 13.628] net: sendto fd=72 -> 64 errno=0
+[ 13.630] tls-tap: TX 1170: POST /v2/pre_pn_client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: 2016288C-3726-42E9-B6CA-224675BE6B8E..Content-Type: application/x-www-form-urlencoded..Content-Length: 855..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=zYHwrSBSG-dSb_Ot3M-FaRb6cx9Y9FPJ5XXm7SLQ5nDXaBKhvDMi4ICz5GqgbAgiH
+[ 13.630] net: sendto fd=72 -> 1192 errno=0
+[ 13.639] net: poll(1 fds, fd[0] 72 ev 0x9, timeout 60000) -> 1 rev 0x1
+[ 13.639] net: recvfrom(fd 72, 16709) -> 185 errno 0
+[ 13.639] net: recvfrom fd=72 -> 185 errno=0
+[ 13.643] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[ 13.643] net: recvfrom(fd 70, 16709) -> 195 errno 0
+[ 13.643] net: recvfrom fd=70 -> 195 errno=0
+[ 13.643] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:45:29 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[ 13.647] crypto: getrandom() 16 bytes from the host CSPRNG
+[ 13.670] net: poll(1 fds, fd[0] 72 ev 0x9, timeout 60000) -> 1 rev 0x1
+[ 13.670] net: recvfrom(fd 72, 16709) -> 195 errno 0
+[ 13.670] net: recvfrom fd=72 -> 195 errno=0
+[ 13.670] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:45:29 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[ 13.671] E/msys: E[ADNSUCTIMHO WCIFile]_WCIFileLog(140)=>Failed to open file filepath = /Users/runner/work/_temp/data/files/wam/WAMMetadataPrivateCredential-0 posixErrorCode = 2 error No such file or directory
+[ 13.671] E/msys: E[I wam]_WAMTransportPrivateLogUploadMessageWithDefaultLevel(55)=>privatestats/wameta/transport/credential/sync/renewing/failed - not connected or not ready to send realtime events
+[ 13.671] E/msys: E[ADNSUCTIMHO WCIFile]_WCIFileLog(140)=>Failed to open file filepath = /Users/runner/work/_temp/data/files/wam/wam-metadata posixErrorCode = 2 error No such file or directory
+[ 13.672] E/msys: E[ADNSUCTIMHO WCIFile]_WCIFileLog(140)=>Failed to open file filepath = /Users/runner/work/_temp/data/files/wam/wam-metadata posixErrorCode = 2 error No such file or directory
+[ 13.898] net: poll(1 fds, fd[0] 71 ev 0x9, timeout 60000) -> 1 rev 0x1
+[ 13.898] net: recvfrom(fd 71, 16709) -> 1652 errno 0
+[ 13.898] net: recvfrom fd=71 -> 1652 errno=0
+[ 13.898] tls-tap: RX 1500: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:45:30 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 11032....{"ab_hash":"3ZwlGj","ab_key":"gxa,Xcd,3YW,Ry","exp_cfg":"[{\"config_code\":\"9120\",\"config_value\":\"1\"},{\"config_code\":\"8982\",\"config_value\":\"500\"},{\"config_code\":\"14129\",\"config_value\":\"0\"},{\"config_cod
+[ 13.899] tls-tap: RX 108: :\"37822\",\"config_value\":\"1\"},{\"config_code\":\"32640\",\"config_value\":\"0\",\"config_expo_key\":\"1
+[ 13.903] net: poll(1 fds, fd[0] 71 ev 0x9, timeout 60000) -> 1 rev 0x1
+[ 13.903] net: recvfrom(fd 71, 16709) -> 2582 errno 0
+[ 13.903] net: recvfrom fd=71 -> 2582 errno=0
+[ 13.903] tls-tap: RX 2560: 42919\"},{\"config_code\":\"34021\",\"config_value\":\"1\"},{\"config_code\":\"25469\",\"config_value\":\"1\"},{\"config_code\":\"35030\",\"config_value\":\"1\"},{\"config_code\":\"2964\",\"config_value\":\"1\"},{\"config_code\":\"13178\",\"config_value\":\"1\"},{\"config_code\":\"33653\",\"config_value\":\"1\"},{\"config_code\":\"36408\",\"config_value\":\"1\"},{\"config_code\":\"
+[ 13.907] net: poll(1 fds, fd[0] 71 ev 0x9, timeout 60000) -> 1 rev 0x1
+[ 13.907] net: recvfrom(fd 71, 16709) -> 4086 errno 0
+[ 13.907] net: recvfrom fd=71 -> 4086 errno=0
+[ 13.907] tls-tap: RX 4064: onfig_code\":\"10074\",\"config_value\":\"1\"},{\"config_code\":\"22881\",\"config_value\":\"1\"},{\"config_code\":\"8450\",\"config_value\":\"1\"},{\"config_code\":\"9203\",\"config_value\":\"1\"},{\"config_code\":\"3131\",\"config_value\":\"1\"},{\"config_code\":\"4972\",\"config_value\":\"1\"},{\"config_code\":\"2021\",\"config_value\":\"1\"},{\"config_code\":\"4401\",\"config_v
+[ 13.923] net: poll(1 fds, fd[0] 71 ev 0x9, timeout 60000) -> 1 rev 0x1
+[ 13.923] net: recvfrom(fd 71, 16709) -> 3004 errno 0
+[ 13.923] net: recvfrom fd=71 -> 3004 errno=0
+[ 13.924] tls-tap: RX 1500: e\":\"21438\",\"config_value\":\"1\"},{\"config_code\":\"2736\",\"config_value\":\"0\"},{\"config_code\":\"33973\",\"config_value\":\"1\"},{\"config_code\":\"14821\",\"config_value\":\"1\"},{\"config_code\":\"16082\",\"config_value\":\"1\"},{\"config_code\":\"11571\",\"config_value\":\"1350.0\"},{\"config_code\":\"11186\",\"config_value\":\"1\"},{\"config_code\":\"21647\",\"config_
+[ 13.924] tls-tap: RX 1460: \":\"1\"},{\"config_code\":\"10560\",\"config_value\":\"1\"},{\"config_code\":\"30037\",\"config_value\":\"1\"},{\"config_code\":\"24317\",\"config_value\":\"1\"},{\"config_code\":\"28255\",\"config_value\":\"1\"},{\"config_code\":\"16591\",\"config_value\":\"1\"},{\"config_code\":\"7780\",\"config_value\":\"300000\"},{\"config_code\":\"36402\",\"config_value\":\"1\"},{\"config_cod
+[ 14.009] D/TosState: getTosFlow() simBasedStatus tosFlow=TosFlow{shouldAcceptTos=true, shouldShowExplicitTos=true, reason=FALLBACK_V13_NO_SIM}
+[ 14.174] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[ 14.174] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[ 14.175] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[ 14.175] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[ 14.175] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[ 14.175] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[ 14.190] net: poll(1 fds, fd[0] 71 ev 0x9, timeout 1) -> 0 rev 0
+[ 14.190] jni: throwing java/net/SocketTimeoutException: Read timed out
+[ 14.191] tls-tap: TX 1087: POST /v2/pre_pn_client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: 4AD0FFD3-ED08-4E69-9A97-99B672102EE5..Content-Type: application/x-www-form-urlencoded..Content-Length: 772..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=nr0K53cSLqZmtR17-pTNyx7SkQZF17IaIbeikqDq9E_NLgh4Urx3hnkyp1IiIYbre
+[ 14.192] net: sendto fd=71 -> 1109 errno=0
+[ 14.192] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 1) -> 0 rev 0
+[ 14.206] jni: throwing java/net/SocketTimeoutException: Read timed out
+[ 14.207] tls-tap: TX 1037: POST /v2/pre_pn_client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: DED636DB-DEE2-4E9B-95CF-D488AE4F0246..Content-Type: application/x-www-form-urlencoded..Content-Length: 722..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=jJ8G6c0AeaW7M1qyn3A5UkFLrIgoAnF0mNpQYmeegGEYIbOiRVZuLBsQdWEM1v0WW
+[ 14.207] net: sendto fd=70 -> 1059 errno=0
+[ 14.293] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[ 14.293] net: recvfrom(fd 70, 16709) -> 195 errno 0
+[ 14.293] net: recvfrom fd=70 -> 195 errno=0
+[ 14.294] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:45:30 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[ 14.302] net: poll(1 fds, fd[0] 71 ev 0x9, timeout 60000) -> 1 rev 0x1
+[ 14.303] net: recvfrom(fd 71, 16709) -> 195 errno 0
+[ 14.303] net: recvfrom fd=71 -> 195 errno=0
+[ 14.303] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:45:29 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[ 14.837] gc: #18 (threshold) freed 98349 of 477271 objects (12.5 MiB); 378922 live (88.7 MiB); paused 375.9 ms (stop 0.7, mark 375.2), sweep 19.4 ms; scanned 371.5 MiB (64 threads' stacks 9.5 MiB, pages 342.9 MiB); next after 16 MiB; 0 MiB left
+[ 17.809] W/ConnectionStatusConfig: Dynamic intent resolution failed: android.os.RemoteException: Failed to acquire ContentProviderClient
+[ 17.809] W/ConnectionStatusConfig: Dynamic lookup for intent failed for action: com.google.android.gms.common.telemetry.service.START
+[ 17.810] W/GmsClient: unable to connect to service: com.google.android.gms.common.telemetry.service.START on com.google.android.gms
+[ 22.645] gc: #19 (threshold) freed 90563 of 495362 objects (11.2 MiB); 404799 live (93.6 MiB); paused 649.3 ms (stop 0.2, mark 649.1), sweep 145.3 ms; scanned 376.3 MiB (62 threads' stacks 9.4 MiB, pages 347.9 MiB); next after 16 MiB; 0 MiB left
+[ 29.336] gc: #20 (threshold) freed 115350 of 520768 objects (15.9 MiB); 405418 live (93.8 MiB); paused 564.2 ms (stop 0.3, mark 563.9), sweep 73.5 ms; scanned 370.6 MiB (62 threads' stacks 8.1 MiB, pages 343.5 MiB); next after 16 MiB; 0 MiB left
+[ 30.599] prof: the main thread's last 30 s, by method (and its caller):
+   45.0% java/lang/Object.wait <- java/lang/Object.wait
+    6.0% jdk/internal/misc/Unsafe.park <- java/util/concurrent/locks/LockSupport.park
+    5.1% android/content/res/Resources$Bag.put <- android/content/res/Resources.huskBag
+    3.6% husk/Native.nativeLooperPoll <- android/os/MessageQueue.next
+    3.0% android/content/res/ResTable.indexNames <- android/content/res/ResTable.identifier
+    1.7% husk/Native.readApkFile <- android/content/res/Resources.loadTables
+    1.5% com/facebook/superpack/AssetDecompressor.decompress_range_from_so <- X/0Ej.A03
+    1.4% java/nio/HeapByteBuffer.getInt <- android/content/res/ResTable.entryOffset
+    1.3% java/nio/HeapByteBuffer.getIntUnchecked <- java/nio/HeapByteBuffer.getInt
+    1.2% husk/Gfx.cvDrawPath <- android/graphics/Canvas.drawPath
+    1.1% android/content/res/ResTable.entryOffset <- android/content/res/ResTable.indexNames
+    0.9% java/lang/AbstractStringBuilder.append <- java/lang/StringBuilder.append
+    0.9% husk/Gfx.cvDrawBitmap <- android/graphics/Canvas.drawBitmap
+    0.8% java/lang/AbstractStringBuilder.<init> <- java/lang/StringBuilder.<init>
+[ 36.074] gc: #21 (threshold) freed 116011 of 521408 objects (16.1 MiB); 405397 live (93.7 MiB); paused 474.8 ms (stop 0.6, mark 474.2), sweep 34.4 ms; scanned 377.1 MiB (60 threads' stacks 8.8 MiB, pages 349.2 MiB); next after 16 MiB; 0 MiB left
+[ 42.648] gc: #22 (threshold) freed 116010 of 521403 objects (16.1 MiB); 405393 live (93.7 MiB); paused 391.4 ms (stop 0.2, mark 391.2), sweep 26.5 ms; scanned 371.5 MiB (59 threads' stacks 8.8 MiB, pages 343.6 MiB); next after 16 MiB; 0 MiB left
+[ 49.410] gc: #23 (threshold) freed 116006 of 521339 objects (16.1 MiB); 405333 live (93.7 MiB); paused 408.8 ms (stop 0.4, mark 408.4), sweep 25.9 ms; scanned 371.5 MiB (59 threads' stacks 8.8 MiB, pages 343.6 MiB); next after 16 MiB; 0 MiB left
+[ 56.218] gc: #24 (threshold) freed 115946 of 521312 objects (16.1 MiB); 405366 live (93.7 MiB); paused 467.0 ms (stop 0.2, mark 466.8), sweep 48.5 ms; scanned 371.4 MiB (59 threads' stacks 8.7 MiB, pages 343.6 MiB); next after 16 MiB; 0 MiB left
+[ 60.591] prof: the main thread's last 30 s, by method (and its caller):
+   83.0% java/lang/Object.wait <- java/lang/Object.wait
+    6.1% husk/Native.nativeLooperPoll <- android/os/MessageQueue.next
+    1.0% husk/Gfx.cvDrawPath <- android/graphics/Canvas.drawPath
+    0.6% java/lang/Object.internalClone <- java/lang/Object.clone
+    0.4% husk/Gfx.cvDrawText <- android/graphics/Canvas.drawText
+    0.4% husk/Gfx.cvDrawBitmap <- android/graphics/Canvas.drawBitmap
+    0.2% husk/Gfx.present <- husk/ViewRoot.drawAll
+    0.2% java/util/Objects.checkIndex <- java/util/ArrayList.get
+    0.2% X/QYb.A0A <- X/OYK.A0A
+    0.2% java/lang/reflect/Array.createObjectArray <- java/lang/reflect/Array.newArray
+    0.2% java/util/ArrayList.get <- X/QYb.A0A
+    0.2% java/lang/Object.wait <- android/os/MessageQueue.next
+    0.1% android/graphics/Matrix.preScale <- android/graphics/Matrix.preScale
+    0.1% X/QFl.A08 <- X/QYb.A0A
+[ 62.843] gc: #25 (threshold) freed 115979 of 521363 objects (16.1 MiB); 405384 live (93.7 MiB); paused 411.9 ms (stop 0.2, mark 411.6), sweep 29.9 ms; scanned 371.6 MiB (59 threads' stacks 8.8 MiB, pages 343.7 MiB); next after 16 MiB; 0 MiB left
+[ 69.529] gc: #26 (threshold) freed 117189 of 521342 objects (16.3 MiB); 404153 live (93.5 MiB); paused 245.3 ms (stop 0.2, mark 245.1), sweep 26.4 ms; scanned 369.8 MiB (58 threads' stacks 8.4 MiB, pages 342.3 MiB); next after 16 MiB; 0 MiB left
+[ 76.473] egl: swap #600
+[ 76.945] gc: #27 (threshold) freed 116102 of 520177 objects (16.2 MiB); 404075 live (93.4 MiB); paused 286.5 ms (stop 0.2, mark 286.3), sweep 15.9 ms; scanned 369.5 MiB (57 threads' stacks 8.4 MiB, pages 342.1 MiB); next after 16 MiB; 0 MiB left
+[ 84.113] gc: #28 (threshold) freed 116024 of 520045 objects (16.1 MiB); 404021 live (93.4 MiB); paused 337.0 ms (stop 0.2, mark 336.8), sweep 21.7 ms; scanned 369.8 MiB (57 threads' stacks 8.4 MiB, pages 342.3 MiB); next after 16 MiB; 0 MiB left
+[ 90.594] prof: the main thread's last 30 s, by method (and its caller):
+   82.5% java/lang/Object.wait <- java/lang/Object.wait
+    6.8% husk/Native.nativeLooperPoll <- android/os/MessageQueue.next
+    1.0% husk/Gfx.cvDrawPath <- android/graphics/Canvas.drawPath
+    0.6% husk/Gfx.txMeasure <- android/graphics/Paint.measureText
+    0.6% husk/Gfx.cvDrawText <- android/graphics/Canvas.drawText
+    0.4% husk/Gfx.present <- husk/ViewRoot.drawAll
+    0.3% X/QFl.A08 <- X/QYb.A0A
+    0.3% java/util/Objects.checkIndex <- java/util/ArrayList.get
+    0.3% android/os/MessageQueue.next <- android/os/Looper.loop
+    0.3% husk/Gfx.cvDrawBitmap <- android/graphics/Canvas.drawBitmap
+    0.2% android/view/Choreographer.doFrame <- android/view/Choreographer.$r8$lambda$MDlNSuC4s02yOuITuoADnMtQXdM
+    0.2% X/QKJ.A03 <- X/QYd.BV9
+    0.2% android/graphics/Matrix.mul <- android/graphics/Matrix.preTranslate
+    0.2% X/QYb.A0A <- X/OYK.A0A
+[ 91.871] gc: #29 (threshold) freed 115970 of 519962 objects (16.1 MiB); 403992 live (93.4 MiB); paused 447.1 ms (stop 0.2, mark 446.9), sweep 19.4 ms; scanned 375.8 MiB (57 threads' stacks 8.3 MiB, pages 348.4 MiB); next after 16 MiB; 0 MiB left
+[ 98.919] gc: #30 (threshold) freed 115940 of 519945 objects (16.1 MiB); 404005 live (93.4 MiB); paused 253.3 ms (stop 0.2, mark 253.1), sweep 16.0 ms; scanned 370.6 MiB (57 threads' stacks 8.4 MiB, pages 343.1 MiB); next after 16 MiB; 0 MiB left
+ctl: shot /Users/runner/work/_temp/out/whatsapp.png (frame 831)
+[102.062] D/Husk: startActivity Intent { cmp=com.whatsapp/.companionmode.registration.ui.RegisterAsCompanionActivity (has extras) } -> com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity
+[102.062] I/Husk: the last activity finishes
+java.lang.Throwable: finish() called from
+	at android.app.Activity.finish(Activity.java:331)
+	at X.Fvf.A0v(:11)
+	at X.Hm9.A00(:30)
+	at com.whatsapp.registration.app.EULA.A0Z(:361)
+	at X.Hyw.onClick(:1870)
+	at X.1Ly.onClick(:11)
+	at android.view.View.performClick(View.java:1295)
+	at android.widget.TextView.performClick(TextView.java:911)
+	at android.view.View.performClickInternal(View.java:1378)
+	at android.view.View.$r8$lambda$V7rNpyp8JKOd_TDWUNAYrh0yfxU(View.java)
+	at android.view.View$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)
+	at android.os.Handler.dispatchMessage(Handler.java:15)
+	at android.os.Looper.loop(Looper.java:37)
+	at husk.AppRunner.run(AppRunner.java:77)
+
+[102.064] D/Husk: launch com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity
+[102.083] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[102.083] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[102.084] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[102.100] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 1) -> 1 rev 0x11
+[102.100] net: recvfrom(fd 70, 16709) -> 24 errno 0
+[102.100] net: recvfrom fd=70 -> 24 errno=0
+[102.100] jni: throwing javax/net/ssl/SSLProtocolException: Read error: ssl=0x1501f9ae8: Failure in SSL library, usually a protocol error
+error:100003e8:SSL routines:OPENSSL_internal:SSLV3_ALERT_CLOSE_NOTIFY (external/boringssl/src/ssl/tls_record.cc:486 0x150224c00:0x00000003)
+[102.101] net: sendto fd=70 -> 24 errno=0
+[102.102] net: close(fd 74)
+[102.102] net: close(fd 73)
+[102.102] net: close(fd 70)
+[102.103] net: poll(1 fds, fd[0] 71 ev 0x9, timeout 1) -> 1 rev 0x11
+[102.103] net: recvfrom(fd 71, 16709) -> 24 errno 0
+[102.103] net: recvfrom fd=71 -> 24 errno=0
+[102.103] jni: throwing javax/net/ssl/SSLProtocolException: Read error: ssl=0x1501fa1c8: Failure in SSL library, usually a protocol error
+error:100003e8:SSL routines:OPENSSL_internal:SSLV3_ALERT_CLOSE_NOTIFY (external/boringssl/src/ssl/tls_record.cc:486 0x150225440:0x00000003)
+[102.103] net: sendto fd=71 -> 24 errno=0
+[102.103] net: close(fd 73)
+[102.104] net: close(fd 70)
+[102.104] net: close(fd 71)
+[102.104] net: poll(1 fds, fd[0] 72 ev 0x9, timeout 1) -> 1 rev 0x11
+[102.104] net: recvfrom(fd 72, 16709) -> 24 errno 0
+[102.104] net: recvfrom fd=72 -> 24 errno=0
+[102.104] jni: throwing javax/net/ssl/SSLProtocolException: Read error: ssl=0x1501f9b98: Failure in SSL library, usually a protocol error
+error:100003e8:SSL routines:OPENSSL_internal:SSLV3_ALERT_CLOSE_NOTIFY (external/boringssl/src/ssl/tls_record.cc:486 0x15a52ae80:0x00000003)
+[102.104] net: sendto fd=72 -> 24 errno=0
+[102.104] net: close(fd 71)
+[102.104] net: close(fd 70)
+[102.104] net: close(fd 72)
+[102.104] net: getaddrinfo(v.whatsapp.net, (null), family 0 flags 0x4 socktype 0) -> 8
+[102.106] net: getaddrinfo(v.whatsapp.net, (null), family 0 flags 0x400 socktype 1) -> 0
+[102.106] net: resolve v.whatsapp.net -> 2 addrs
+[102.106] net: socket(domain 10, type 0x1, proto 0)
+[102.106] net: connect(fd 70, ::ffff:157.240.241.60) -> -1 errno 36
+[102.106] net: connect fd=70 ::ffff:157.240.241.60:443 -> -1 errno=36
+[102.114] net: poll(1 fds, fd[0] 70 ev 0x4, timeout 59999) -> 1 rev 0x4
+[102.114] net: getsockopt(fd 70, level 1, opt 4) -> 0 errno 0 value 0
+[102.114] net: SO_ERROR fd=70 -> 0
+[102.115] net: sendto fd=70 -> 517 errno=0
+[102.123] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[102.123] net: recvfrom(fd 70, 16709) -> 218 errno 0
+[102.123] net: recvfrom fd=70 -> 218 errno=0
+[102.124] net: sendto fd=70 -> 64 errno=0
+[102.125] tls-tap: TX 1226: POST /v2/pre_pn_client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: 50F8D867-5F40-44E8-8A66-4EFD8494EEAA..Content-Type: application/x-www-form-urlencoded..Content-Length: 911..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=twHxionEy4VWaocKFoBoCUrwsnlVAWp2A2F9HV5dfkwl0FT9-CmFJoRbVia3rGk94
+[102.125] net: sendto fd=70 -> 1248 errno=0
+[102.132] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[102.132] net: recvfrom(fd 70, 16709) -> 185 errno 0
+[102.132] net: recvfrom fd=70 -> 185 errno=0
+[102.215] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[102.215] net: recvfrom(fd 70, 16709) -> 195 errno 0
+[102.215] net: recvfrom fd=70 -> 195 errno=0
+[102.216] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:46:58 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[102.679] I/AppCompatViewInflater: app:theme is now deprecated. Please move to using android:theme instead.
+[102.770] jni: throwing java/lang/NoSuchMethodError: no static method "[B.<clinit>()V"
+[103.113] gc: #31 (threshold) freed 118884 of 511505 objects (16.6 MiB); 392621 live (92.9 MiB); paused 187.6 ms (stop 0.1, mark 187.5), sweep 12.6 ms; scanned 372.1 MiB (58 threads' stacks 8.5 MiB, pages 344.6 MiB); next after 16 MiB; 0 MiB left
+[103.132] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : warmUpIntegrityToken(293955441834)
+[103.133] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : Initiate binding to the service.
+[103.134] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : Failed to bind to the service.
+[103.193] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[103.193] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[103.193] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[103.193] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[103.193] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[103.193] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[103.203] D/Husk: finish com.whatsapp.registration.app.EULA
+[103.203] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 1) -> 0 rev 0
+[103.203] jni: throwing java/net/SocketTimeoutException: Read timed out
+[103.203] net: getaddrinfo(v.whatsapp.net, (null), family 0 flags 0x4 socktype 0) -> 8
+[103.204] net: socket(domain 10, type 0x1, proto 0)
+[103.204] tls-tap: TX 1703: POST /v2/client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: 29F9B54E-102E-45BB-BC4B-E437409FBC8D..Content-Type: application/x-www-form-urlencoded..Content-Length: 1394..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=8r46jsCzkEvI20aeIgNPJO1d3RBSaaJ6DZpemxdABytZ85PnEEwyzGAhBp4o-99abADzW1X
+[103.204] net: sendto fd=70 -> 1725 errno=0
+[103.204] net: connect(fd 73, ::ffff:157.240.241.60) -> -1 errno 36
+[103.205] net: connect fd=73 ::ffff:157.240.241.60:443 -> -1 errno=36
+[103.212] net: poll(1 fds, fd[0] 73 ev 0x4, timeout 59999) -> 1 rev 0x4
+[103.212] net: getsockopt(fd 73, level 1, opt 4) -> 0 errno 0 value 0
+[103.212] net: SO_ERROR fd=73 -> 0
+[103.214] net: sendto fd=73 -> 517 errno=0
+[103.222] net: poll(1 fds, fd[0] 73 ev 0x9, timeout 60000) -> 1 rev 0x1
+[103.222] net: recvfrom(fd 73, 16709) -> 218 errno 0
+[103.222] net: recvfrom fd=73 -> 218 errno=0
+[103.224] net: sendto fd=73 -> 64 errno=0
+[103.225] tls-tap: TX 1819: POST /v2/client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: 65540F5B-2A25-4163-B800-13A1A7386514..Content-Type: application/x-www-form-urlencoded..Content-Length: 1510..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=WGFe_Crjw6feMlPcYqKjBSprlECbs1Kbu9o8j-iNClo6AaiqWm70YXOQvoG075VdbZTcS_y
+[103.225] net: sendto fd=73 -> 1841 errno=0
+[103.232] net: poll(1 fds, fd[0] 73 ev 0x9, timeout 60000) -> 1 rev 0x1
+[103.232] net: recvfrom(fd 73, 16709) -> 185 errno 0
+[103.232] net: recvfrom fd=73 -> 185 errno=0
+[103.240] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[103.240] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[103.240] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[103.254] net: getaddrinfo(v.whatsapp.net, (null), family 0 flags 0x4 socktype 0) -> 8
+[103.255] net: socket(domain 10, type 0x1, proto 0)
+[103.255] net: connect(fd 78, ::ffff:157.240.241.60) -> -1 errno 36
+[103.255] net: connect fd=78 ::ffff:157.240.241.60:443 -> -1 errno=36
+[103.263] net: poll(1 fds, fd[0] 78 ev 0x4, timeout 59999) -> 1 rev 0x4
+[103.263] net: getsockopt(fd 78, level 1, opt 4) -> 0 errno 0 value 0
+[103.263] net: SO_ERROR fd=78 -> 0
+[103.265] net: sendto fd=78 -> 517 errno=0
+[103.274] net: poll(1 fds, fd[0] 78 ev 0x9, timeout 60000) -> 1 rev 0x1
+[103.274] net: recvfrom(fd 78, 16709) -> 218 errno 0
+[103.274] net: recvfrom fd=78 -> 218 errno=0
+[103.275] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[103.275] net: recvfrom(fd 70, 16709) -> 195 errno 0
+[103.275] net: recvfrom fd=70 -> 195 errno=0
+[103.275] net: sendto fd=78 -> 64 errno=0
+[103.275] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:46:59 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[103.276] tls-tap: TX 1713: POST /v2/client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: F4EE3A27-454D-49F6-BD25-F7BD05CEC1E1..Content-Type: application/x-www-form-urlencoded..Content-Length: 1404..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=0ZTBwC1EGrYXUIm86ZXOHlRSL16Gs-Q6Y7Fltw9OKAAcebfrH9BoZoALlSKhOx9XdXoD6zY
+[103.276] net: sendto fd=78 -> 1735 errno=0
+[103.283] net: poll(1 fds, fd[0] 78 ev 0x9, timeout 60000) -> 1 rev 0x1
+[103.283] net: recvfrom(fd 78, 16709) -> 185 errno 0
+[103.283] net: recvfrom fd=78 -> 185 errno=0
+[103.292] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[103.292] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[103.292] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[103.303] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 1) -> 0 rev 0
+[103.303] jni: throwing java/net/SocketTimeoutException: Read timed out
+[103.304] tls-tap: TX 1703: POST /v2/client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: B18F7E2B-5EE8-48EB-9D04-2AE67158CB02..Content-Type: application/x-www-form-urlencoded..Content-Length: 1394..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=Sa2mykUvEqTYf5WwKkx_Ha2M4S1dHClw-AeQYmJ5H1hWmWfPsKrcfJIGeHvW8UV3y3tcmIK
+[103.304] net: sendto fd=70 -> 1725 errno=0
+[103.306] net: poll(1 fds, fd[0] 73 ev 0x9, timeout 60000) -> 1 rev 0x1
+[103.306] net: recvfrom(fd 73, 16709) -> 261 errno 0
+[103.306] net: recvfrom fd=73 -> 261 errno=0
+[103.306] tls-tap: RX 239: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:46:59 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 82....{"failure_reason":"bad_format","param":"in","reason":"bad_param","status":"fail"}.
+[103.355] net: getaddrinfo(g.whatsapp.net, (null), family 0 flags 0x4 socktype 0) -> 8
+[103.359] net: poll(1 fds, fd[0] 78 ev 0x9, timeout 60000) -> 1 rev 0x1
+[103.359] net: recvfrom(fd 78, 16709) -> 195 errno 0
+[103.359] net: recvfrom fd=78 -> 195 errno=0
+[103.359] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:46:59 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[103.378] net: getaddrinfo(g.whatsapp.net, (null), family 0 flags 0x400 socktype 1) -> 0
+[103.379] net: resolve g.whatsapp.net -> 2 addrs
+[103.387] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[103.387] net: recvfrom(fd 70, 16709) -> 195 errno 0
+[103.387] net: recvfrom fd=70 -> 195 errno=0
+[103.387] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:46:59 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[103.435] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libtigon-ue-reporter.so, this can be slow
+[103.441] jni: /Users/runner/work/_temp/data/files/decompressed/libs.spo/libtigon-ue-reporter.so JNI_OnLoad -> 0x10006
+[103.447] net: socket(domain 10, type 0x1, proto 0)
+[103.448] net: connect(fd 88, 2a03:2880:f212:1c4:face:b00c:0:7260) -> -1 errno 65
+[103.448] net: connect fd=88 2a03:2880:f212:1c4:face:b00c:0:7260:443 -> -1 errno=65
+[103.448] net: close(fd 90)
+[103.448] net: close(fd 89)
+[103.448] net: close(fd 88)
+[103.464] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libffsingletonmerged.so, this can be slow
+[103.493] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libfbsocketthreadlocalscope.so, this can be slow
+[103.537] W/SoLoader[NativeDeps]: Falling back to custom ELF parsing when loading libfb_sqlite_3530200.so, this can be slow
+[103.566] jni: /Users/runner/work/_temp/data/files/decompressed/libs.spo/libffsingletonmerged.so JNI_OnLoad -> 0x10006
+[103.567] W/SoLoader: SoLoader already initialized
+[103.568] crypto: /dev/urandom served from the host CSPRNG (fd 90)
+[103.568] crypto: guest read 44 random bytes from the host CSPRNG (fd 90)
+[103.573] crypto: /dev/urandom served from the host CSPRNG (fd 90)
+[103.573] crypto: guest read 16 random bytes from the host CSPRNG (fd 90)
+[103.573] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[103.573] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[103.573] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[103.573] net: getaddrinfo(api.whatsapp.net, 443, family 0 flags 0x4 socktype 2) -> 8
+[103.578] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.578] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.579] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.590] net: getaddrinfo(api.whatsapp.net, 443, family 0 flags 0x400 socktype 2) -> 0
+[103.590] net: resolve api.whatsapp.net -> 2 addrs
+[103.600] net: socket(domain 2, type 0x2, proto 17)
+[103.600] crypto: /dev/urandom served from the host CSPRNG (fd 91)
+[103.600] crypto: guest read 128 random bytes from the host CSPRNG (fd 91)
+[103.600] crypto: guest read 256 random bytes from the host CSPRNG (fd 91)
+[103.601] net: sendmsg fd=90 -> 1252 errno=0
+[103.610] net: recvmsg fd=90 -> 1 errno=0
+[103.610] net: recvmsg fd=90 -> 1 errno=0
+[103.610] net: recvmsg fd=90 -> 1 errno=0
+[103.610] net: recvmsg fd=90 -> 1 errno=0
+[103.610] net: recvmsg fd=90 -> 1 errno=0
+[103.610] net: recvmsg fd=90 -> -1 errno=35
+[103.611] net: recvmsg fd=90 -> -1 errno=35
+[103.694] net: socket(domain 10, type 0x1, proto 0)
+[103.695] net: connect(fd 92, ::ffff:31.13.71.50) -> -1 errno 36
+[103.695] net: connect fd=92 ::ffff:31.13.71.50:443 -> -1 errno=36
+[103.702] net: sendmsg fd=90 -> 1252 errno=0
+[103.703] net: poll(1 fds, fd[0] 92 ev 0x4, timeout 29999) -> 1 rev 0x4
+[103.703] net: getsockopt(fd 92, level 1, opt 4) -> 0 errno 0 value 0
+[103.703] net: SO_ERROR fd=92 -> 0
+[103.711] net: recvmsg fd=90 -> 1 errno=0
+[103.711] net: recvmsg fd=90 -> -1 errno=35
+[103.711] net: recvmsg fd=90 -> -1 errno=35
+[103.717] net: recvmsg fd=90 -> 1 errno=0
+[103.717] net: recvmsg fd=90 -> 1 errno=0
+[103.717] net: recvmsg fd=90 -> 1 errno=0
+[103.717] net: recvmsg fd=90 -> 1 errno=0
+[103.717] net: recvmsg fd=90 -> -1 errno=35
+[103.717] net: recvmsg fd=90 -> -1 errno=35
+[103.776] net: getaddrinfo(api.whatsapp.net, 443, family 0 flags 0x4 socktype 1) -> 8
+[103.787] net: socket(domain 2, type 0x1, proto 6)
+[103.787] net: connect(fd 93, 157.240.241.60) -> -1 errno 36
+[103.787] net: connect fd=93 157.240.241.60:443 -> -1 errno=36
+[103.792] net: getaddrinfo(api.whatsapp.net, 443, family 0 flags 0x400 socktype 1) -> 0
+[103.792] net: resolve api.whatsapp.net -> 2 addrs
+[103.794] E/msys: E[N mns:TigonMNS]onResolverSuccess(367)=>Cache refresh succeeded with system DNS resolver. IP count: 2
+
+[103.797] net: getsockopt(fd 93, level 1, opt 4) -> 0 errno 0 value 0
+[103.797] net: SO_ERROR fd=93 -> 0
+[103.801] net: sendto fd=93 -> 164 errno=0
+[103.801] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[103.801] net: recvfrom fd=93 -> -1 errno=35
+[103.809] net: recvfrom(fd 93, 16384) -> 3178 errno 0
+[103.809] net: recvfrom fd=93 -> 3178 errno=0
+[103.812] net: sendto fd=92 -> 4 errno=0
+[103.827] net: sendto fd=92 -> 3 errno=0
+[103.827] net: sendto fd=92 -> 36 errno=0
+[103.832] net: sendto fd=93 -> 58 errno=0
+[103.836] net: sendto fd=93 -> 46 errno=0
+[103.836] net: sendto fd=93 -> 43 errno=0
+[103.836] net: sendto fd=93 -> 35 errno=0
+[103.836] net: sendto fd=93 -> 699 errno=0
+[103.836] net: sendto fd=93 -> 648 errno=0
+[103.840] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.840] net: recvfrom(fd 93, 16384) -> 259 errno 0
+[103.840] net: recvfrom fd=93 -> 259 errno=0
+[103.841] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[103.841] net: recvfrom fd=93 -> -1 errno=35
+[103.841] net: sendto fd=93 -> 31 errno=0
+[103.844] net: recvfrom(fd 93, 16384) -> 44 errno 0
+[103.844] net: recvfrom fd=93 -> 44 errno=0
+[103.846] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[103.846] net: recvfrom fd=93 -> -1 errno=35
+[103.855] net: recvfrom(fd 93, 16384) -> 508 errno 0
+[103.855] net: recvfrom fd=93 -> 508 errno=0
+[103.857] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[103.857] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[103.857] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[103.857] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[103.857] net: recvfrom fd=93 -> -1 errno=35
+[103.858] crypto: /dev/urandom served from the host CSPRNG (fd 94)
+[103.858] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[103.858] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[103.858] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[103.859] net: getaddrinfo(api.whatsapp.net, 443, family 0 flags 0x4 socktype 1) -> 8
+[103.861] net: sendto fd=93 -> 135 errno=0
+[103.861] net: sendto fd=93 -> 1113 errno=0
+[103.861] net: sendto fd=93 -> 31 errno=0
+[103.862] net: socket(domain 2, type 0x1, proto 6)
+[103.862] net: connect(fd 94, 157.240.241.60) -> -1 errno 36
+[103.862] net: connect fd=94 157.240.241.60:443 -> -1 errno=36
+[103.863] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.863] net: getaddrinfo(api.whatsapp.net, 443, family 0 flags 0x400 socktype 1) -> 0
+[103.863] net: resolve api.whatsapp.net -> 2 addrs
+[103.864] E/msys: E[N mns:TigonMNS]onResolverSuccess(367)=>Cache refresh succeeded with system DNS resolver. IP count: 2
+
+[103.864] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.865] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.865] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.865] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.866] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.866] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.866] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.867] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.868] net: recvfrom(fd 93, 16384) -> 35 errno 0
+[103.869] net: recvfrom fd=93 -> 35 errno=0
+[103.870] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[103.870] net: recvfrom fd=93 -> -1 errno=35
+[103.870] net: getsockopt(fd 94, level 1, opt 4) -> 0 errno 0 value 0
+[103.870] net: SO_ERROR fd=94 -> 0
+[103.873] net: sendto fd=94 -> 343 errno=0
+[103.873] net: recvfrom(fd 94, 16384) -> -1 errno 35
+[103.873] net: recvfrom fd=94 -> -1 errno=35
+[103.873] net: poll(1 fds, fd[0] 92 ev 0x9, timeout 30000) -> 1 rev 0x1
+[103.873] net: recvfrom(fd 92, 3) -> 3 errno 0
+[103.873] net: recvfrom fd=92 -> 3 errno=0
+[103.873] net: poll(1 fds, fd[0] 92 ev 0x9, timeout 30000) -> 1 rev 0x1
+[103.873] net: recvfrom(fd 92, 347) -> 347 errno 0
+[103.873] net: recvfrom fd=92 -> 347 errno=0
+[103.878] net: sendto fd=92 -> 3 errno=0
+[103.878] net: sendto fd=92 -> 524 errno=0
+[103.880] net: recvfrom(fd 94, 16384) -> 174 errno 0
+[103.881] net: recvfrom fd=94 -> 174 errno=0
+[103.882] net: sendto fd=94 -> 58 errno=0
+[103.883] net: sendto fd=94 -> 46 errno=0
+[103.883] net: sendto fd=94 -> 43 errno=0
+[103.883] net: sendto fd=94 -> 35 errno=0
+[103.884] net: sendto fd=94 -> 701 errno=0
+[103.884] net: sendto fd=94 -> 648 errno=0
+[103.884] net: recvfrom(fd 93, 16384) -> 193 errno 0
+[103.884] net: recvfrom fd=93 -> 193 errno=0
+[103.884] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[103.884] net: recvfrom fd=93 -> -1 errno=35
+[103.890] net: recvfrom(fd 94, 16384) -> 259 errno 0
+[103.890] net: recvfrom fd=94 -> 259 errno=0
+[103.890] net: recvfrom(fd 94, 16384) -> -1 errno 35
+[103.890] net: recvfrom fd=94 -> -1 errno=35
+[103.890] net: sendto fd=94 -> 31 errno=0
+[103.891] net: recvfrom(fd 94, 16384) -> 66 errno 0
+[103.892] net: recvfrom fd=94 -> 66 errno=0
+[103.895] net: recvfrom(fd 94, 16384) -> -1 errno 35
+[103.895] net: recvfrom fd=94 -> -1 errno=35
+[103.903] net: sendmsg fd=90 -> 1252 errno=0
+[103.903] net: recvfrom(fd 94, 16384) -> 508 errno 0
+[103.903] net: recvfrom fd=94 -> 508 errno=0
+[103.904] net: recvfrom(fd 94, 16384) -> -1 errno 35
+[103.904] net: recvfrom fd=94 -> -1 errno=35
+[103.905] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[103.905] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[103.905] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[103.907] net: sendto fd=93 -> 116 errno=0
+[103.907] net: sendto fd=93 -> 1032 errno=0
+[103.907] net: sendto fd=93 -> 31 errno=0
+[103.909] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.910] net: recvmsg fd=90 -> 1 errno=0
+[103.910] net: recvmsg fd=90 -> -1 errno=35
+[103.910] net: recvmsg fd=90 -> -1 errno=35
+[103.911] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.914] net: recvfrom(fd 93, 16384) -> 35 errno 0
+[103.914] net: recvfrom fd=93 -> 35 errno=0
+[103.915] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.916] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.916] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[103.916] net: recvfrom fd=93 -> -1 errno=35
+[103.917] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.919] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.920] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.920] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.922] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.929] net: recvfrom(fd 93, 16384) -> 192 errno 0
+[103.929] net: recvfrom fd=93 -> 192 errno=0
+[103.929] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[103.929] net: recvfrom fd=93 -> -1 errno=35
+[103.930] net: sendto fd=92 -> 3 errno=0
+[103.930] net: sendto fd=92 -> 37 errno=0
+[103.934] net: recvmsg fd=90 -> 1 errno=0
+[103.934] net: recvmsg fd=90 -> 1 errno=0
+[103.934] net: recvmsg fd=90 -> 1 errno=0
+[103.934] net: recvmsg fd=90 -> 1 errno=0
+[103.934] net: recvmsg fd=90 -> -1 errno=35
+[103.934] net: recvmsg fd=90 -> -1 errno=35
+[103.988] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.989] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[103.997] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : warmUpIntegrityToken(293955441834)
+[103.998] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : Already connected to the service.
+[103.998] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : Initiate binding to the service.
+[103.998] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : Failed to bind to the service.
+[104.021] net: sendto fd=92 -> 3 errno=0
+[104.021] net: sendto fd=92 -> 122 errno=0
+[104.097] net: poll(1 fds, fd[0] 92 ev 0x9, timeout 180000) -> 1 rev 0x1
+[104.097] net: recvfrom(fd 92, 3) -> 3 errno 0
+[104.097] net: recvfrom fd=92 -> 3 errno=0
+[104.098] net: poll(1 fds, fd[0] 92 ev 0x9, timeout 180000) -> 1 rev 0x1
+[104.098] net: recvfrom(fd 92, 695) -> 695 errno 0
+[104.098] net: recvfrom fd=92 -> 695 errno=0
+[104.098] net: sendto fd=92 -> 3 errno=0
+[104.098] net: sendto fd=92 -> 42 errno=0
+[104.297] net: sendto fd=92 -> 3 errno=0
+[104.297] net: sendto fd=92 -> 34 errno=0
+[104.305] net: sendmsg fd=90 -> 1252 errno=0
+[104.311] net: recvmsg fd=90 -> 1 errno=0
+[104.312] net: recvmsg fd=90 -> -1 errno=35
+[104.312] net: recvmsg fd=90 -> -1 errno=35
+[104.341] net: recvmsg fd=90 -> 1 errno=0
+[104.341] net: recvmsg fd=90 -> 1 errno=0
+[104.341] net: recvmsg fd=90 -> 1 errno=0
+[104.341] net: recvmsg fd=90 -> 1 errno=0
+[104.341] net: recvmsg fd=90 -> -1 errno=35
+[104.341] net: recvmsg fd=90 -> -1 errno=35
+[104.396] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[104.396] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[104.396] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[104.416] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 1) -> 0 rev 0
+[104.416] jni: throwing java/net/SocketTimeoutException: Read timed out
+[104.416] tls-tap: TX 1704: POST /v2/client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: 27DE421A-B489-43F9-B84C-151BFA19A56D..Content-Type: application/x-www-form-urlencoded..Content-Length: 1395..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=yJgTGvTSGcpI5T21rQbbPQn2Le8U8x7VxbMceirOLTH35fuzIBSRUIMiZkBvDA0L25fZ_cP
+[104.416] net: sendto fd=70 -> 1726 errno=0
+[104.524] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[104.524] net: recvfrom(fd 70, 16709) -> 195 errno 0
+[104.524] net: recvfrom fd=70 -> 195 errno=0
+[104.524] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:46:59 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[104.527] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[104.527] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[104.527] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[104.551] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 1) -> 0 rev 0
+[104.551] jni: throwing java/net/SocketTimeoutException: Read timed out
+[104.552] tls-tap: TX 1777: POST /v2/client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: D8D3E163-1F6C-4970-915F-AE478729482D..Content-Type: application/x-www-form-urlencoded..Content-Length: 1468..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=0FeAubmjDlFKkXRjUl9FmCPg9edV5ftFKqFQUPmIlCVt8l7goJ-dXUH-IrwHidRQtkRJ-xD
+[104.552] net: sendto fd=70 -> 1799 errno=0
+[104.585] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[104.585] net: recvfrom(fd 70, 16709) -> 195 errno 0
+[104.585] net: recvfrom fd=70 -> 195 errno=0
+[104.585] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:47:00 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[104.694] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : warmUpIntegrityToken(293955441834)
+[104.695] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : Already connected to the service.
+[104.695] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : Initiate binding to the service.
+[104.695] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : Failed to bind to the service.
+[105.105] net: sendmsg fd=90 -> 1252 errno=0
+[105.113] net: recvmsg fd=90 -> 1 errno=0
+[105.113] net: recvmsg fd=90 -> -1 errno=35
+[105.266] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : warmUpIntegrityToken(293955441834)
+[105.266] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : Already connected to the service.
+[105.266] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : Initiate binding to the service.
+[105.266] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : Failed to bind to the service.
+[105.822] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : warmUpIntegrityToken(293955441834)
+[105.822] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : Already connected to the service.
+[105.822] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : Initiate binding to the service.
+[105.822] I/PlayCore: UID: [10100]  PID: [4242] StandardIntegrity : Failed to bind to the service.
+[113.464] W/OneFabricEventHandler: Event wam_pathfinder_android_unsampled has no session descriptor; using the current session (0 further occurrences suppressed in the last 60000 ms)
+[119.383] net: poll(1 fds, fd[0] 92 ev 0x9, timeout 180000) -> 1 rev 0x1
+[119.383] net: recvfrom(fd 92, 3) -> 3 errno 0
+[119.383] net: poll(1 fds, fd[0] 92 ev 0x9, timeout 180000) -> 1 rev 0x1
+[119.383] net: recvfrom(fd 92, 38) -> 38 errno 0
+[120.596] prof: the main thread's last 30 s, by method (and its caller):
+   85.1% java/lang/Object.wait <- java/lang/Object.wait
+    5.5% husk/Native.nativeLooperPoll <- android/os/MessageQueue.next
+    2.2% jdk/internal/misc/Unsafe.park <- java/util/concurrent/locks/LockSupport.park
+    1.1% android/content/res/Resources$Bag.put <- android/content/res/Resources.huskBag
+    0.4% husk/Gfx.cvDrawRect <- android/graphics/Canvas.drawRect
+    0.4% husk/Gfx.cvDrawText <- android/graphics/Canvas.drawText
+    0.3% X/QFl.A08 <- X/QYb.A0A
+    0.3% android/os/MessageQueue.next <- android/os/Looper.loop
+    0.1% X/OQI.doFrame <- android/view/Choreographer.doFrame
+    0.1% husk/Gfx.present <- husk/ViewRoot.drawAll
+    0.1% husk/Gfx.cvDrawPath <- android/graphics/Canvas.drawPath
+    0.1% X/QYb.A0A <- X/OYK.A0A
+    0.1% X/S2J.A02 <- X/S4f.A00
+    0.1% android/content/res/ResTable$Config.matches <- android/content/res/ResTable.find
+[124.493] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[124.494] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[124.494] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[124.511] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 1) -> 0 rev 0
+[124.511] jni: throwing java/net/SocketTimeoutException: Read timed out
+[124.511] tls-tap: TX 1777: POST /v2/client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: A83A780A-B762-4E9A-96A6-A7DBD4A19800..Content-Type: application/x-www-form-urlencoded..Content-Length: 1468..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=gWQFzN_RO0Ap3VPQMkR122LrTEaRBjThbRgTUBAoMRwsCkfwmUBuWMIWXd4Z4EDlFpMOmYU
+[124.620] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[124.620] net: recvfrom(fd 70, 16709) -> 195 errno 0
+[124.621] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:47:19 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[133.602] net: socket(domain 10, type 0x2, proto 17)
+[133.604] net: close(fd 90)
+[133.604] net: close(fd 98)
+SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+[143.564] W/QPLConfig: failed to load config
+java.io.FileNotFoundException: /Users/runner/work/_temp/data/app_qpl/qpl_sampling_config_v2.5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9: open failed: ENOENT (No such file or directory)
+	at libcore.io.IoBridge.open(IoBridge.java:574)
+	at java.io.FileInputStream.<init>(FileInputStream.java:179)
+	at X.Fva.A0x(:2)
+	at X.QDt.A00(:33)
+	at com.facebook.falco.sampling.FFSamplingBridgeJava.getQPLConfigDirectives(:195)
+Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+	at libcore.io.Linux.open(Native Method)
+	at libcore.io.ForwardingOs.open(ForwardingOs.java:574)
+	at libcore.io.BlockGuardOs.open(BlockGuardOs.java:274)
+	at libcore.io.IoBridge.open(IoBridge.java:560)
+	... 4 more
+
+[143.568] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[143.568] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[143.569] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[143.570] net: getaddrinfo(api.whatsapp.net, 443, family 0 flags 0x4 socktype 2) -> 8
+[143.579] net: socket(domain 2, type 0x2, proto 17)
+[143.580] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.581] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.582] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.582] net: getaddrinfo(api.whatsapp.net, 443, family 0 flags 0x400 socktype 2) -> 0
+[143.583] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.584] E/msys: E[N mns:TigonMNS]onResolverSuccess(367)=>Cache refresh succeeded with system DNS resolver. IP count: 2
+
+[143.586] net: recvfrom(fd 93, 16384) -> 35 errno 0
+[143.587] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[143.615] W/QPLConfig: failed to load config
+java.io.FileNotFoundException: /Users/runner/work/_temp/data/app_qpl/qpl_sampling_config_v2.5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9: open failed: ENOENT (No such file or directory)
+	at libcore.io.IoBridge.open(IoBridge.java:574)
+	at java.io.FileInputStream.<init>(FileInputStream.java:179)
+	at X.Fva.A0x(:2)
+	at X.QDt.A00(:33)
+	at X.RCW.run(:1896)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+	at libcore.io.Linux.open(Native Method)
+	at libcore.io.ForwardingOs.open(ForwardingOs.java:574)
+	at libcore.io.BlockGuardOs.open(BlockGuardOs.java:274)
+	at libcore.io.IoBridge.open(IoBridge.java:560)
+	... 9 more
+
+[143.619] net: recvfrom(fd 93, 16384) -> 3067 errno 0
+[143.619] net: recvfrom(fd 93, 16384) -> 4140 errno 0
+[143.619] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[143.620] net: recvfrom(fd 93, 16384) -> 4140 errno 0
+[143.620] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[143.621] net: recvfrom(fd 93, 16384) -> 4140 errno 0
+[143.621] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[143.622] net: recvfrom(fd 93, 16384) -> 2709 errno 0
+[143.622] net: recvfrom(fd 93, 16384) -> 1522 errno 0
+[143.622] net: recvfrom(fd 93, 16384) -> 2760 errno 0
+[143.622] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[143.626] net: recvfrom(fd 93, 16384) -> 4140 errno 0
+[143.626] net: recvfrom(fd 93, 16384) -> 4140 errno 0
+[143.626] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[143.627] net: recvfrom(fd 93, 16384) -> 4140 errno 0
+[143.628] net: recvfrom(fd 93, 16384) -> 4140 errno 0
+[143.629] net: recvfrom(fd 93, 16384) -> 4140 errno 0
+[143.629] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[143.629] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[143.630] net: recvfrom(fd 93, 16384) -> 4140 errno 0
+[143.630] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[143.630] net: recvfrom(fd 93, 16384) -> 5520 errno 0
+[143.632] net: recvfrom(fd 93, 16384) -> 5520 errno 0
+[143.632] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[143.633] net: recvfrom(fd 93, 16384) -> 5520 errno 0
+[143.633] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[143.633] net: recvfrom(fd 93, 16384) -> 9660 errno 0
+[143.634] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.634] net: recvfrom(fd 93, 16384) -> 9660 errno 0
+[143.634] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[143.635] net: recvfrom(fd 93, 16384) -> 9660 errno 0
+[143.636] net: recvfrom(fd 93, 16384) -> 9660 errno 0
+[143.637] net: recvfrom(fd 93, 16384) -> 9660 errno 0
+[143.638] net: recvfrom(fd 93, 16384) -> 11040 errno 0
+[143.639] net: recvfrom(fd 93, 16384) -> 11040 errno 0
+[143.640] net: recvfrom(fd 93, 16384) -> 11040 errno 0
+[143.641] net: recvfrom(fd 93, 16384) -> 16384 errno 0
+[143.641] net: recvfrom(fd 93, 16384) -> 1556 errno 0
+[143.641] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[143.641] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[143.641] net: recvfrom(fd 93, 16384) -> 9621 errno 0
+[143.644] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[143.650] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.710] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[143.710] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[143.710] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[143.711] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[143.711] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[143.711] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[143.712] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.712] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.713] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.714] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.714] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.715] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.715] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.716] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.718] net: recvfrom(fd 93, 16384) -> 35 errno 0
+[143.720] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[143.720] net: recvfrom(fd 94, 16384) -> 35 errno 0
+[143.721] net: recvfrom(fd 94, 16384) -> -1 errno 35
+[143.730] net: recvfrom(fd 94, 16384) -> 258 errno 0
+[143.732] net: recvfrom(fd 94, 16384) -> -1 errno 35
+[143.732] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[143.732] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[143.732] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[143.741] net: recvfrom(fd 94, 16384) -> 35 errno 0
+[143.743] net: recvfrom(fd 94, 16384) -> -1 errno 35
+[143.748] net: recvfrom(fd 93, 16384) -> 212 errno 0
+[143.748] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[143.759] net: recvfrom(fd 94, 16384) -> 191 errno 0
+[143.760] net: recvfrom(fd 94, 16384) -> -1 errno 35
+[143.797] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.798] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.799] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.799] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.800] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.801] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[143.801] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[144.339] gc: #32 (threshold) freed 94271 of 509352 objects (13.5 MiB); 415081 live (95.4 MiB); paused 512.0 ms (stop 0.3, mark 511.7), sweep 26.2 ms; scanned 391.1 MiB (73 threads' stacks 8.2 MiB, pages 363.8 MiB); next after 16 MiB; 0 MiB left
+[144.341] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[144.341] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[144.343] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[144.520] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[144.520] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[144.520] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[144.532] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 1) -> 0 rev 0
+[144.532] jni: throwing java/net/SocketTimeoutException: Read timed out
+[144.533] tls-tap: TX 1777: POST /v2/client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: 767A7155-ABA4-485C-9B82-3ACAD1D6FB14..Content-Type: application/x-www-form-urlencoded..Content-Length: 1468..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=SLiJVsARRVzwLgi9xq4jYcTjdajMsr3jC916COAI8XrdB5F7lBEfJVT-H9n6uq4h41vpWig
+[144.551] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[144.551] net: recvfrom(fd 70, 16709) -> 195 errno 0
+[144.551] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:47:40 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[150.596] prof: the main thread's last 30 s, by method (and its caller):
+   90.4% java/lang/Object.wait <- java/lang/Object.wait
+    6.1% husk/Native.nativeLooperPoll <- android/os/MessageQueue.next
+    0.8% android/os/MessageQueue.next <- android/os/Looper.loop
+    0.4% java/util/ArrayList.grow <- java/util/ArrayList.grow
+    0.3% android/os/Looper.deliverInput <- android/os/MessageQueue.next
+    0.2% android/view/Choreographer.doFrame <- android/view/Choreographer.$r8$lambda$MDlNSuC4s02yOuITuoADnMtQXdM
+    0.2% X/QYd.BV9 <- X/QFl.A08
+    0.2% X/QYb.A0A <- X/OYK.A0A
+    0.1% X/QFl.A08 <- X/QYb.A0A
+    0.1% java/lang/ThreadLocal$ThreadLocalMap.getEntry <- java/lang/ThreadLocal$ThreadLocalMap.-$$Nest$mgetEntry
+    0.1% java/lang/ThreadLocal.get <- android/view/Choreographer.getInstance
+    0.1% java/lang/ref/Reference.refersTo0 <- java/lang/ref/Reference.refersTo
+    0.1% jdk/internal/misc/Unsafe.park <- java/util/concurrent/locks/LockSupport.park
+    0.1% X/OQI.doFrame <- android/view/Choreographer.doFrame
+ctl: shot /Users/runner/work/_temp/out/whatsapp-after-agree.png (frame 854)
+[161.950] I/Husk: harness: start com.whatsapp.settings.ui.SettingsHelpActivity
+[161.951] D/Husk: startActivity Intent { cmp=com.whatsapp/.settings.ui.SettingsHelpActivity } -> com.whatsapp.settings.ui.SettingsHelpActivity
+[161.952] D/Husk: launch com.whatsapp.settings.ui.SettingsHelpActivity
+[162.312] I/AppCompatViewInflater: app:theme is now deprecated. Please move to using android:theme instead.
+[162.326] I/AppCompatDelegate: You should now use the AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR_OVERLAY id when requesting this feature.
+[165.790] net: poll(1 fds, fd[0] 92 ev 0x9, timeout 180000) -> 1 rev 0x1
+[165.790] net: recvfrom(fd 92, 3) -> 3 errno 0
+[165.790] net: poll(1 fds, fd[0] 92 ev 0x9, timeout 180000) -> 1 rev 0x1
+[165.790] net: recvfrom(fd 92, 38) -> 38 errno 0
+[173.581] net: socket(domain 10, type 0x2, proto 17)
+[173.583] net: close(fd 90)
+[173.583] net: close(fd 99)
+[173.980] I/Husk: harness: view tree of com.whatsapp.settings.ui.SettingsHelpActivity@67d9ad81
+husk.DecorView 0,0 804x1748
+  android.widget.LinearLayout 0,0 804x1748
+    android.widget.FrameLayout 0,0 804x1748
+      androidx.appcompat.widget.FitWindowsFrameLayout id=0x7f0b00f7 0,0 804x1748
+        androidx.appcompat.widget.ContentFrameLayout id=0x1020002 0,0 804x1748
+          android.widget.LinearLayout 0,0 804x1748
+            com.whatsapp.ui.wds.components.topbar.WDSToolbar id=0x7f0b3970 0,0 804x147
+              X.0fR 136,37 460x73 "Help and feedback"
+              androidx.appcompat.widget.AppCompatImageButton id=0x7f0b4014 0,0 126x147
+              androidx.appcompat.widget.ActionMenuView 804,0 0x147
+            android.widget.ScrollView 0,147 804x1601
+              androidx.constraintlayout.widget.ConstraintLayout 0,0 804x1601
+                android.widget.LinearLayout 0,21 804x1559
+                  com.whatsapp.ui.wds.components.list.listitem.WDSListItem id=0x7f0b1745 0,0 804x203
+                    com.whatsapp.ui.wds.components.icon.WDSIcon id=0x7f0b2fd6 42,49 105x105
+                    android.widget.LinearLayout id=0x7f0b2fda 147,42 615x119
+                      android.widget.LinearLayout 42,0 220x58
+                        com.whatsapp.ui.coreui.base.TextEmojiLabel id=0x7f0b2fe8 0,0 440x58 "Help Center"
+                        android.view.ViewStub id=0x7f0b2feb GONE 0,0 0x0 layout=0x0
+                      com.whatsapp.ui.wds.components.textview.WDSTextView id=0x7f0b2fe6 42,58 325x61 "Get help, contact us"
+                    android.view.ViewStub id=0x7f0b2fd2 GONE 0,0 0x0 layout=0x0
+                  com.whatsapp.ui.wds.components.list.listitem.WDSListItem id=0x7f0b07e3 GONE 0,0 0x0
+                    com.whatsapp.ui.wds.components.icon.WDSIcon id=0x7f0b2fd6 0,0 0x0
+                    android.widget.LinearLayout id=0x7f0b2fda 0,0 0x0
+                      android.widget.LinearLayout 0,0 0x0
+                        com.whatsapp.ui.coreui.base.TextEmojiLabel id=0x7f0b2fe8 0,0 0x0 "Send feedback"
+                        android.view.ViewStub id=0x7f0b2feb GONE 0,0 0x0 layout=0x0
+                      com.whatsapp.ui.wds.components.textview.WDSTextView id=0x7f0b2fe6 0,0 0x0 "Report technical issues"
+                    android.view.ViewStub id=0x7f0b2fd2 GONE 0,0 0x0 layout=0x0
+                  com.whatsapp.ui.wds.components.list.listitem.WDSListItem id=0x7f0b388f 0,203 804x147
+                    com.whatsapp.ui.wds.components.icon.WDSIcon id=0x7f0b2fd6 42,21 105x105
+                    android.widget.LinearLayout id=0x7f0b2fda 147,47 615x53
+                      android.widget.LinearLayout 42,0 453x53
+                        com.whatsapp.ui.coreui.base.TextEmojiLabel id=0x7f0b2fe8 0,0 906x53 "Terms and Privacy Policy"
+                        android.view.ViewStub id=0x7f0b2feb GONE 0,0 0x0 layout=0x0
+                      com.whatsapp.ui.wds.components.textview.WDSTextView id=0x7f0b2fe6 GONE 0,0 0x0
+                    android.view.ViewStub id=0x7f0b2fd2 GONE 0,0 0x0 layout=0x0
+                  com.whatsapp.ui.wds.components.list.listitem.WDSListItem id=0x7f0b3b66 GONE 0,0 0x0
+                    android.view.ViewStub id=0x7f0b2fd6 GONE 0,0 0x0 layout=0x0
+                    android.widget.LinearLayout id=0x7f0b2fda 0,0 0x0
+                      android.widget.LinearLayout 0,0 0x0
+                        com.whatsapp.ui.coreui.base.TextEmojiLabel id=0x7f0b2fe8 0,0 0x0 "About UPI payments and legal name"
+                        android.view.ViewStub id=0x7f0b2feb GONE 0,0 0x0 layout=0x0
+                      com.whatsapp.ui.wds.components.textview.WDSTextView id=0x7f0b2fe6 GONE 0,0 0x0
+                    android.view.ViewStub id=0x7f0b2fd2 GONE 0,0 0x0 layout=0x0
+                  android.widget.LinearLayout id=0x7f0b256f GONE 0,0 0x0
+                  android.view.ViewStub id=0x7f0b24a1 GONE 0,0 0x0 layout=0x0
+                  com.whatsapp.ui.wds.components.list.listitem.WDSListItem id=0x7f0b24a0 0,350 804x147
+                    com.whatsapp.ui.wds.components.icon.WDSIcon id=0x7f0b2fd6 42,21 105x105
+                    android.widget.LinearLayout id=0x7f0b2fda 147,47 615x53
+                      android.widget.LinearLayout 42,0 294x53
+                        com.whatsapp.ui.coreui.base.TextEmojiLabel id=0x7f0b2fe8 0,0 588x53 "Channel reports"
+                        android.view.ViewStub id=0x7f0b2feb GONE 0,0 0x0 layout=0x0
+                      com.whatsapp.ui.wds.components.textview.WDSTextView id=0x7f0b2fe6 GONE 0,0 0x0
+                    android.view.ViewStub id=0x7f0b2fd2 GONE 0,0 0x0 layout=0x0
+                  com.whatsapp.ui.wds.components.list.listitem.WDSListItem id=0x7f0b0031 0,497 804x147
+                    com.whatsapp.ui.wds.components.icon.WDSIcon id=0x7f0b2fd6 42,21 105x105
+                    android.widget.LinearLayout id=0x7f0b2fda 147,47 615x53
+                      android.widget.LinearLayout 42,0 153x53
+                        com.whatsapp.ui.coreui.base.TextEmojiLabel id=0x7f0b2fe8 0,0 306x53 "App info"
+                        android.view.ViewStub id=0x7f0b2feb GONE 0,0 0x0 layout=0x0
+                      com.whatsapp.ui.wds.components.textview.WDSTextView id=0x7f0b2fe6 GONE 0,0 0x0
+                    android.view.ViewStub id=0x7f0b2fd2 GONE 0,0 0x0 layout=0x0
+                  android.view.ViewStub id=0x7f0b1eeb GONE 0,0 0x0 layout=0x7f0e109d
+        androidx.appcompat.widget.ViewStubCompat id=0x7f0b0120 GONE 0,0 0x0
+
+ctl: shot /Users/runner/work/_temp/out/settings-help.png (frame 855)
+[174.119] D/Husk: finish com.whatsapp.settings.ui.SettingsHelpActivity
+[174.359] W/OneFabricEventHandler: Event wam_pathfinder_android_unsampled has no session descriptor; using the current session (2 further occurrences suppressed in the last 60000 ms)
+[174.367] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[174.367] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[174.367] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[174.387] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 1) -> 0 rev 0
+[174.387] jni: throwing java/net/SocketTimeoutException: Read timed out
+[174.388] tls-tap: TX 1777: POST /v2/client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: 5A8AF0EA-A193-40A7-AEC4-D27A99BAA16A..Content-Type: application/x-www-form-urlencoded..Content-Length: 1468..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=MGFLCrQxOhrtcrwliR0XfY8z77G05Tjkm1d64xqhvVDnb_vENroL-Q6b65RQxKfLzAfJkys
+[174.459] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[174.459] net: recvfrom(fd 70, 16709) -> 195 errno 0
+[174.460] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:48:10 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[177.237] I/Husk: harness: start com.whatsapp.settings.ui.SettingsTabActivity
+[177.238] D/Husk: startActivity Intent { cmp=com.whatsapp/.settings.ui.SettingsTabActivity } -> com.whatsapp.settings.ui.SettingsTabActivity
+[177.239] D/Husk: launch com.whatsapp.settings.ui.SettingsTabActivity
+[177.908] gc: #33 (threshold) freed 91864 of 513079 objects (12.4 MiB); 421215 live (99.0 MiB); paused 371.6 ms (stop 0.8, mark 370.8), sweep 24.8 ms; scanned 392.2 MiB (74 threads' stacks 8.3 MiB, pages 364.7 MiB); next after 16 MiB; 0 MiB left
+[177.945] I/AppCompatViewInflater: app:theme is now deprecated. Please move to using android:theme instead.
+[178.103] D/Husk: startActivity Intent { cmp=com.whatsapp/.Main (has extras) } -> com.whatsapp.Main
+[178.138] D/Husk: launch com.whatsapp.Main
+[178.384] D/Husk: startActivity Intent { cmp=com.whatsapp/.registration.app.EULA (has extras) } -> com.whatsapp.registration.app.EULA
+[178.436] D/Husk: finish com.whatsapp.settings.ui.SettingsTabActivity
+[178.506] D/Husk: launch com.whatsapp.registration.app.EULA
+[178.923] I/AppCompatViewInflater: app:theme is now deprecated. Please move to using android:theme instead.
+[179.004] I/AppCompatViewInflater: app:theme is now deprecated. Please move to using android:theme instead.
+[179.280] gc: #34 (threshold) freed 74492 of 522064 objects (11.2 MiB); 447572 live (103.7 MiB); paused 199.6 ms (stop 0.7, mark 198.9), sweep 12.1 ms; scanned 394.7 MiB (77 threads' stacks 9.6 MiB, pages 366.0 MiB); next after 16 MiB; 0 MiB left
+[179.407] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[179.407] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[179.408] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[179.424] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 1) -> 0 rev 0
+[179.424] jni: throwing java/net/SocketTimeoutException: Read timed out
+[179.437] tls-tap: TX 1226: POST /v2/pre_pn_client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: 0EFC0CEA-A1E3-4D89-8A20-4E865045A4A9..Content-Type: application/x-www-form-urlencoded..Content-Length: 911..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=fx3eTbDpJQ87y2PyxiliCeO9y4dyOMFDG-7197njAl_E3iTV8EPE0zJn1DyzZaiH2
+[179.443] D/Husk: finish com.whatsapp.Main
+[179.445] D/Husk: finish com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity
+[179.446] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[179.446] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[179.446] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[179.449] W/ConnectionStatusConfig: Dynamic intent resolution failed: android.os.RemoteException: Failed to acquire ContentProviderClient
+[179.449] W/ConnectionStatusConfig: Dynamic lookup for intent failed for action: com.google.android.gms.auth.blockstore.service.START
+[179.449] W/GmsClient: unable to connect to service: com.google.android.gms.auth.blockstore.service.START on com.google.android.gms
+[179.477] net: poll(1 fds, fd[0] 73 ev 0x9, timeout 1) -> 1 rev 0x11
+[179.477] net: recvfrom(fd 73, 16709) -> 24 errno 0
+[179.478] jni: throwing javax/net/ssl/SSLProtocolException: Read error: ssl=0x159ee9da8: Failure in SSL library, usually a protocol error
+error:100003e8:SSL routines:OPENSSL_internal:SSLV3_ALERT_CLOSE_NOTIFY (external/boringssl/src/ssl/tls_record.cc:486 0x14ff8e7c0:0x00000003)
+[179.478] net: close(fd 77)
+[179.479] net: close(fd 76)
+[179.479] net: close(fd 73)
+[179.479] net: poll(1 fds, fd[0] 78 ev 0x9, timeout 1) -> 1 rev 0x11
+[179.479] net: recvfrom(fd 78, 16709) -> 24 errno 0
+[179.480] jni: throwing javax/net/ssl/SSLProtocolException: Read error: ssl=0x159ee96c8: Failure in SSL library, usually a protocol error
+error:100003e8:SSL routines:OPENSSL_internal:SSLV3_ALERT_CLOSE_NOTIFY (external/boringssl/src/ssl/tls_record.cc:486 0x15a6289c0:0x00000003)
+[179.480] net: close(fd 76)
+[179.480] net: close(fd 73)
+[179.480] net: close(fd 78)
+[179.481] net: getaddrinfo(v.whatsapp.net, (null), family 0 flags 0x4 socktype 0) -> 8
+[179.484] net: getaddrinfo(v.whatsapp.net, (null), family 0 flags 0x400 socktype 1) -> 0
+[179.484] net: socket(domain 10, type 0x1, proto 0)
+[179.485] net: connect(fd 73, ::ffff:157.240.241.60) -> -1 errno 36
+[179.493] net: poll(1 fds, fd[0] 73 ev 0x4, timeout 59999) -> 1 rev 0x4
+[179.493] net: getsockopt(fd 73, level 1, opt 4) -> 0 errno 0 value 0
+[179.503] net: poll(1 fds, fd[0] 73 ev 0x9, timeout 60000) -> 1 rev 0x1
+[179.503] net: recvfrom(fd 73, 16709) -> 218 errno 0
+[179.504] tls-tap: TX 966: POST /v2/reg_onboard_abprop HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: 2735564B-5915-4A68-8B91-FFB463F63179..Content-Type: application/x-www-form-urlencoded..Content-Length: 650..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=ROZfjyFfO-oAsFu6RzudJUqLvPT34gHksGzv0qMu0WXvPs2mjUaI5efhCHVsHxGo
+[179.508] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[179.508] net: recvfrom(fd 70, 16709) -> 195 errno 0
+[179.508] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:48:15 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[179.511] net: poll(1 fds, fd[0] 73 ev 0x9, timeout 60000) -> 1 rev 0x1
+[179.511] net: recvfrom(fd 73, 16709) -> 185 errno 0
+[179.613] net: poll(1 fds, fd[0] 73 ev 0x9, timeout 60000) -> 1 rev 0x1
+[179.613] net: recvfrom(fd 73, 16709) -> 4257 errno 0
+[179.613] tls-tap: RX 1500: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:48:14 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 11032....{"ab_hash":"3ZwlGj","ab_key":"gxa,Xcd,3YW,Ry","exp_cfg":"[{\"config_code\":\"9120\",\"config_value\":\"1\"},{\"config_code\":\"8982\",\"config_value\":\"500\"},{\"config_code\":\"14129\",\"config_value\":\"0\"},{\"config_cod
+[179.616] tls-tap: RX 108: :\"37822\",\"config_value\":\"1\"},{\"config_code\":\"32640\",\"config_value\":\"0\",\"config_expo_key\":\"1
+[179.616] tls-tap: RX 2583: 42919\"},{\"config_code\":\"34021\",\"config_value\":\"1\"},{\"config_code\":\"25469\",\"config_value\":\"1\"},{\"config_code\":\"35030\",\"config_value\":\"1\"},{\"config_code\":\"2964\",\"config_value\":\"1\"},{\"config_code\":\"13178\",\"config_value\":\"1\"},{\"config_code\":\"33653\",\"config_value\":\"1\"},{\"config_code\":\"36408\",\"config_value\":\"1\"},{\"config_code\":\"
+[179.618] net: poll(1 fds, fd[0] 73 ev 0x9, timeout 60000) -> 1 rev 0x1
+[179.618] net: recvfrom(fd 73, 16709) -> 4086 errno 0
+[179.618] tls-tap: RX 4064: \"config_value\":\"1\"},{\"config_code\":\"22881\",\"config_value\":\"1\"},{\"config_code\":\"8450\",\"config_value\":\"1\"},{\"config_code\":\"9203\",\"config_value\":\"1\"},{\"config_code\":\"3131\",\"config_value\":\"1\"},{\"config_code\":\"4972\",\"config_value\":\"1\"},{\"config_code\":\"2021\",\"config_value\":\"1\"},{\"config_code\":\"4401\",\"config_value\":\"1\"},{\"config
+[179.627] net: poll(1 fds, fd[0] 73 ev 0x9, timeout 60000) -> 1 rev 0x1
+[179.627] net: recvfrom(fd 73, 16709) -> 2981 errno 0
+[179.627] tls-tap: RX 1500: value\":\"1\"},{\"config_code\":\"2736\",\"config_value\":\"0\"},{\"config_code\":\"33973\",\"config_value\":\"1\"},{\"config_code\":\"14821\",\"config_value\":\"1\"},{\"config_code\":\"16082\",\"config_value\":\"1\"},{\"config_code\":\"11571\",\"config_value\":\"1350.0\"},{\"config_code\":\"11186\",\"config_value\":\"1\"},{\"config_code\":\"21647\",\"config_value\":\"1\"},{\"confi
+[179.627] tls-tap: RX 1437: e\":\"10560\",\"config_value\":\"1\"},{\"config_code\":\"30037\",\"config_value\":\"1\"},{\"config_code\":\"24317\",\"config_value\":\"1\"},{\"config_code\":\"28255\",\"config_value\":\"1\"},{\"config_code\":\"16591\",\"config_value\":\"1\"},{\"config_code\":\"7780\",\"config_value\":\"300000\"},{\"config_code\":\"36402\",\"config_value\":\"1\"},{\"config_code\":\"26215\",\"config_
+[179.736] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[179.736] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[179.736] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[179.740] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 1) -> 0 rev 0
+[179.740] jni: throwing java/net/SocketTimeoutException: Read timed out
+[179.741] tls-tap: TX 1717: POST /v2/client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: 3F10ECF7-5100-4D62-9559-09EBCFDC40D8..Content-Type: application/x-www-form-urlencoded..Content-Length: 1408..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=O68xETDKDo2n71S-HLgi8ikS_W6YVQ3tCOxspJVSWSzxbeuAGqXr3-bvfr1_UzeCir2i0Hc
+[179.750] W/GmsClient: unable to connect to service: com.google.android.gms.auth.api.accounttransfer.service.START on com.google.android.gms
+[179.759] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[179.759] net: recvfrom(fd 70, 16709) -> 195 errno 0
+[179.759] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:48:15 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[179.926] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[179.926] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[179.926] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[179.926] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(556)=>[I] http/task/regular/create/start
+[179.926] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(591)=>[I] http/task/regular/create/execute
+[179.926] E/msys: E[N WCIHTTPImplNetworkSession]WCIHTTPTaskImplCreateRegular(614)=>[I] http/task/regular/create/success
+[179.938] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 1) -> 0 rev 0
+[179.938] jni: throwing java/net/SocketTimeoutException: Read timed out
+[179.938] net: poll(1 fds, fd[0] 73 ev 0x9, timeout 1) -> 0 rev 0
+[179.938] jni: throwing java/net/SocketTimeoutException: Read timed out
+[179.938] tls-tap: TX 1093: POST /v2/pre_pn_client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: BBA7C9A1-32A8-4E62-9216-34A937A8E0C3..Content-Type: application/x-www-form-urlencoded..Content-Length: 778..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=sK37L-I8n0hNpmUhGAl9ezAdws-lqKLfZFIylKmmxgBSn2o9cika7VafaarK4jq08
+[179.938] tls-tap: TX 1037: POST /v2/pre_pn_client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: FE6E2C50-E6D8-41C6-9FC1-E8625A2F9ED5..Content-Type: application/x-www-form-urlencoded..Content-Length: 722..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=z9xvJr2uWmvUvVb-OBJHqmVZHl1gtbRH3zmvWzyb_VAyzdyt0JQYQqKpyhbOXYg50
+[179.972] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[179.972] net: recvfrom(fd 70, 16709) -> 195 errno 0
+[179.972] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:48:15 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[179.998] net: poll(1 fds, fd[0] 73 ev 0x9, timeout 60000) -> 1 rev 0x1
+[179.998] net: recvfrom(fd 73, 16709) -> 195 errno 0
+[179.998] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:48:15 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[180.040] net: poll(1 fds, fd[0] 92 ev 0x9, timeout 180000) -> 1 rev 0x11
+[180.040] net: recvfrom(fd 92, 3) -> 0 errno 0
+[180.059] net: close(fd 83)
+[180.060] net: close(fd 76)
+[180.060] net: close(fd 92)
+[180.464] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[180.464] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[180.464] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[180.465] net: getaddrinfo(api.whatsapp.net, 443, family 0 flags 0x4 socktype 2) -> 8
+[180.470] net: socket(domain 2, type 0x2, proto 17)
+[180.472] net: getaddrinfo(api.whatsapp.net, 443, family 0 flags 0x400 socktype 2) -> 0
+[180.473] E/msys: E[N mns:TigonMNS]onResolverSuccess(367)=>Cache refresh succeeded with system DNS resolver. IP count: 2
+
+[180.478] net: recvfrom(fd 93, 16384) -> 35 errno 0
+[180.479] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[180.479] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[180.480] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[180.480] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[180.482] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[180.487] net: recvfrom(fd 93, 16384) -> 231 errno 0
+[180.489] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[180.489] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[180.489] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[180.489] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[180.498] net: recvfrom(fd 93, 16384) -> 35 errno 0
+[180.499] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[180.512] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[180.513] net: recvfrom(fd 93, 16384) -> 193 errno 0
+[180.514] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[180.515] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[180.516] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[180.516] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[180.517] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[180.517] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[180.518] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[180.519] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[180.567] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 1) -> 0 rev 0
+[180.567] jni: throwing java/net/SocketTimeoutException: Read timed out
+[180.568] tls-tap: TX 1119: POST /v2/pre_pn_client_log HTTP/1.1..User-Agent: WhatsApp/2.26.40.77 Android/14 Device/Google-Pixel_8..WaMsysRequest: 1..request_token: BE84766F-1DF6-4C37-9B18-7C1C3ABC5C78..Content-Type: application/x-www-form-urlencoded..Content-Length: 804..Host: v.whatsapp.net..Connection: Keep-Alive..Accept-Encoding: gzip....ENC=Yth7xpOpMnYuGehBKdeaVkyKNDbebMSi30LMJvxgulBlwr4krmhwLmdaW2ZjEplOH
+[180.594] prof: the main thread's last 30 s, by method (and its caller):
+   81.7% java/lang/Object.wait <- java/lang/Object.wait
+    5.1% husk/Native.nativeLooperPoll <- android/os/MessageQueue.next
+    3.1% android/content/res/Resources$Bag.put <- android/content/res/Resources.huskBag
+    2.9% jdk/internal/misc/Unsafe.park <- java/util/concurrent/locks/LockSupport.park
+    0.4% android/os/MessageQueue.next <- android/os/Looper.loop
+    0.3% android/content/res/ResTable$Config.matches <- android/content/res/ResTable.find
+    0.3% android/content/res/ResTable.find <- android/content/res/Resources.huskValue
+    0.3% jdk/internal/misc/Unsafe.park <- java/util/concurrent/locks/LockSupport.parkNanos
+    0.2% husk/Gfx.cvRestoreTo <- android/graphics/Canvas.restoreToCount
+    0.2% android/os/Looper.deliverInput <- android/os/MessageQueue.next
+    0.2% java/util/concurrent/locks/LockSupport.park <- java/util/concurrent/locks/AbstractQueuedSynchronizer.acquire
+    0.1% X/QFl.A08 <- X/QYb.A0A
+    0.1% java/nio/HeapByteBuffer.getIntUnchecked <- java/nio/HeapByteBuffer.getInt
+    0.1% android/view/Choreographer.doFrame <- android/view/Choreographer.$r8$lambda$MDlNSuC4s02yOuITuoADnMtQXdM
+[180.631] net: poll(1 fds, fd[0] 70 ev 0x9, timeout 60000) -> 1 rev 0x1
+[180.631] net: recvfrom(fd 70, 16709) -> 195 errno 0
+[180.632] tls-tap: RX 173: HTTP/1.1 200 OK..Content-Type: text/json ; charset=utf-8..Date: Wed, 14 Oct 2026 17:48:16 GMT..Server: Cowboy..Connection: keep-alive..Content-Length: 16....{"status":"ok"}.
+[183.532] gc: #35 (threshold) freed 74192 of 562471 objects (10.9 MiB); 488279 live (108.8 MiB); paused 202.3 ms (stop 0.4, mark 201.9), sweep 11.9 ms; scanned 398.3 MiB (74 threads' stacks 9.6 MiB, pages 369.4 MiB); next after 16 MiB; 0 MiB left
+[189.308] I/Husk: harness: view tree of com.whatsapp.registration.app.EULA@2eb96bd6
+husk.DecorView 0,0 804x1748
+  android.widget.LinearLayout 0,0 804x1748
+    android.widget.FrameLayout 0,0 804x1748
+      androidx.appcompat.widget.FitWindowsFrameLayout id=0x7f0b00f7 0,0 804x1748
+        androidx.appcompat.widget.ContentFrameLayout id=0x1020002 0,0 804x1748
+          androidx.constraintlayout.widget.ConstraintLayout id=0x7f0b1409 0,0 804x1748
+            com.whatsapp.ui.wds.components.topbar.WDSToolbar id=0x7f0b140e 0,0 804x147
+              androidx.appcompat.widget.ActionMenuView 699,0 105x147
+                X.1ka id=0x7f0b214d 0,10 105x126
+            androidx.core.widget.NestedScrollView id=0x7f0b140c 0,44 804x1660
+              androidx.constraintlayout.widget.ConstraintLayout id=0x7f0b0da1 0,0 804x1660
+                com.whatsapp.ui.coreui.base.WaImageView id=0x7f0b140a GONE 0,0 0x0
+                com.airbnb.lottie.LottieAnimationView id=0x7f0b1404 101,174 603x603
+                com.whatsapp.ui.wds.components.textview.WDSTextView id=0x7f0b3933 0,819 804x98 "Welcome to WhatsApp"
+                android.view.ViewStub id=0x7f0b1408 GONE 0,0 0x0 layout=0x7f0e0803
+                com.whatsapp.ui.coreui.base.TextEmojiLabel id=0x7f0b140f 0,959 804x280 "Read our Privacy Policies. Tap "Agree an…"
+                com.whatsapp.ui.coreui.base.TextEmojiLabel id=0x7f0b140b GONE 0,0 0x0 "We use your information to create your a…"
+                com.whatsapp.ui.wds.components.textview.WDSTextView id=0x7f0b1d19 210,1302 384x105 "English"
+                androidx.cardview.widget.CardView id=0x7f0b1402 0,1449 804x148
+                  com.whatsapp.ui.wds.components.button.WDSButton id=0x7f0b1401 47,11 710x126 "Agree and continue"
+                android.widget.LinearLayout id=0x7f0b259a GONE 0,0 0x0
+                  android.view.ViewStub id=0x7f0b259d GONE 0,0 0x0 layout=0x7f0e0ef2
+                  com.whatsapp.ui.wds.components.button.WDSButton id=0x7f0b2599 GONE 0,0 0x0
+                  android.view.ViewStub id=0x7f0b25a0 GONE 0,0 0x0 layout=0x7f0e0ef3
+            com.whatsapp.ui.coreui.base.WaImageView id=0x7f0b1545 GONE 0,0 0x0
+            com.whatsapp.ui.wds.components.topbar.WDSToolbar id=0x7f0b0fc1 GONE 0,0 0x0
+            com.whatsapp.ui.wds.components.button.WDSButton id=0x7f0b1403 541,44 137x126
+        androidx.appcompat.widget.ViewStubCompat id=0x7f0b0120 GONE 0,0 0x0
+
+ctl: shot /Users/runner/work/_temp/out/settings-tab.png (frame 956)
+[189.460] I/Husk: the last activity finishes
+java.lang.Throwable: finish() called from
+	at android.app.Activity.finish(Activity.java:331)
+	at android.app.Activity.finishAfterTransition(Activity.java:336)
+	at android.app.Activity.onBackPressed(Activity.java:414)
+	at X.0Ig.A0E(:0)
+	at X.1V4.run(:1051)
+	at X.0PV.A05(:46)
+	at X.0Ig.onBackPressed(:4)
+	at X.0It.onBackPressed(:16)
+	at com.whatsapp.registration.app.EULA.onBackPressed(:24)
+	at android.app.Activity.onKeyUp(Activity.java:406)
+	at X.0J0.A0x(:6)
+	at X.0J0.onKeyUp(:28)
+	at android.view.KeyEvent.dispatch(KeyEvent.java:121)
+	at android.app.Activity.dispatchKeyEvent(Activity.java:383)
+	at X.0IY.Cjl(:4)
+	at X.JpZ.A00(:9)
+	at X.0IY.dispatchKeyEvent(:23)
+	at X.0Ik.dispatchKeyEvent(:22)
+	at X.0QS.dispatchKeyEvent(:2)
+	at X.0QT.dispatchKeyEvent(:19)
+	at X.0RT.dispatchKeyEvent(:20)
+	at husk.DecorView.dispatchKeyEvent(DecorView.java:159)
+	at husk.ViewRoot.dispatchKey(ViewRoot.java:362)
+	at android.app.Activity.onBackPressedHusk(Activity.java:147)
+	at android.app.Activity.huskBack(Activity.java:131)
+	at husk.AppRunner.back(AppRunner.java:313)
+	at husk.AppRunner.deliver(AppRunner.java:285)
+	at husk.AppRunner.$r8$lambda$lkQe6duv8eolFQ_0RlDgSZblvZM(AppRunner.java)
+	at husk.AppRunner$$ExternalSyntheticLambda5.deliver(D8$$SyntheticClass:0)
+	at android.os.Looper.deliverInput(Looper.java:17)
+	at android.os.MessageQueue.next(MessageQueue.java:41)
+	at android.os.Looper.loop(Looper.java:34)
+	at husk.AppRunner.run(AppRunner.java:77)
+
+[189.476] D/Husk: finish com.whatsapp.registration.app.EULA
+[189.851] gc: #36 (threshold) freed 97823 of 604146 objects (13.5 MiB); 506323 live (111.4 MiB); paused 303.6 ms (stop 0.5, mark 303.1), sweep 16.1 ms; scanned 393.5 MiB (75 threads' stacks 8.7 MiB, pages 365.6 MiB); next after 16 MiB; 0 MiB left
+[189.930] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[189.930] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[189.930] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[189.936] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[189.936] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[189.936] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[189.937] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[189.938] javaapp: the app finished
+[189.941] net: recvfrom(fd 93, 16384) -> 35 errno 0
+[189.942] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[189.955] net: recvfrom(fd 93, 16384) -> 213 errno 0
+[189.956] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[189.956] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[189.956] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[189.956] net: getaddrinfo(api.whatsapp.net, (null), family 10 flags 0x4 socktype 1) -> 8
+[189.958] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[189.960] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[189.960] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[189.960] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[189.961] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[189.961] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[189.965] net: recvfrom(fd 93, 16384) -> 35 errno 0
+[189.966] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[189.980] net: recvfrom(fd 93, 16384) -> 192 errno 0
+[189.981] net: recvfrom(fd 93, 16384) -> -1 errno 35
+[189.999] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+[190.000] E/QPLProvider: QuickPerformanceLogger instance wasn't installed in provider, returning noop. Please call QuickPerformanceLoggerProvider.setQuickPerformanceLogger() before getting the instance.
+java.lang.IllegalStateException: No QPL instance provided
+	at X.1LO.A00(:35)
+	at com.facebook.quicklog.QuickPerformanceLoggerNativeProvider.getQPLInstance(:0)
+	at com.facebook.common.jniexecutors.NativeRunnable.nativeRun(Native Method)
+	at com.facebook.common.jniexecutors.NativeRunnable.runNativeDirectly(:0)
+	at com.facebook.common.jniexecutors.PooledNativeRunnable.run(:0)
+	at X.1To.run(:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+
+javaapp: 957 frames in 290 s

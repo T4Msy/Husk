@@ -1,0 +1,15 @@
+3:import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+4:import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
+7:/* renamed from: X.0oM, reason: invalid class name and case insensitive filesystem */
+9:public class C16830oM extends C16810oK implements InterfaceC16820oL {
+10:    public static final /* synthetic */ AtomicReferenceFieldUpdater A01 = AtomicReferenceFieldUpdater.newUpdater(C16830oM.class, Object.class, "owner$volatile");
+12:    public volatile /* synthetic */ Object owner$volatile;
+16:        this.owner$volatile = AbstractC16800oJ.A00;
+24:            AtomicIntegerFieldUpdater atomicIntegerFieldUpdater = C16810oK.A02;
+25:            int i2 = atomicIntegerFieldUpdater.get(this);
+29:                    i = atomicIntegerFieldUpdater.get(this);
+32:                } while (!atomicIntegerFieldUpdater.compareAndSet(this, i, i3));
+37:                if (atomicIntegerFieldUpdater.compareAndSet(this, i2, i2 - 1)) {
+86:            AtomicReferenceFieldUpdater atomicReferenceFieldUpdater = A01;
+87:            Object obj2 = atomicReferenceFieldUpdater.get(this);
+98:                if (C0H4.A00(atomicReferenceFieldUpdater, this, obj2, c0jv)) {

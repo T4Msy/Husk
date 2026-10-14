@@ -1,0 +1,1271 @@
+2026-10-14 17:45:18.156 LL_I D [4:Logger (2.26.40.77(1089927065))] ==== logfile level=3 tz=+0000 ====
+2026-10-14 17:45:18.155 LL_I D [2:main] ==== logfile version=2.26.40.77 level=3====
+2026-10-14 17:45:18.156 LL_I D [2:main] log/queue/fairness fair
+2026-10-14 17:45:18.156 LL_I D [2:main] AbstractAppShell/attachBaseContext/complete/13 uptime 319752
+2026-10-14 17:45:23.255 LL_I D [2:main] AbstractAppShellDelegate/onCreate
+2026-10-14 17:45:23.411 LL_I D [2:main] BotSharedPrefMigrationHandler added 1 keys
+2026-10-14 17:45:23.426 LL_I D [2:main] WaSharedPrefMigrationHandler added 1 keys
+2026-10-14 17:45:23.447 LL_I D [2:main] AgeExperienceSharedPrefMigrationHandler migrating from version 0: expected=null, reported=null
+2026-10-14 17:45:23.521 LL_I D [2:main] AbstractAppShellDelegate/initStartupPathPerfLogging/start
+2026-10-14 17:45:23.540 LL_I D [2:main] AbstractAppShellDelegate/debug_info: pkg=com.whatsapp; v=2.26.40.77-website-release; vc=264007733; p=consumer; e=90; g=92f6197f9b271c3a90e0095dc3749d89ef62636c; t=1791824519000; d=Google Pixel 8; os=Android 14; abis=arm64-v8a
+2026-10-14 17:45:23.951 LL_I D [2:main] whatsapplibloader/system-load-library-with-install start, loading: superpack
+2026-10-14 17:45:23.973 LL_I D [2:main] whatsapplibloader/system-load-library-with-install end
+2026-10-14 17:45:23.973 LL_I D [2:main] whatsappassetdecompressor/decompressor-usable isLibraryUsable: True
+2026-10-14 17:45:23.984 LL_I D [2:main] whatsappassetdecompressor/initiating decompression of primary libs size:17
+2026-10-14 17:45:24.261 LL_I D [2:main] whatsappassetdecompressor/primary libs decompressed size/17
+2026-10-14 17:45:24.280 LL_I D [2:main] AbstractAppShellDelegate/decompressAsset time:286 cold start after app install
+2026-10-14 17:45:24.299 LL_I D [18:High Pri Worker #2] whatsappassetdecompressor/scheduling decompression of secondary libs
+2026-10-14 17:45:24.317 LL_I D [18:High Pri Worker #2] whatsappassetdecompressor/initiating decompression of secondary libs
+2026-10-14 17:45:24.334 LL_I D [2:main] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libwa_log.so, is secondary: false
+2026-10-14 17:45:24.351 LL_I D [2:main] WhatsAppLibLoader/loadStartupLib: successfully loaded wa_log
+2026-10-14 17:45:24.366 LL_I D [2:main] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libessential.so, is secondary: false
+2026-10-14 17:45:24.366 LL_I D [2:main] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libfb.so, is secondary: false
+2026-10-14 17:45:24.366 LL_I D [2:main] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libglog.so, is secondary: false
+2026-10-14 17:45:24.375 LL_I D [2:main] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libc++_shared.so, is secondary: false
+2026-10-14 17:45:24.388 LL_I D [2:main] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libfbsofterror.so, is secondary: false
+2026-10-14 17:45:24.404 LL_I D [2:main] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libfbjni.so, is secondary: false
+2026-10-14 17:45:24.411 LL_I D [2:main] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libfb.so, is secondary: false
+2026-10-14 17:45:24.421 LL_I D [2:main] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libforce_dlopen.so, is secondary: false
+2026-10-14 17:45:24.437 LL_I D [2:main] WhatsAppLibLoader/loadStartupLib: successfully loaded essential
+2026-10-14 17:45:24.456 LL_I D [2:main] Loading module: breakpad
+2026-10-14 17:45:24.478 LL_E D [2:main] ### begin stack trace 2.26.40.77(1089927065)
+java.lang.AssertionError: breakpad/setup failed
+	at X.00K.A0E(:4)
+	at com.whatsapp.infra.crash.breakpad.BreakpadManager.A00(:121)
+	at com.whatsapp.app.shell.AbstractAppShellDelegate.lambda$installAnrDetector$0$com-whatsapp-app-shell-AbstractAppShellDelegate(:46)
+	at X.0FN.run(:8)
+	at X.0FJ.A01(:78)
+	at com.whatsapp.app.shell.AbstractAppShellDelegate.installAnrDetector(:53)
+	at com.whatsapp.app.shell.AbstractAppShellDelegate.onCreate(:633)
+	at X.004.onCreateWithUltralightReady(:17)
+	at X.004.onCreate(:149)
+	at husk.AppRunner.run(AppRunner.java:67)
+### end stack trace
+2026-10-14 17:45:24.479 LL_I D [2:main] Module breakpad health file deleted: true
+2026-10-14 17:45:24.480 LL_I D [2:main] Module loaded: breakpad load time: 24
+2026-10-14 17:45:24.481 LL_I D [2:main] Loading module: abort_hook
+2026-10-14 17:45:24.481 LL_I D [2:main] Module abort_hook health file deleted: true
+2026-10-14 17:45:24.482 LL_I D [2:main] Module loaded: abort_hook load time: 1
+2026-10-14 17:45:24.483 LL_I D [2:main] Loading module: anr_detector
+2026-10-14 17:45:24.483 LL_I D [2:main] SigquitBasedANRDetector/Init initialized
+2026-10-14 17:45:24.483 LL_I D [2:main] SigquitBasedANRDetector/start called
+2026-10-14 17:45:24.483 LL_I D [2:main] SigquitBasedANRDetector/start thread started
+2026-10-14 17:45:24.484 LL_I D [2:main] SigquitBasedANRDetector/StartDetector openLib
+2026-10-14 17:45:24.484 LL_W D [2:main] SigquitBasedANRDetector/StartDetector openLib failed errno=2
+2026-10-14 17:45:24.498 LL_E D [2:main] ### begin stack trace 2.26.40.77(1089927065)
+java.lang.AssertionError: SigquitBasedANRDetector/start failed to start detector
+	at X.00K.A0E(:4)
+	at X.0FK.A00(:62)
+	at X.1V4.run(:1362)
+	at X.0FJ.A01(:78)
+	at com.whatsapp.app.shell.AbstractAppShellDelegate.installAnrDetector(:78)
+	at com.whatsapp.app.shell.AbstractAppShellDelegate.onCreate(:633)
+	at X.004.onCreateWithUltralightReady(:17)
+	at X.004.onCreate(:149)
+	at husk.AppRunner.run(AppRunner.java:67)
+### end stack trace
+2026-10-14 17:45:24.507 LL_I D [2:main] SigquitBasedANRDetector/started
+2026-10-14 17:45:24.524 LL_I D [2:main] Module anr_detector health file deleted: true
+2026-10-14 17:45:24.538 LL_I D [2:main] Module loaded: anr_detector load time: 25
+2026-10-14 17:45:24.546 LL_I D [2:main] AbstractAppShellDelegate/maybeDisableRuntimeVerification
+2026-10-14 17:45:24.558 LL_I D [2:main] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: librtvip.so, is secondary: false
+2026-10-14 17:45:24.575 LL_I D [2:main] WhatsAppLibLoader/loadStartupLib: successfully loaded rtvip
+2026-10-14 17:45:24.586 LL_W D [2:main] rtvip: Failure
+2026-10-14 17:45:24.586 LL_I D [2:main] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libvlc.so, is secondary: false
+2026-10-14 17:45:24.596 LL_I D [2:main] WhatsAppLibLoader/loadStartupLib: successfully loaded vlc
+2026-10-14 17:45:24.617 LL_I D [2:main] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libnative_utils.so, is secondary: false
+2026-10-14 17:45:24.636 LL_I D [2:main] native_utils JNI_OnLoad
+2026-10-14 17:45:24.649 LL_I D [2:main] WhatsAppLibLoader/loadStartupLib: successfully loaded native_utils
+2026-10-14 17:45:24.666 LL_I D [2:main] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libcurve25519.so, is secondary: false
+2026-10-14 17:45:24.689 LL_I D [14:High Pri Worker #1] AbstractAppShellDelegate/queueAsyncInit/async load libwhatsapp.so
+2026-10-14 17:45:24.706 LL_I D [2:main] WhatsAppLibLoader/loadStartupLib: successfully loaded curve25519
+2026-10-14 17:45:24.723 LL_I D [14:High Pri Worker #1] whatsapplibloader/Loading libwhatsapp.so
+2026-10-14 17:45:24.740 LL_I D [2:main] whatsapplocale/loadandapplyforcedlanguage/no language to load
+2026-10-14 17:45:24.757 LL_I D [14:High Pri Worker #1] whatsapplibloader/doLoadLibWhatsApp/timer/start
+2026-10-14 17:45:24.777 LL_I D [2:main] loginmanager/loadloginfailed/none
+2026-10-14 17:45:24.777 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libwhatsapp.so, is secondary: true
+2026-10-14 17:45:24.777 LL_I D [2:main] memanager/load-me
+2026-10-14 17:45:24.778 LL_I D [2:main] app-init/async/device_info/OS_BUILD_NUMBER AP1A
+2026-10-14 17:45:24.779 LL_I D [23:stat-save] statistics/init: Text Messages: 0 sent, 0 received / Media Messages: 0 sent (0 bytes), 0 received (0 bytes) / Offline Messages: 0 received (0 msec average delay) / Status : 0 sent (0 bytes), 0 received (0 bytes) / Payment Messages : 0 sent, 0 received / Message Service: 0 bytes sent, 0 bytes received / Voip Calls: 0 outgoing calls, 0 incoming calls, 0 bytes sent, 0 bytes received / Google Drive: 0 bytes sent, 0 bytes received / Roaming: 0 bytes sent, 0 bytes received / Total Data: 0 bytes sent, 0 bytes received
+2026-10-14 17:45:24.780 LL_I D [2:main] app-init/main/done
+2026-10-14 17:45:25.728 LL_I D [2:main] WhatsAppLocale/setDerivedFieldsUnderLock/fieldCreationTimer/timer/start
+2026-10-14 17:45:25.762 LL_I D [2:main] WhatsAppLocale/setDerivedFieldsUnderLock/fieldCreationTimer/timer/stop: 28
+2026-10-14 17:45:25.769 LL_I D [2:main] SplitWindowManager/isSplitSupported SplitSupportStatus: UNAVAILABLE
+2026-10-14 17:45:25.787 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.Main.onCreate
+2026-10-14 17:45:25.806 LL_I D [2:main] AccountSwitcher/processNewUserIntentAfterAccountSwitching
+2026-10-14 17:45:25.823 LL_I D [2:main] AccountSwitcher/processNewUserIntentAfterAccountSwitching/isOpenLinkCompanionFlow=false
+2026-10-14 17:45:25.840 LL_I D [18:High Pri Worker #2] whatsappassetdecompressor/secondary libs decompressed size/63
+2026-10-14 17:45:25.858 LL_I D [2:main] DebugWaSharedPreferences/isPerfDeviceIdGenerated/result=false
+2026-10-14 17:45:25.885 LL_I D [18:High Pri Worker #2] whatsappsoloader/DecompressionAwareSoSource/loadUnlocked
+2026-10-14 17:45:25.906 LL_I D [18:High Pri Worker #2] whatsappassetdecompressor/commitDecompressedAssets/size/80
+2026-10-14 17:45:25.921 LL_I D [25:High Pri Worker #5] DebugWaSharedPreferences/initPerfDeviceId/wrote/thread=High Pri Worker #5
+2026-10-14 17:45:25.958 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/readUnblocked: libwhatsapp.so
+2026-10-14 17:45:25.972 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.Main.onStart
+2026-10-14 17:45:25.992 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libpyspeech.so, is secondary: true
+2026-10-14 17:45:26.026 LL_I D [2:main] ActivityLifecycleCallbacks/application foregrounded
+2026-10-14 17:45:26.044 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/readUnblocked: libpyspeech.so
+2026-10-14 17:45:26.098 LL_I D [26:WhatsApp Worker #1] messageservice/startOnForeground success
+2026-10-14 17:45:26.135 LL_W D [2:main] number format not valid: null
+2026-10-14 17:45:26.185 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libexecutorch.so, is secondary: true
+2026-10-14 17:45:26.214 LL_W D [2:main] number format not valid: null
+2026-10-14 17:45:26.274 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/readUnblocked: libexecutorch.so
+2026-10-14 17:45:26.321 LL_I D [27:WhatsApp Worker #2] message_handler/logged_flag/must_reconnect initialize to true
+2026-10-14 17:45:26.346 LL_I D [29:WhatsApp Worker #4] AppForegrounded uptime 327974
+2026-10-14 17:45:26.366 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.Main.onResume
+2026-10-14 17:45:26.371 LL_I D [27:WhatsApp Worker #2] message_handler/logged_flag/must_ignore_network_once initialize to false
+2026-10-14 17:45:26.371 LL_I D [2:main] app/dt/set com.whatsapp.Main@2f099a20
+2026-10-14 17:45:26.371 LL_I D [27:WhatsApp Worker #2] message_handler/logged_flag/disconnected initialize to true
+2026-10-14 17:45:26.372 LL_I D [29:WhatsApp Worker #4] X.0rz initialized
+2026-10-14 17:45:26.372 LL_I D [2:main] app/dt/set done
+2026-10-14 17:45:26.372 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libar-bundle3.so, is secondary: true
+2026-10-14 17:45:26.372 LL_I D [31:MessageHandlerThread] MessageHandler/start
+2026-10-14 17:45:26.373 LL_I D [2:main] app/dt/set com.whatsapp.Main@2f099a20
+2026-10-14 17:45:26.373 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/readUnblocked: libar-bundle3.so
+2026-10-14 17:45:26.374 LL_I D [31:MessageHandlerThread] message_handler/logged_flag/must_reconnect true change to true
+2026-10-14 17:45:26.374 LL_I D [2:main] app/dt/set done
+2026-10-14 17:45:26.375 LL_I D [28:WhatsApp Worker #3] MiStoreOnboardingManager: checking onboarding eligibility, trigger=1
+2026-10-14 17:45:26.381 LL_W D [26:WhatsApp Worker #1] number format not valid: null
+2026-10-14 17:45:26.385 LL_I D [30:WhatsApp Worker #5] PAY: [COMMON][infra] - PaymentsCountryManager: phoneNumber:null countryCode:null
+2026-10-14 17:45:26.387 LL_I D [25:High Pri Worker #5] connection_thread/logged_flag/connected initialize to false
+2026-10-14 17:45:26.388 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libfortify.so, is secondary: false
+2026-10-14 17:45:26.388 LL_I D [31:MessageHandlerThread] message_handler/logged_flag/must_ignore_network_once false change to true
+2026-10-14 17:45:26.388 LL_I D [28:WhatsApp Worker #3] memanager/setSelfLidsFromJid: null
+2026-10-14 17:45:26.389 LL_I D [25:High Pri Worker #5] connection_thread/logged_flag/disconnecting initialize to false
+2026-10-14 17:45:26.389 LL_I D [30:WhatsApp Worker #5] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:45:26.389 LL_I D [31:MessageHandlerThread] message_handler/logged_flag/must_ignore_network_once true change to false
+2026-10-14 17:45:26.390 LL_I D [2:main] DebugWaSharedPreferences/isPerfDeviceIdGenerated/result=true
+2026-10-14 17:45:26.391 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libwhatsappmerged.so, is secondary: true
+2026-10-14 17:45:26.391 LL_I D [28:WhatsApp Worker #3] MiStoreOnboardingManager: skipping onboarding, missing LID
+2026-10-14 17:45:26.391 LL_I D [25:High Pri Worker #5] connection_thread/logged_flag/quit initialize to false
+2026-10-14 17:45:26.392 LL_I D [30:WhatsApp Worker #5] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:45:26.392 LL_I D [31:MessageHandlerThread] MessageHandler/reconnectIfNecessary/network/ignore (false,-1)
+2026-10-14 17:45:26.392 LL_I D [2:main] memanager/getoldme
+2026-10-14 17:45:26.393 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/readUnblocked: libwhatsappmerged.so
+2026-10-14 17:45:26.395 LL_I D [30:WhatsApp Worker #5] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:45:26.395 LL_I D [25:High Pri Worker #5] proxy_service/Proxy service state changed to not_in_region_allowlist, reason=us
+2026-10-14 17:45:26.395 LL_I D [2:main] MessageService/onCreate
+2026-10-14 17:45:26.395 LL_I D [30:WhatsApp Worker #5] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:45:26.395 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libqpl.so, is secondary: false
+2026-10-14 17:45:26.396 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libgraphutil.so, is secondary: true
+2026-10-14 17:45:26.397 LL_I D [30:WhatsApp Worker #5] DatabaseUtils/initDatabase/injected sql log writer/using modified LoggableSQLiteDatabase db=chatsettings.db
+2026-10-14 17:45:26.397 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/readUnblocked: libgraphutil.so
+2026-10-14 17:45:26.397 LL_I D [30:WhatsApp Worker #5] SchemaApiSQLiteOpenHelper/chatsettings.db/create/start
+2026-10-14 17:45:26.397 LL_I D [30:WhatsApp Worker #5] SchemaApiSQLiteOpenHelper/createDatabaseTables/timer/start
+2026-10-14 17:45:26.397 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libsimplejni.so, is secondary: false
+2026-10-14 17:45:26.398 LL_I D [30:WhatsApp Worker #5] SchemaApiSQLiteOpenHelper/createDatabaseTables/timer/stop: 1
+2026-10-14 17:45:26.399 LL_I D [30:WhatsApp Worker #5] SchemaApiSQLiteOpenHelper/chatsettings.db/create/tables created
+2026-10-14 17:45:26.399 LL_I D [30:WhatsApp Worker #5] SchemaApiSQLiteOpenHelper/chatsettings.db/create/views created
+2026-10-14 17:45:26.400 LL_I D [30:WhatsApp Worker #5] SchemaApiSQLiteOpenHelper/chatsettings.db/create/triggers created (success=true)
+2026-10-14 17:45:26.405 LL_I D [30:WhatsApp Worker #5] SchemaApiSQLiteOpenHelper/chatsettings.db/create/indexes created (success=true)
+2026-10-14 17:45:26.405 LL_I D [30:WhatsApp Worker #5] SchemaApiSQLiteOpenHelper/chatsettings.db/create/schema hash stored
+2026-10-14 17:45:26.405 LL_I D [30:WhatsApp Worker #5] SchemaApiSQLiteOpenHelper/chatsettings.db/create/complete
+2026-10-14 17:45:26.405 LL_I D [30:WhatsApp Worker #5] DatabaseUtils/initDatabase/injected sql log writer/using modified LoggableSQLiteDatabase db=chatsettings.db
+2026-10-14 17:45:26.405 LL_I D [30:WhatsApp Worker #5] SchemaApiSQLiteOpenHelper/prepareWritableDatabase/timer/start
+2026-10-14 17:45:26.405 LL_I D [30:WhatsApp Worker #5] SchemaApiSQLiteOpenHelper/chatsettings.db/onOpen/start
+2026-10-14 17:45:26.406 LL_I D [30:WhatsApp Worker #5] SchemaApiSQLiteOpenHelper/chatsettings.db/onOpen/schema valid, no repair needed
+2026-10-14 17:45:26.406 LL_I D [30:WhatsApp Worker #5] NotificationChannelsManager26/onOpen targeting api 26/async
+2026-10-14 17:45:26.406 LL_I D [30:WhatsApp Worker #5] SchemaApiSQLiteOpenHelper/prepareWritableDatabase/timer/stop: 3
+2026-10-14 17:45:26.406 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libgraphstorecerealutil.so, is secondary: true
+2026-10-14 17:45:26.406 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/readUnblocked: libgraphstorecerealutil.so
+2026-10-14 17:45:26.406 LL_I D [26:WhatsApp Worker #1] NotificationChannelsManager26/addNotificationChannel adding channel with id:individual_chat_defaults_1 importance:4 lights:true color:ffffff vibrate:true soundUri:content://settings/system/notification_sound
+2026-10-14 17:45:26.406 LL_I D [26:WhatsApp Worker #1] NotificationChannelsManager26/addNotificationChannel adding channel with id:group_chat_defaults_2 importance:4 lights:true color:ffffff vibrate:true soundUri:content://settings/system/notification_sound
+2026-10-14 17:45:26.406 LL_I D [26:WhatsApp Worker #1] NotificationChannelsManager26/addNotificationChannel adding channel with id:silent_notifications_3 importance:2 lights:false color:000000 vibrate:false soundUri:null
+2026-10-14 17:45:26.449 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libar-bundle2.so, is secondary: true
+2026-10-14 17:45:26.459 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/readUnblocked: libar-bundle2.so
+2026-10-14 17:45:26.466 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libopus_mlow.so, is secondary: true
+2026-10-14 17:45:26.484 LL_I D [14:High Pri Worker #1] whatsappsoloader/DecompressionAwareSoSource/readUnblocked: libopus_mlow.so
+2026-10-14 17:45:26.592 LL_I D [14:High Pri Worker #1] WhatsAppRust/kaleidoscope::jni: [ksjni-rs] JNI_OnLoad
+2026-10-14 17:45:26.603 LL_I D [14:High Pri Worker #1] WhatsAppRust/kaleidoscope::jni: [ksjni-rs] JNI_OnLoad success
+2026-10-14 17:45:26.624 LL_I D [14:High Pri Worker #1] WhatsAppRust/shortcake_tethered_jni: Shortcake Rust JNI natives registered
+2026-10-14 17:45:26.641 LL_I D [14:High Pri Worker #1] WhatsAppRust/whatsapp_jni_rs::whatsapp: Rust JNI OnLoad complete
+2026-10-14 17:45:26.653 LL_I D [14:High Pri Worker #1] WhatsAppRust/wamediajni_rs::jni: [wamediajni-rs] initWamediaStreamsMP4Muxer success
+2026-10-14 17:45:26.686 LL_I D [14:High Pri Worker #1] WhatsAppRust/libwaimageoperations_rs::jni: [wamediajni-rs] ImgOps native methods registered successfully
+2026-10-14 17:45:26.720 LL_I D [14:High Pri Worker #1] WhatsAppRust/wamediajni_rs::jni: [wamediajni-rs] initImgOps success
+2026-10-14 17:45:26.756 LL_I D [14:High Pri Worker #1] WhatsAppRust/libmp4operations_rs::jni::mp4ops: [wamediajni-rs] Mp4Ops native methods registered successfully
+2026-10-14 17:45:26.757 LL_I D [35:Notifications] updating dismissed notification hash
+2026-10-14 17:45:26.757 LL_I D [27:WhatsApp Worker #2] OngoingCallBadger/clearBadges wasCleared=false
+2026-10-14 17:45:26.758 LL_I D [14:High Pri Worker #1] WhatsAppRust/libmp4operations_rs::jni::gifhelper: [wamediajni-rs] GifHelper native methods registered successfully
+2026-10-14 17:45:26.759 LL_I D [14:High Pri Worker #1] WhatsAppRust/wamediajni_rs::jni: [wamediajni-rs] initMp4Ops success
+2026-10-14 17:45:26.759 LL_I D [14:High Pri Worker #1] WhatsAppRust/wamediajni_rs::provenance: wamediajni-rs/provenance/native methods registered
+2026-10-14 17:45:26.760 LL_I D [14:High Pri Worker #1] WhatsAppRust/wamediajni_rs::jni: [wamediajni-rs] initProvenance success
+2026-10-14 17:45:26.760 LL_I D [28:WhatsApp Worker #3] badger/homepackage/com.whatsapp
+2026-10-14 17:45:26.761 LL_I D [14:High Pri Worker #1]            audiodev.c !Initialized Audio driver with device count: 2 and driver index:0
+2026-10-14 17:45:26.761 LL_I D [28:WhatsApp Worker #3] badger/htc/sense 0.0
+2026-10-14 17:45:26.761 LL_I D [28:WhatsApp Worker #3] badger/getbadger/notfound/default
+2026-10-14 17:45:26.761 LL_I D [28:WhatsApp Worker #3] badger/getbadger 8
+2026-10-14 17:45:26.762 LL_W D [28:WhatsApp Worker #3] Intent Intent { act=android.intent.action.BADGE_COUNT_UPDATE (has extras) } is implicit. For apps targeting API 34+ (Android 14+) implicit broadcasts will NOT be delivered to un-exported internal broadcast receivers. So, if thisbroadcast is meant for an unexported internal receiver make the receiver exported or make the Intent explicit. More information here https://fburl.com/dxdppmde
+2026-10-14 17:45:26.762 LL_W D [14:High Pri Worker #1]        wa_media_api.c  Warning: codec priority set failed for AMR, status: 70006
+2026-10-14 17:45:26.762 LL_W D [14:High Pri Worker #1]        wa_media_api.c  Warning: codec priority set failed for PCMU, status: 70006
+2026-10-14 17:45:26.762 LL_I D [38:call ev thrd] wa_call_event_async.c !call_event_proc started
+2026-10-14 17:45:26.762 LL_I D [14:High Pri Worker #1] native library usability testing in progress
+2026-10-14 17:45:26.763 LL_I D [14:High Pri Worker #1] native library usability testing complete
+2026-10-14 17:45:26.763 LL_I D [14:High Pri Worker #1] whatsapplibloader/usable jniVersion: 2.26.40.77
+2026-10-14 17:45:26.763 LL_I D [14:High Pri Worker #1] whatsapplibloader/usable isLibraryUsable: True
+2026-10-14 17:45:26.763 LL_I D [14:High Pri Worker #1] WhatsAppLibLoader/loadStartupLib: successfully loaded whatsapp
+2026-10-14 17:45:26.764 LL_I D [14:High Pri Worker #1] whatsapplibloader/doLoadLibWhatsApp/timer/stop: 2043
+2026-10-14 17:45:26.766 LL_I D [14:High Pri Worker #1] AccessSession/generateAccessSessionId/AccessSessionId(...918f)
+2026-10-14 17:45:26.774 LL_I D [14:High Pri Worker #1] WaMsysSetup/bootstrapForReg
+2026-10-14 17:45:27.173 LL_I D [2:main] app/dt/clear dt=com.whatsapp.Main@2f099a20 dialog_toast=com.whatsapp.Main@2f099a20
+2026-10-14 17:45:27.174 LL_I D [2:main] app/dt/clear done
+2026-10-14 17:45:27.175 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.Main.onPause
+2026-10-14 17:45:27.176 LL_I D [2:main] presencestatemanager/startTransitionToUnavailable/new-state un-available
+2026-10-14 17:45:27.176 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.Main.onPauseDone
+2026-10-14 17:45:27.177 LL_I D [14:High Pri Worker #1] WaMsysSetup/bootstrapForReg/fbuuid=x7LZXv1gu3VxhwLhqbzfd0V9DCg=
+2026-10-14 17:45:27.178 LL_I D [14:High Pri Worker #1] WaMsysSetup/bootstrap
+2026-10-14 17:45:27.205 LL_I D [32:ConnectionThread] whatsappsoloader/init: already initialized
+2026-10-14 17:45:27.221 LL_I D [32:ConnectionThread] MessageThumbCache/construct 65536
+2026-10-14 17:45:27.239 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.registration.app.EULA.onCreate
+2026-10-14 17:45:27.261 LL_I D [14:High Pri Worker #1] AxolotlDbHelper/onCreate version 40
+2026-10-14 17:45:27.272 LL_I D [32:ConnectionThread] ConnectionThread/WriterThreadObserver/sending_channel_ready
+2026-10-14 17:45:27.309 LL_I D [2:main] EULA/sendInitialMigrationInfoNeededBroadcast
+2026-10-14 17:45:27.351 LL_I D [14:High Pri Worker #1] AxolotlDbHelper/onCreate done
+2026-10-14 17:45:27.385 LL_I D [2:main] InterAppCommunicationManager/smbIsCapableOfMigratingFromConsumer=false
+2026-10-14 17:45:27.419 LL_I D [31:MessageHandlerThread] MessageHandler/handleConnectionThreadReady connectionready
+2026-10-14 17:45:27.442 LL_I D [14:High Pri Worker #1] SignalIdentityKeyStore/inserted identity key pair
+2026-10-14 17:45:27.458 LL_I D [2:main] InterAppCommunicationManager/sendInitialMigrationInfoNeededBroadcast/sendInitialMigrationInfoNeededBroadcast
+2026-10-14 17:45:27.474 LL_I D [31:MessageHandlerThread] message_handler/logged_flag/must_reconnect true change to true
+2026-10-14 17:45:27.488 LL_I D [45:MessageHandler Connectivity Handler] xmpp/handler/network/network-callback onAvailable:100 handle:432902426637
+2026-10-14 17:45:27.489 LL_I D [2:main] PackageManagerUtils/Failed to get package info for:com.whatsapp.w4b
+2026-10-14 17:45:27.489 LL_I D [31:MessageHandlerThread] message_handler/logged_flag/must_ignore_network_once false change to true
+2026-10-14 17:45:27.489 LL_I D [14:High Pri Worker #1] SignalIdentityKeyStore/inserted signed prekey
+2026-10-14 17:45:27.489 LL_I D [45:MessageHandler Connectivity Handler] xmpp/handler/network/network-callback onBlockedStatusChanged network:100 blocked:false handle:432902426637
+2026-10-14 17:45:27.490 LL_I D [2:main] PackageManagerUtils/Failed to get package info:com.instagram.android
+2026-10-14 17:45:27.490 LL_E D [30:WhatsApp Worker #5] AppManagerInstallReferrerUtils/getInstallReferrerFromAppManager/onError NOT_PRELOADED
+2026-10-14 17:45:27.490 LL_I D [31:MessageHandlerThread] message_handler/logged_flag/must_ignore_network_once true change to false
+2026-10-14 17:45:27.490 LL_I D [14:High Pri Worker #1] SignalCoordinator/createIdentityKeysAndSignedPreKeys generated random starting ID: 8358651
+2026-10-14 17:45:27.490 LL_I D [45:MessageHandler Connectivity Handler] network/info
+[type: WIFI, state: CONNECTED/CONNECTED, reason: null, connected: true, roaming: false, failover: false, subtype: 0], type: 1, subtype: 0
+2026-10-14 17:45:27.490 LL_I D [2:main] PackageManagerUtils/Failed to get package info for:com.facebook.katana
+2026-10-14 17:45:27.490 LL_I D [31:MessageHandlerThread] MessageHandler/reconnectIfNecessary/network/ignore (false,432902426637)
+2026-10-14 17:45:27.491 LL_I D [14:High Pri Worker #1] SignedPreKeyHelper/setSignedPreKeyIdMigrated
+2026-10-14 17:45:27.491 LL_I D [2:main] PackageManagerUtils/Failed to get package info for:com.facebook.wakizashi
+2026-10-14 17:45:27.491 LL_I D [31:MessageHandlerThread] MessageHandler/handleNetworkChange/up
+2026-10-14 17:45:27.491 LL_I D [31:MessageHandlerThread] message_handler/logged_flag/must_reconnect true change to true
+2026-10-14 17:45:27.491 LL_I D [32:ConnectionThread] ConnectionThread/MessageServiceHandler/recv/networkUnblocked networkId=432902426637 connectedNetworkId=432902426637
+2026-10-14 17:45:27.491 LL_I D [31:MessageHandlerThread] message_handler/logged_flag/must_ignore_network_once false change to true
+2026-10-14 17:45:27.491 LL_I D [31:MessageHandlerThread] message_handler/logged_flag/must_ignore_network_once true change to false
+2026-10-14 17:45:27.492 LL_I D [14:High Pri Worker #1] wa-shared-prefs/setsignalprotocolstoreisnew/true
+2026-10-14 17:45:27.492 LL_I D [31:MessageHandlerThread] MessageHandler/reconnectIfNecessary/network/ignore (false,432902426637)
+2026-10-14 17:45:27.492 LL_I D [14:High Pri Worker #1] DatabaseUtils/initDatabase/injected sql log writer/using modified LoggableSQLiteDatabase db=axolotl.db
+2026-10-14 17:45:27.492 LL_I D [46:SignalExecutor] SignalProtocolStore/generate 50 new prekeys starting from 15543194 and recording them in the db
+2026-10-14 17:45:27.527 LL_I D [46:SignalExecutor] SignalProtocolStore/generate 50 new prekeys starting from 15543245 and recording them in the db
+2026-10-14 17:45:27.533 LL_I D [46:SignalExecutor] SignalProtocolStore/generate 50 new prekeys starting from 15543296 and recording them in the db
+2026-10-14 17:45:27.561 LL_I D [46:SignalExecutor] SignalProtocolStore/generate 50 new prekeys starting from 15543347 and recording them in the db
+2026-10-14 17:45:27.586 LL_I D [46:SignalExecutor] SignalProtocolStore/generate 50 new prekeys starting from 15543398 and recording them in the db
+2026-10-14 17:45:27.601 LL_I D [46:SignalExecutor] SignalProtocolStore/generate 50 new prekeys starting from 15543449 and recording them in the db
+2026-10-14 17:45:27.634 LL_I D [46:SignalExecutor] SignalProtocolStore/generate 50 new prekeys starting from 15543500 and recording them in the db
+2026-10-14 17:45:27.662 LL_I D [46:SignalExecutor] SignalProtocolStore/generate 50 new prekeys starting from 15543551 and recording them in the db
+2026-10-14 17:45:27.703 LL_I D [46:SignalExecutor] SignalProtocolStore/generate 50 new prekeys starting from 15543602 and recording them in the db
+2026-10-14 17:45:27.721 LL_I D [46:SignalExecutor] SignalProtocolStore/generate 50 new prekeys starting from 15543653 and recording them in the db
+2026-10-14 17:45:27.757 LL_I D [46:SignalExecutor] SignalProtocolStore/generate 50 new prekeys starting from 15543704 and recording them in the db
+2026-10-14 17:45:27.777 LL_I D [46:SignalExecutor] SignalProtocolStore/generate 50 new prekeys starting from 15543755 and recording them in the db
+2026-10-14 17:45:27.795 LL_I D [46:SignalExecutor] SignalProtocolStore/generate 50 new prekeys starting from 15543806 and recording them in the db
+2026-10-14 17:45:27.813 LL_I D [46:SignalExecutor] SignalProtocolStore/generate 50 new prekeys starting from 15543857 and recording them in the db
+2026-10-14 17:45:27.831 LL_W D [2:main] number format not valid: null
+2026-10-14 17:45:27.842 LL_I D [27:WhatsApp Worker #2] FoaBackupTokenRequester/requestFoaBackupToken
+2026-10-14 17:45:27.869 LL_I D [27:WhatsApp Worker #2] FoaBackupTokenInterAppCommunicationManager/isEligibleForFb
+2026-10-14 17:45:28.114 LL_I D [29:WhatsApp Worker #4] WaShortcutsHelper/deletealldynamicshortcuts
+2026-10-14 17:45:28.124 LL_I D [46:SignalExecutor] SignalProtocolStore/generate 50 new prekeys starting from 15543908 and recording them in the db
+2026-10-14 17:45:28.135 LL_I D [27:WhatsApp Worker #2] PackageManagerUtils/Failed to get package info for:com.facebook.katana
+2026-10-14 17:45:28.152 LL_I D [29:WhatsApp Worker #4] WaShortcutsHelper/deleteallcachedshortcuts
+2026-10-14 17:45:28.170 LL_I D [27:WhatsApp Worker #2] FoaBackupTokenInterAppCommunicationManager/isEligibleForFb/fb app not installed
+2026-10-14 17:45:28.202 LL_I D [27:WhatsApp Worker #2] PackageManagerUtils/Failed to get package info for:com.instagram.android
+2026-10-14 17:45:28.213 LL_I D [27:WhatsApp Worker #2] FoaBackupTokenInterAppCommunicationManager/isEligibleForIg/is ig installed: false
+2026-10-14 17:45:28.223 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.registration.app.EULA.onStart
+2026-10-14 17:45:28.241 LL_I D [27:WhatsApp Worker #2] EULARepository/retrieveBackupToken/try to retrieve token from block store
+2026-10-14 17:45:28.259 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.registration.app.EULA.onResume
+2026-10-14 17:45:28.277 LL_E D [28:WhatsApp Worker #3] PrePnBaseFunnelLogger/cachedAdvertisingId failed; exception=java.io.IOException: Connection failure
+### begin stack trace 2.26.40.77(1089927065)
+java.io.IOException: Connection failure
+	at X.6X2.A1B(:2)
+	at X.Hh7.A00(:364)
+	at X.IU4.invoke(:220)
+	at X.00n.getValue(:18)
+	at X.20h.A0x(:0)
+	at com.whatsapp.funnellogger.registration.loggers.PrePnBaseFunnelLogger$sendPrePNFunnelLog$1.invokeSuspend(:90)
+	at X.0tW.resumeWith(:8)
+	at X.0uO.run(:89)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+### end stack trace
+2026-10-14 17:45:28.303 LL_I D [46:SignalExecutor] SignalProtocolStore/generate 50 new prekeys starting from 15543959 and recording them in the db
+2026-10-14 17:45:28.338 LL_I D [2:main] app/dt/set com.whatsapp.registration.app.EULA@644b442
+2026-10-14 17:45:28.353 LL_E D [27:WhatsApp Worker #2] BackupTokenUtils/retrieveBlockStore/exception receiving bytes; exception=java.util.concurrent.ExecutionException: com.google.android.gms.common.api.ApiException: 17: API: Blockstore.API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+### begin stack trace 2.26.40.77(1089927065)
+java.util.concurrent.ExecutionException: com.google.android.gms.common.api.ApiException: 17: API: Blockstore.API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+	at com.google.android.gms.tasks.Tasks.await(:89)
+	at X.IRx.run(:1500)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+Caused by: com.google.android.gms.common.api.ApiException: 17: API: Blockstore.API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+	at X.H52.A00(:12)
+	at X.Hgh.A01(:31)
+	at X.I2n.A02(:44)
+	at X.I2n.A01(:9)
+	at X.I2n.A0C(:68)
+	at X.IPJ.run(:95)
+	at android.os.Handler.dispatchMessage(Handler.java:15)
+	at android.os.Looper.loop(Looper.java:37)
+	at android.os.HandlerThread.run(HandlerThread.java:12)
+### end stack trace
+2026-10-14 17:45:28.355 LL_I D [2:main] app/dt/set done
+2026-10-14 17:45:28.356 LL_E D [27:WhatsApp Worker #2] BackupTokenUtils/retrieveBlockStore; exception=java.util.concurrent.ExecutionException: com.google.android.gms.common.api.ApiException: 17: API: Blockstore.API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+### begin stack trace 2.26.40.77(1089927065)
+java.util.concurrent.ExecutionException: com.google.android.gms.common.api.ApiException: 17: API: Blockstore.API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+	at com.google.android.gms.tasks.Tasks.await(:89)
+	at X.IRx.run(:1500)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+Caused by: com.google.android.gms.common.api.ApiException: 17: API: Blockstore.API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+	at X.H52.A00(:12)
+	at X.Hgh.A01(:31)
+	at X.I2n.A02(:44)
+	at X.I2n.A01(:9)
+	at X.I2n.A0C(:68)
+	at X.IPJ.run(:95)
+	at android.os.Handler.dispatchMessage(Handler.java:15)
+	at android.os.Looper.loop(Looper.java:37)
+	at android.os.HandlerThread.run(HandlerThread.java:12)
+### end stack trace
+2026-10-14 17:45:28.357 LL_I D [2:main] EULA/onResume/Fetching abprops
+2026-10-14 17:45:28.357 LL_I D [46:SignalExecutor] SignalProtocolStore/generate 12 new prekeys starting from 15544010 and recording them in the db
+2026-10-14 17:45:28.357 LL_I D [42:High Pri Worker #7] ABPropsUseCase/fetching prechatd ABProps
+2026-10-14 17:45:28.357 LL_I D [42:High Pri Worker #7] InterAppCommunicationManager/migrateFromConsumerAppFlowEnabled/sibling-country-code = null
+2026-10-14 17:45:28.361 LL_I D [14:High Pri Worker #1] SignalSignedPreKeyStore/getActiveSignedPreKey retrieved latest signed prekey record successfully; id=8358651
+2026-10-14 17:45:28.361 LL_I D [42:High Pri Worker #7] InterAppCommunicationManager/smbIsCapableOfMigratingFromConsumer=false
+2026-10-14 17:45:28.362 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.Main.onStop
+2026-10-14 17:45:28.362 LL_I D [27:WhatsApp Worker #2] CriticalEventConfigManager/updateConfigFromAbProp/clearing client config due to app upgrade true
+2026-10-14 17:45:28.362 LL_I D [42:High Pri Worker #7] InterAppCommunicationManager/migrateFromConsumerAppFlowEnabled = false
+2026-10-14 17:45:28.363 LL_I D [2:main] app/dt/clear dt=com.whatsapp.Main@2f099a20 dialog_toast=com.whatsapp.registration.app.EULA@644b442
+2026-10-14 17:45:28.363 LL_E D [27:WhatsApp Worker #2] CRITICAL EVENT = BackupTokenUtils/retrieveBlockStore: java.util.concurrent.ExecutionException : com.google.android.gms.common.api.ApiException: 17: API: Blockstore.API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null} null
+2026-10-14 17:45:28.363 LL_I D [42:High Pri Worker #7] RegistrationHttpManager/checkPreChatdABProps/qpl/start
+2026-10-14 17:45:28.364 LL_I D [2:main] app/dt/clear done
+2026-10-14 17:45:28.369 LL_I D [27:WhatsApp Worker #2] BackupTokenUtils/saveBackupTokenRetrievalErrorMessage/Block Store token error message: com.google.android.gms.common.api.ApiException | 17: API: Blockstore.API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+2026-10-14 17:45:28.370 LL_I D [14:High Pri Worker #1] AuthKeyStore/AndroidKeyStore enabled, but have no keys, need to generate one
+2026-10-14 17:45:28.371 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.Main.onDestroy
+2026-10-14 17:45:28.371 LL_I D [27:WhatsApp Worker #2] BackupTokenTelemetryRecorder/recordBlockstoreRetrievalOutcome/3
+2026-10-14 17:45:28.371 LL_I D [14:High Pri Worker #1] AuthKeyStore/generating new client static keypair/store 1 = false
+2026-10-14 17:45:28.372 LL_I D [27:WhatsApp Worker #2] BackupTokenTelemetryRecorder/recordBlockstoreRetrievalError/com.google.android.gms.common.api.ApiException
+2026-10-14 17:45:28.372 LL_I D [27:WhatsApp Worker #2] BackupTokenUtils/retrieveBlockStore/Block Store token not retrieved
+2026-10-14 17:45:28.408 LL_E D [27:WhatsApp Worker #2] EULARepository/retrieveBackupToken/account transfer/error during import; exception=java.util.concurrent.ExecutionException: com.google.android.gms.common.api.ApiException: 17: API: AccountTransfer.ACCOUNT_TRANSFER_API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+### begin stack trace 2.26.40.77(1089927065)
+java.util.concurrent.ExecutionException: com.google.android.gms.common.api.ApiException: 17: API: AccountTransfer.ACCOUNT_TRANSFER_API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+	at com.google.android.gms.tasks.Tasks.await(:89)
+	at X.IRx.run(:1778)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+Caused by: com.google.android.gms.common.api.ApiException: 17: API: AccountTransfer.ACCOUNT_TRANSFER_API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+	at X.H52.A00(:12)
+	at X.Hgh.A01(:31)
+	at X.I2n.A02(:44)
+	at X.I2n.A01(:9)
+	at X.I2n.A0C(:68)
+	at X.IPJ.run(:95)
+	at android.os.Handler.dispatchMessage(Handler.java:15)
+	at android.os.Looper.loop(Looper.java:37)
+	at android.os.HandlerThread.run(HandlerThread.java:12)
+### end stack trace
+2026-10-14 17:45:28.419 LL_E D [27:WhatsApp Worker #2] EULARepository/create/exception during retrieving data from account transfer; exception=java.util.concurrent.ExecutionException: com.google.android.gms.common.api.ApiException: 17: API: AccountTransfer.ACCOUNT_TRANSFER_API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+### begin stack trace 2.26.40.77(1089927065)
+java.util.concurrent.ExecutionException: com.google.android.gms.common.api.ApiException: 17: API: AccountTransfer.ACCOUNT_TRANSFER_API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+	at com.google.android.gms.tasks.Tasks.await(:89)
+	at X.IRx.run(:1778)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+Caused by: com.google.android.gms.common.api.ApiException: 17: API: AccountTransfer.ACCOUNT_TRANSFER_API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+	at X.H52.A00(:12)
+	at X.Hgh.A01(:31)
+	at X.I2n.A02(:44)
+	at X.I2n.A01(:9)
+	at X.I2n.A0C(:68)
+	at X.IPJ.run(:95)
+	at android.os.Handler.dispatchMessage(Handler.java:15)
+	at android.os.Looper.loop(Looper.java:37)
+	at android.os.HandlerThread.run(HandlerThread.java:12)
+### end stack trace
+2026-10-14 17:45:28.454 LL_I D [14:High Pri Worker #1] AuthKeyStore/readClientStaticKeypairEnc 3
+2026-10-14 17:45:28.473 LL_I D [14:High Pri Worker #1] AuthKeyStore/storedAndCanRead/3
+2026-10-14 17:45:28.502 LL_I D [2:main] app/dt/set com.whatsapp.registration.app.EULA@644b442
+2026-10-14 17:45:28.535 LL_I D [14:High Pri Worker #1] AuthKeyStore/current AES state = 2
+2026-10-14 17:45:28.545 LL_I D [2:main] app/dt/set done
+2026-10-14 17:45:28.565 LL_I D [14:High Pri Worker #1] WaMsysSetup/bootstrapForReg/success
+2026-10-14 17:45:28.600 LL_I D [28:WhatsApp Worker #3] WaMsysSetup/bootstrapForReg
+2026-10-14 17:45:28.635 LL_I D [28:WhatsApp Worker #3] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:45:28.685 LL_I D [29:WhatsApp Worker #4] WaMsysSetup/bootstrapForReg
+2026-10-14 17:45:28.723 LL_I D [28:WhatsApp Worker #3] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:45:28.740 LL_I D [29:WhatsApp Worker #4] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:45:28.746 LL_I D [28:WhatsApp Worker #3] RegistrationHttpManager/sendPrePNClientFunnelLog
+2026-10-14 17:45:28.746 LL_I D [42:High Pri Worker #7] WaMsysSetup/bootstrapForReg
+2026-10-14 17:45:28.746 LL_I D [29:WhatsApp Worker #4] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:45:28.746 LL_I D [28:WhatsApp Worker #3] RegistrationHttpManager/sendPrePNClientFunnelLog/wamsys
+2026-10-14 17:45:28.747 LL_I D [42:High Pri Worker #7] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:45:28.747 LL_I D [29:WhatsApp Worker #4] RegistrationHttpManager/sendPrePNClientFunnelLog
+2026-10-14 17:45:28.747 LL_I D [42:High Pri Worker #7] RegistrationHttpManager/checkPreChatdABProps/wamsys/reg-onboard-abprop-request
+2026-10-14 17:45:28.748 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:45:28.748 LL_I D [27:WhatsApp Worker #2] DeviceUtils/isFoldableDevice hasFoldableSensor=false isFoldableDetected=false
+2026-10-14 17:45:28.748 LL_I D [29:WhatsApp Worker #4] RegistrationHttpManager/sendPrePNClientFunnelLog/wamsys
+2026-10-14 17:45:28.749 LL_I D [42:High Pri Worker #7] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:45:28.749 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:45:28.750 LL_I D [42:High Pri Worker #7] RegistrationHttpManager/checkPreChatdABProps/wamsys
+2026-10-14 17:45:28.752 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:45:28.947 LL_E D [50:WhatsApp Worker #6] SSLSessionCacheHack:java.lang.NoSuchFieldException: No field mSessionCache in class android/net/SSLSessionCache
+2026-10-14 17:45:28.981 LL_I D [50:WhatsApp Worker #6] SSLSessionCacheHack:java.lang.NoSuchFieldException: No field mSessionCache in class android/net/SSLSessionCache
+2026-10-14 17:45:29.009 LL_I D [27:WhatsApp Worker #2] SSLSessionCacheHack:java.lang.NoSuchFieldException: No field mSessionCache in class android/net/SSLSessionCache
+2026-10-14 17:45:29.009 LL_I D [26:WhatsApp Worker #1] SSLSessionCacheHack:java.lang.NoSuchFieldException: No field mSessionCache in class android/net/SSLSessionCache
+2026-10-14 17:45:29.010 LL_W D [50:WhatsApp Worker #6] SSLSessionCacheHack:java.lang.NoSuchFieldException: No field mSessionCache in class android/net/SSLSessionCache
+2026-10-14 17:45:29.010 LL_W D [27:WhatsApp Worker #2] SSLSessionCacheHack:java.lang.NoSuchFieldException: No field mSessionCache in class android/net/SSLSessionCache
+2026-10-14 17:45:29.010 LL_W D [26:WhatsApp Worker #1] SSLSessionCacheHack:java.lang.NoSuchFieldException: No field mSessionCache in class android/net/SSLSessionCache
+2026-10-14 17:45:29.065 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/pre_pn/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:45:29.094 LL_I D [29:WhatsApp Worker #4] PrePnBaseFunnelLogger/send/current_screen: offline_abprop_exposure, /action_taken: no_action, /event_name: offline_abprop_exposure, /previous_screen: eula_with_language_selector, /offline_ab: {"exposure":["waffle_nta_tos_aa_universe_android|waffle_nta_tos_aa_android_exp|control","wamo_exp_wave_2b_pp_tos_trigger_3_offline_rollout|wamo_exp_wave_2b_pp_tos_trigger_3_offline_rollout_exp|test"],"exp_hash":["6848|waffle_nta_tos_aa_universe_android","7807|wamo_exp_wave_2b_pp_tos_trigger_3_offline_rollout"]}/client_metrics: {"source":"tos"}/event_name: offline_abprop_exposure/is_add_account_flow: 0/access_funnel_type: wa/app_campaign_download_source: unknown|unknown/reg_client_event_ts: 1791999928171/device_manufacturer: Google
+2026-10-14 17:45:29.105 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/pre_pn/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:45:29.123 LL_I D [28:WhatsApp Worker #3] PrePnBaseFunnelLogger/send/current_screen: eula_with_language_selector, /action_taken: view, /event_name: wamo_tos_registration_welcome, /previous_screen: unknown, /client_metrics: {isWamoTosRegistrationEnabled=true, detectedCountry=us, isFeta=0, rc=release}/event_name: wamo_tos_registration_welcome/is_add_account_flow: 0/access_funnel_type: wa/app_campaign_download_source: unknown|unknown/reg_client_event_ts: 1791999928170/device_manufacturer: Google
+2026-10-14 17:45:29.353 LL_I D [42:High Pri Worker #7] RegistrationHttpManager/checkPreChatdABProps/qpl/end status=1
+2026-10-14 17:45:29.371 LL_I D [42:High Pri Worker #7] PreChatdAbPropsFetcher/fetchPreChatdABProps/success
+2026-10-14 17:45:29.392 LL_I D [42:High Pri Worker #7] CheckIfReinstalledTask/updatePreChatdABProps
+2026-10-14 17:45:29.414 LL_I D [42:High Pri Worker #7] RecaptchaClientHandler/recaptcha is not enabled for this user: 916
+2026-10-14 17:45:29.423 LL_I D [42:High Pri Worker #7] ABPropsUseCase/success fetching prechatd ABProps
+2026-10-14 17:45:29.423 LL_I D [2:main] PathfinderManager/catchUpAlreadyResumedActivity: synthesized missed first resume — cold-start hole closed
+2026-10-14 17:45:29.440 LL_I D [42:High Pri Worker #7] PasskeyUseCase/requestLoginChallenge/Passkey Login ABProp is disabled
+2026-10-14 17:45:29.456 LL_I D [42:High Pri Worker #7] SessionlessMobileConfigLifecycle/onEulaPreChatdFetchSucceeded preRegMode=0; sessionless MC fetch not attempted
+2026-10-14 17:45:29.473 LL_I D [27:WhatsApp Worker #2] PrepareCredentialsManager/generateRandomBase64UrlSafeChallenge: challenge generated
+2026-10-14 17:45:29.506 LL_I D [28:WhatsApp Worker #3] WaMsysSetup/bootstrapForReg
+2026-10-14 17:45:29.528 LL_I D [27:WhatsApp Worker #2] PrepareCredentialsManager/createDummyRequest: built request for rpId=whatsapp.com
+2026-10-14 17:45:29.542 LL_I D [28:WhatsApp Worker #3] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:45:29.563 LL_I D [50:WhatsApp Worker #6] WaMsysSetup/bootstrapForReg
+2026-10-14 17:45:29.583 LL_I D [28:WhatsApp Worker #3] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:45:29.600 LL_I D [50:WhatsApp Worker #6] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:45:29.603 LL_I D [28:WhatsApp Worker #3] RegistrationHttpManager/sendPrePNClientFunnelLog
+2026-10-14 17:45:29.603 LL_I D [50:WhatsApp Worker #6] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:45:29.604 LL_I D [28:WhatsApp Worker #3] RegistrationHttpManager/sendPrePNClientFunnelLog/wamsys
+2026-10-14 17:45:29.604 LL_I D [50:WhatsApp Worker #6] RegistrationHttpManager/sendPrePNClientFunnelLog
+2026-10-14 17:45:29.605 LL_I D [50:WhatsApp Worker #6] RegistrationHttpManager/sendPrePNClientFunnelLog/wamsys
+2026-10-14 17:45:29.617 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:45:29.620 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:45:29.723 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/pre_pn/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:45:29.741 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/pre_pn/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:45:29.742 LL_I D [50:WhatsApp Worker #6] PrePnBaseFunnelLogger/send/current_screen: system, /action_taken: no_action, /event_name: prepare_cred_start, /previous_screen: discoverable_credential, /event_name: prepare_cred_start/is_add_account_flow: 0/access_funnel_type: wa/app_campaign_download_source: unknown|unknown/reg_client_event_ts: 1791999929465/device_manufacturer: Google
+2026-10-14 17:45:29.742 LL_I D [28:WhatsApp Worker #3] PrePnBaseFunnelLogger/send/current_screen: discoverable_credential, /action_taken: skip, /event_name: discoverable_cred_request_challenge_disabled, /previous_screen: offline_abprop_exposure, /event_name: discoverable_cred_request_challenge_disabled/is_add_account_flow: 0/access_funnel_type: wa/app_campaign_download_source: unknown|unknown/reg_client_event_ts: 1791999929451/device_manufacturer: Google
+2026-10-14 17:45:30.265 LL_W D [2:main] MainIdleExecutor/execute onIdle with timeout for: BaseAsyncLifecycleExecutor/trigger:210/EULA
+2026-10-14 17:45:31.148 LL_W D [2:main] MainIdleExecutor/execute onIdle with timeout for: BaseAsyncLifecycleExecutor/trigger:220/EULA
+2026-10-14 17:45:31.165 LL_I D [2:main] presencestatemanager/setAvailable/new-state: available setIfUnavailable:true
+2026-10-14 17:45:31.200 LL_I D [29:WhatsApp Worker #4] MessageHandler/isCaptiveWifi awaiting captive wifi status
+2026-10-14 17:45:31.249 LL_I D [26:WhatsApp Worker #1] MessageHandler/sendAvailableForChat
+2026-10-14 17:45:31.268 LL_W D [2:main] MainIdleExecutor/execute onIdle with timeout for: BaseAsyncLifecycleExecutor/trigger:230/EULA
+2026-10-14 17:45:31.300 LL_I D [29:WhatsApp Worker #4] MessageHandler/isCaptiveWifi status is false
+2026-10-14 17:45:31.300 LL_I D [42:High Pri Worker #7] PathfinderFalcoLogger/init: eventsOptOutConfig=0x0
+2026-10-14 17:45:31.301 LL_I D [32:ConnectionThread] memanager/getoldme
+2026-10-14 17:45:31.301 LL_I D [26:WhatsApp Worker #1] message_handler/logged_flag/must_reconnect true change to true
+2026-10-14 17:45:31.302 LL_I D [44:wa-shared-handler] XmppLifecycleManager/resetLogoutTimer com.whatsapp.MessageHandler.LOGOUT_ACTION
+2026-10-14 17:45:31.302 LL_I D [26:WhatsApp Worker #1] message_handler/logged_flag/must_ignore_network_once false change to true
+2026-10-14 17:45:31.303 LL_I D [44:wa-shared-handler] XmppLifecycleManager//hasLogoutTimer has=false
+2026-10-14 17:45:31.303 LL_I D [26:WhatsApp Worker #1] ClientPingManager/on-demand-ping
+2026-10-14 17:45:31.304 LL_I D [42:High Pri Worker #7] ClientPingManager/send-ping
+2026-10-14 17:45:31.304 LL_W D [42:High Pri Worker #7] ClientPingManager/send-ping; not connected, ignoring.
+2026-10-14 17:45:38.067 LL_W D [30:WhatsApp Worker #5] EULA/exception while waiting on task killers thread to finish during onCreate ; exception=java.util.concurrent.TimeoutException
+### begin stack trace 2.26.40.77(1089927065)
+java.util.concurrent.TimeoutException
+	at X.18g.A01(:38)
+	at X.Gfp.A0e(:17)
+	at X.1Zo.doInBackground(:2)
+	at android.os.AsyncTask$2.call(AsyncTask.java:68)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+### end stack trace
+2026-10-14 17:45:38.077 LL_I D [2:main] app/custom-rom 
+2026-10-14 17:46:57.245 LL_I D [2:main] UXLoggingManager/onActivityTouchEvent: per-touch budget cap fired (first hit this session)
+2026-10-14 17:46:57.281 LL_I D [2:main] UXLogging/clicked:EULA/WDSButton/2131432449/-2005422056
+2026-10-14 17:46:57.323 LL_I D [2:main] EULA/register/eula/accept
+2026-10-14 17:46:57.324 LL_I D [2:main] PackageManagerUtils/Failed to get package info:com.instagram.android
+2026-10-14 17:46:57.324 LL_I D [50:WhatsApp Worker #6] UserNoticeManager/deleteAllUserNoticesWithoutCleanup
+2026-10-14 17:46:57.324 LL_I D [2:main] PackageManagerUtils/Failed to get package info for:com.facebook.katana
+2026-10-14 17:46:57.324 LL_I D [2:main] PackageManagerUtils/Failed to get package info for:com.facebook.wakizashi
+2026-10-14 17:46:57.324 LL_I D [50:WhatsApp Worker #6] UserNoticeContentManager/deleteAllUserNoticeData
+2026-10-14 17:46:57.339 LL_I D [29:WhatsApp Worker #4] UserNoticeContentManager/deleteContentFromDir/deleted result true
+2026-10-14 17:46:57.344 LL_I D [26:WhatsApp Worker #1] WaMsysSetup/bootstrapForReg
+2026-10-14 17:46:57.382 LL_I D [26:WhatsApp Worker #1] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:46:57.412 LL_I D [2:main] DeviceUtils/isFoldableDevice hasFoldableSensor=false isFoldableDetected=false
+2026-10-14 17:46:57.457 LL_I D [2:main] DeviceUtils/isFoldableDevice hasFoldableSensor=false isFoldableDetected=false
+2026-10-14 17:46:57.491 LL_I D [26:WhatsApp Worker #1] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:46:57.492 LL_W D [2:main] ### begin stack trace 2.26.40.77(1089927065)
+java.io.IOException: Cannot run program "/system/bin/getprop": error=38, Function not implemented
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1050)
+	at X.00L.A03(:22)
+	at X.00L.A0D(:16)
+	at X.HSo.A01(:55)
+	at com.whatsapp.registration.app.EULA.A0Z(:445)
+	at X.Hyw.onClick(:1870)
+	at X.1Ly.onClick(:11)
+	at android.view.View.performClick(View.java:1295)
+	at android.widget.TextView.performClick(TextView.java:911)
+	at android.view.View.performClickInternal(View.java:1378)
+	at android.view.View.$r8$lambda$V7rNpyp8JKOd_TDWUNAYrh0yfxU(View.java)
+	at android.view.View$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)
+	at android.os.Handler.dispatchMessage(Handler.java:15)
+	at android.os.Looper.loop(Looper.java:37)
+	at husk.AppRunner.run(AppRunner.java:77)
+Caused by: java.io.IOException: error=38, Function not implemented
+	at java.lang.UNIXProcess.forkAndExec(Native Method)
+	at java.lang.UNIXProcess.<init>(UNIXProcess.java:133)
+	at java.lang.ProcessImpl.start(ProcessImpl.java:141)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1029)
+	... 14 more
+### end stack trace
+2026-10-14 17:46:57.492 LL_I D [26:WhatsApp Worker #1] RegistrationHttpManager/sendPrePNClientFunnelLog
+2026-10-14 17:46:57.492 LL_I D [2:main] EULA/show companion registration flow
+2026-10-14 17:46:57.492 LL_I D [26:WhatsApp Worker #1] RegistrationHttpManager/sendPrePNClientFunnelLog/wamsys
+2026-10-14 17:46:57.497 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:46:57.633 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/pre_pn/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:46:57.638 LL_I D [26:WhatsApp Worker #1] PrePnBaseFunnelLogger/send/current_screen: eula_with_language_selector, /action_taken: eula_tos_accepted, /event_name: eula_screen_accept_button_click, /previous_screen: system, /client_metrics: {isWamoTosRegistrationEnabled=true, detectedCountry=us, isFeta=0, rc=release}/event_name: eula_screen_accept_button_click/is_add_account_flow: 0/access_funnel_type: wa/app_campaign_download_source: unknown|unknown/reg_client_event_ts: 1792000017339/device_manufacturer: Google
+2026-10-14 17:46:57.814 LL_I D [2:main] app/dt/clear dt=com.whatsapp.registration.app.EULA@644b442 dialog_toast=com.whatsapp.registration.app.EULA@644b442
+2026-10-14 17:46:57.814 LL_I D [2:main] app/dt/clear done
+2026-10-14 17:46:57.832 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.registration.app.EULA.onPause
+2026-10-14 17:46:57.841 LL_I D [2:main] presencestatemanager/startTransitionToUnavailable/new-state available-waiting-timeout
+2026-10-14 17:46:57.841 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.registration.app.EULA.onPauseDone
+2026-10-14 17:46:57.871 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity.onCreate
+2026-10-14 17:46:57.879 LL_I D [2:main] DeviceUtils/isFoldableDevice hasFoldableSensor=false isFoldableDetected=false
+2026-10-14 17:46:58.116 LL_I D [2:main] DeviceUtils/isFoldableDevice hasFoldableSensor=false isFoldableDetected=false
+2026-10-14 17:46:58.122 LL_I D [2:main] DeviceUtils/isFoldableDevice hasFoldableSensor=false isFoldableDetected=false
+2026-10-14 17:46:58.131 LL_I D [14:High Pri Worker #1] companion/registration/start
+2026-10-14 17:46:58.164 LL_I D [14:High Pri Worker #1] CompanionPreRegLogger: cmp_reg_start/cbf95c02-c5bc-4de2-bf35-78bd380e3a14
+2026-10-14 17:46:58.183 LL_I D [2:main] CompanionPreRegLogger: cmp_native_qr_enabled/cbf95c02-c5bc-4de2-bf35-78bd380e3a14
+2026-10-14 17:46:58.215 LL_I D [14:High Pri Worker #1] FunnelLogger/previous screen: unknown/action taken: unknown/current screen: register_as_companion/client event ts: 1792000018147/is add account flow: false/event name: cmp_reg_start
+2026-10-14 17:46:58.264 LL_I D [28:WhatsApp Worker #3] WaMsysSetup/bootstrapForReg
+2026-10-14 17:46:58.307 LL_I D [2:main] FunnelLogger/previous screen: unknown/action taken: unknown/current screen: register_as_companion/client event ts: 1792000018164/is add account flow: false/event name: cmp_native_qr_enabled
+2026-10-14 17:46:58.539 LL_I D [28:WhatsApp Worker #3] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:46:58.559 LL_I D [2:main] CompanionPreRegLogger: cmp_reg_enter/cbf95c02-c5bc-4de2-bf35-78bd380e3a14
+2026-10-14 17:46:58.603 LL_I D [29:WhatsApp Worker #4] WaMsysSetup/bootstrapForReg
+2026-10-14 17:46:58.621 LL_I D [28:WhatsApp Worker #3] RegistrationHttpManager/sendClientFunnelLog/no backup token read from shared preferences, generate a new one
+2026-10-14 17:46:58.667 LL_I D [2:main] FunnelLogger/previous screen: unknown/action taken: unknown/current screen: register_as_companion/client event ts: 1792000018199/is add account flow: false/event name: cmp_reg_enter
+2026-10-14 17:46:58.697 LL_I D [29:WhatsApp Worker #4] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:46:58.704 LL_I D [46:SignalExecutor] SignalSignedPreKeyStore/getActiveSignedPreKey retrieved latest signed prekey record successfully; id=8358651
+2026-10-14 17:46:58.721 LL_I D [28:WhatsApp Worker #3] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:46:58.749 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity.onStart
+2026-10-14 17:46:58.759 LL_I D [50:WhatsApp Worker #6] WaMsysSetup/bootstrapForReg
+2026-10-14 17:46:58.759 LL_I D [29:WhatsApp Worker #4] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:46:58.760 LL_I D [46:SignalExecutor] SignalCoordinator/loaded the latest signed pre key for sending
+2026-10-14 17:46:58.761 LL_I D [28:WhatsApp Worker #3] RegistrationHttpManager/sendClientFunnelLog
+2026-10-14 17:46:58.761 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity.onResume
+2026-10-14 17:46:58.761 LL_I D [50:WhatsApp Worker #6] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:46:58.761 LL_I D [29:WhatsApp Worker #4] RegistrationHttpManager/sendClientFunnelLog
+2026-10-14 17:46:58.761 LL_I D [28:WhatsApp Worker #3] RegistrationHttpManager/sendClientFunnelLog/wamsys
+2026-10-14 17:46:58.762 LL_I D [46:SignalExecutor] SignalProtocolStore/get-identity loading identity key pair
+2026-10-14 17:46:58.762 LL_I D [2:main] app/dt/set com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity@f554ed90
+2026-10-14 17:46:58.763 LL_I D [30:WhatsApp Worker #5] WaMsysSetup/bootstrapForReg
+2026-10-14 17:46:58.763 LL_I D [29:WhatsApp Worker #4] RegistrationHttpManager/sendClientFunnelLog/wamsys
+2026-10-14 17:46:58.764 LL_I D [50:WhatsApp Worker #6] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:46:58.764 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:46:58.765 LL_I D [2:main] app/dt/set done
+2026-10-14 17:46:58.765 LL_I D [30:WhatsApp Worker #5] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:46:58.765 LL_I D [31:MessageHandlerThread] MessageHandler/handleRegistered registered
+2026-10-14 17:46:58.765 LL_I D [50:WhatsApp Worker #6] RegistrationHttpManager/sendClientFunnelLog
+2026-10-14 17:46:58.765 LL_I D [26:WhatsApp Worker #1] blacknoise/generating key pair with alias=the_well_of_wishes_awaits_in_the_crypt_of_decay_c09c0821-44a8-4085-856b-3ce0a7119e58
+2026-10-14 17:46:58.766 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:46:58.766 LL_I D [30:WhatsApp Worker #5] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:46:58.767 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.registration.app.EULA.onStop
+2026-10-14 17:46:58.767 LL_I D [31:MessageHandlerThread] message_handler/logged_flag/must_reconnect true change to true
+2026-10-14 17:46:58.767 LL_I D [50:WhatsApp Worker #6] RegistrationHttpManager/sendClientFunnelLog/wamsys
+2026-10-14 17:46:58.768 LL_I D [30:WhatsApp Worker #5] RegistrationHttpManager/sendClientFunnelLog
+2026-10-14 17:46:58.769 LL_I D [2:main] app/dt/clear dt=com.whatsapp.registration.app.EULA@644b442 dialog_toast=com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity@f554ed90
+2026-10-14 17:46:58.769 LL_I D [31:MessageHandlerThread] message_handler/logged_flag/must_ignore_network_once true change to true
+2026-10-14 17:46:58.769 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:46:58.769 LL_I D [30:WhatsApp Worker #5] RegistrationHttpManager/sendClientFunnelLog/wamsys
+2026-10-14 17:46:58.770 LL_I D [2:main] app/dt/clear done
+2026-10-14 17:46:58.770 LL_I D [31:MessageHandlerThread] ConnectionThread/sendConnect/ forcePassiveMode=false
+2026-10-14 17:46:58.770 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:46:58.770 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.registration.app.EULA.onDestroy
+2026-10-14 17:46:58.771 LL_I D [31:MessageHandlerThread] MessageHandlerCallback/ready
+2026-10-14 17:46:58.772 LL_I D [32:ConnectionThread] ConnectionThread/MessageServiceHandler/recv/connect
+2026-10-14 17:46:58.772 LL_I D [32:ConnectionThread] ConnectionThread/connect/start jid=null available=true forcePassiveMode=false
+2026-10-14 17:46:58.772 LL_I D [2:main] DeviceUtils/isFoldableDevice hasFoldableSensor=false isFoldableDetected=false
+2026-10-14 17:46:58.773 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:46:58.774 LL_I D [32:ConnectionThread] PreacksQueue/startLoadingAsync starting a periodic writer
+2026-10-14 17:46:58.774 LL_I D [60:WhatsApp Worker #9] PreacksStore/loadAll
+2026-10-14 17:46:58.775 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/send-funnel-log/status/3/failureReason/12
+2026-10-14 17:46:58.775 LL_I D [60:WhatsApp Worker #9] PreacksQueue/loadDataFromDb loaded 0 pre-acks, window disabled
+2026-10-14 17:46:58.776 LL_I D [32:ConnectionThread] PersistedIntStore/load
+2026-10-14 17:46:58.776 LL_W D [32:ConnectionThread] number format not valid: null
+2026-10-14 17:46:58.776 LL_W D [32:ConnectionThread] number format not valid: null
+2026-10-14 17:46:58.777 LL_I D [32:ConnectionThread] ConnectionThread/connect
+2026-10-14 17:46:58.777 LL_I D [57:WhatsApp Worker #7] UnorderedQueue/initialize/loaded 0 stanza metadata from disk
+2026-10-14 17:46:58.777 LL_I D [32:ConnectionThread] ConnectionThread/connect: connecting; attempt=1 state=5
+2026-10-14 17:46:58.777 LL_I D [32:ConnectionThread] ConnectionSequence/tryResolveDomainName; host=[REDACTED_PII][MetaServiceIP]
+2026-10-14 17:46:58.777 LL_I D [32:ConnectionThread] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:46:58.777 LL_I D [28:WhatsApp Worker #3] BaseFunnelLogger/previous_screen: eula_with_language_selector/action_taken: view/current_screen: register_as_companion/sim_card_supported: 0/screen_diagonal_inches: 458/screen_width_dp: 306/screen_height_dp: 665/event_name: register_as_companion_landing/registration_type: -1/app_campaign_download_source: unknown|unknown/is_add_account_flow: 0/trace_id_int: 8518591719580514393/reg_client_event_ts: 1792000018147/device_manufacturer: Google
+2026-10-14 17:46:58.777 LL_I D [28:WhatsApp Worker #3] WAFalcoLoggerImpl/initOneFabricEventHandler/Init one fabric handler.
+2026-10-14 17:46:58.792 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:46:58.811 LL_I D [28:WhatsApp Worker #3] EndToEnd-Test: Loading shared preferences from config.json, because cached value is null
+2026-10-14 17:46:58.841 LL_I D [32:ConnectionThread] ConnectionThread/tryOpenSocket: fetched socket config; sc=2
+2026-10-14 17:46:58.858 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:46:58.861 LL_I D [2:main] app/dt/set com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity@f554ed90
+2026-10-14 17:46:58.877 LL_I D [32:ConnectionThread] ConnectionSocketFactory/try_connect/using-happyEyeball
+2026-10-14 17:46:58.894 LL_I D [28:WhatsApp Worker #3] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libtigon-ue-reporter.so, is secondary: true
+2026-10-14 17:46:58.904 LL_I D [2:main] app/dt/set done
+2026-10-14 17:46:58.921 LL_I D [28:WhatsApp Worker #3] whatsappsoloader/DecompressionAwareSoSource/readUnblocked: libtigon-ue-reporter.so
+2026-10-14 17:46:58.942 LL_I D [64:happy-eyeball #1] HappyEyeball/try_connect g.whatsapp.net/[whatsapp-chatd-edge6-shv-02-lga3.facebook.com]:443[MetaServiceIP] (secureSocket? false)
+2026-10-14 17:46:58.950 LL_I D [28:WhatsApp Worker #3] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libffsingletonmerged.so, is secondary: true
+2026-10-14 17:46:58.950 LL_W D [57:WhatsApp Worker #7] EC04B8E62D38E19E749Acom.google.android.play.core.integrity.StandardIntegrityException: -9: Standard Integrity API error (-9): Binding to the service in the Play Store has failed. This can be due to having an old Play Store version installed on the device.
+Ask the user to update Play Store.
+ (https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/integrity/model/StandardIntegrityErrorCode.html#CANNOT_BIND_TO_SERVICE).
+2026-10-14 17:46:58.950 LL_I D [28:WhatsApp Worker #3] whatsappsoloader/DecompressionAwareSoSource/readUnblocked: libffsingletonmerged.so
+2026-10-14 17:46:58.950 LL_E D [64:happy-eyeball #1] HappyEyeball/connectAndCountDown could not connect to g.whatsapp.net/[whatsapp-chatd-edge6-shv-02-lga3.facebook.com]:443[MetaServiceIP]; exception=X.GwS: ConnectionStep SOCKET failed: Host unreachable
+### begin stack trace 2.26.40.77(1089927065)
+X.GwS: ConnectionStep SOCKET failed: Host unreachable
+	at X.HdG.A00(:302)
+	at X.IG9.A01(:11)
+	at X.IQa.run(:27)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+Caused by: java.net.NoRouteToHostException: Host unreachable
+	at libcore.io.IoBridge.connect(IoBridge.java:182)
+	at java.net.PlainSocketImpl.socketConnect(PlainSocketImpl.java:142)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:390)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:230)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:212)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:436)
+	at java.net.Socket.connect(Socket.java:646)
+	at X.IGB.AQ1(:6)
+	at X.1Dd.A00(:5)
+	at X.HdG.A00(:76)
+	... 6 more
+### end stack trace
+2026-10-14 17:46:58.951 LL_E D [57:WhatsApp Worker #7] ice/gpia/gpia_reg_client_prepare; exception=com.google.android.play.core.integrity.StandardIntegrityException: -9: Standard Integrity API error (-9): Binding to the service in the Play Store has failed. This can be due to having an old Play Store version installed on the device.
+Ask the user to update Play Store.
+ (https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/integrity/model/StandardIntegrityErrorCode.html#CANNOT_BIND_TO_SERVICE).
+### begin stack trace 2.26.40.77(1089927065)
+com.google.android.play.core.integrity.StandardIntegrityException: -9: Standard Integrity API error (-9): Binding to the service in the Play Store has failed. This can be due to having an old Play Store version installed on the device.
+Ask the user to update Play Store.
+ (https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/integrity/model/StandardIntegrityErrorCode.html#CANNOT_BIND_TO_SERVICE).
+	at X.GU9.A02(:30)
+	at X.IRz.run(:195)
+	at android.os.Handler.dispatchMessage(Handler.java:15)
+	at android.os.Looper.loop(Looper.java:37)
+	at android.os.HandlerThread.run(HandlerThread.java:12)
+Caused by: X.IY1: Failed to bind to the service.
+	at X.IRz.run(:192)
+	... 3 more
+### end stack trace
+2026-10-14 17:46:58.952 LL_I D [28:WhatsApp Worker #3] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libfbsocketthreadlocalscope.so, is secondary: true
+2026-10-14 17:46:58.952 LL_E D [57:WhatsApp Worker #7] CRITICAL EVENT = ice/gpia/gpia_reg_client_prepare: on_failure_exception/-9 null
+2026-10-14 17:46:58.952 LL_I D [28:WhatsApp Worker #3] whatsappsoloader/DecompressionAwareSoSource/readUnblocked: libfbsocketthreadlocalscope.so
+2026-10-14 17:46:58.953 LL_I D [28:WhatsApp Worker #3] whatsappsoloader/DecompressionAwareSoSource/loadLibrary: libfb_sqlite_3530200.so, is secondary: true
+2026-10-14 17:46:58.954 LL_I D [28:WhatsApp Worker #3] whatsappsoloader/DecompressionAwareSoSource/readUnblocked: libfb_sqlite_3530200.so
+2026-10-14 17:46:58.992 LL_E D [29:WhatsApp Worker #4] CRITICAL EVENT = falco/fflogger-already-loaded:  null
+2026-10-14 17:46:59.002 LL_I D [28:WhatsApp Worker #3] memanager/getoldme
+2026-10-14 17:46:59.099 LL_I D [32:ConnectionThread] happyEyeball/couldn't connect to ipv6 in 250 ms
+2026-10-14 17:46:59.115 LL_I D [68:happy-eyeball #2] HappyEyeball/try_connect g.whatsapp.net/31.13.71.50:443[MetaServiceIP] (secureSocket? false)
+2026-10-14 17:46:59.138 LL_I D [32:ConnectionThread] ConnectionThread/configureTcpKeepalive: not enabled
+2026-10-14 17:46:59.163 LL_I D [32:ConnectionThread] ConnectionThread/tryOpenSocket: socket connected; sessionId=-1368220575
+2026-10-14 17:46:59.179 LL_I D [32:ConnectionThread] ConnectionThread/tryOpenSocket: created IO streams; sessionId=-1368220575
+2026-10-14 17:46:59.198 LL_I D [32:ConnectionThread] DeviceUtils/isFoldableDevice hasFoldableSensor=false isFoldableDetected=false
+2026-10-14 17:46:59.199 LL_I D [32:ConnectionThread] DeviceUtils/isFoldableDevice hasFoldableSensor=false isFoldableDetected=false
+2026-10-14 17:46:59.204 LL_I D [32:ConnectionThread] CompanionRegInfoProvider whatsApiHistorySyncConfigLazy: [requireFullSync: true, supportCagReactionsAndPolls: true, supportInlineInitialPayloadInE2eeMessage: true, supportCallLogHistory: true, supportBotUserAgentChatHistory: true, supportFbidBotChatHistory: true, supportHostedGroupMsg: true, supportMessageAssociation: true, supportGroupHistory: true, supportGuestChat: false, onDemandReady: true, completeOnDemandReady: false, supportAddOnHistorySyncMigration: true, supportBizHostedMessage: false, fullSyncDaysLimit: 365, fullSyncSizeMbLimit: 50, recentSyncDaysLimit: 0, thumbnailSyncDaysLimit: 90, initialBootstrapMaxMessagesPerChat: null, supportHatchHistory: true, supportMaibaWassHistory: false, supportNewsletter: true]
+2026-10-14 17:46:59.222 LL_I D [32:ConnectionThread] ConnectionThread/connect: SEND <handshake_payload connect_attempt_count=0 login_count=0 passive=false session_id=-1368220575 short_connect=false connect_type=WIFI_UNKNOWN connect_reason=UNKNOWN /> hasPreacks=false duplexActive=false messageSts=null enablePassiveModeBasedOnQueueSize=false
+2026-10-14 17:46:59.226 LL_I D [32:ConnectionThread] NoiseSocket/handshakeStart mode=NOISE_PQ_MODE_NONE rs=IKKEM
+2026-10-14 17:46:59.239 LL_I D [32:ConnectionThread] NoiseSocket/report/state preamble -> client_hello
+2026-10-14 17:46:59.251 LL_I D [32:ConnectionThread] NoiseSocket/report/state client_hello -> await_server_hello
+2026-10-14 17:46:59.288 LL_I D [32:ConnectionThread] NoiseSocket/report/state await_server_hello -> handle_server_hello
+2026-10-14 17:46:59.291 LL_I D [32:ConnectionThread] NoiseSocket/report/state handle_server_hello -> client_finish
+2026-10-14 17:46:59.292 LL_I D [32:ConnectionThread] NoiseSocket/report/state client_finish -> await_login
+2026-10-14 17:46:59.293 LL_I D [32:ConnectionThread] ConnectionThread/performHandshake: completed noise handshake; sessionId=-1368220575
+2026-10-14 17:46:59.294 LL_I D [32:ConnectionThread] ConnectionThread/persistServerStaticKeys: server static public key changed
+2026-10-14 17:46:59.294 LL_I D [32:ConnectionThread] saving server static public key
+2026-10-14 17:46:59.329 LL_I D [32:ConnectionThread] ConnectionThread/connect: switching to 3 minute read timeout; sessionId=-1368220575
+2026-10-14 17:46:59.340 LL_I D [32:ConnectionThread] ConnectionThread/connect: fetching client config; sessionId=-1368220575
+2026-10-14 17:46:59.359 LL_I D [32:ConnectionThread] connection_thread/logged_flag/connected false change to true
+2026-10-14 17:46:59.359 LL_I D [32:ConnectionThread] LongRunningTaskTracker/setLongRunningTaskState/offline_resume:true
+2026-10-14 17:46:59.359 LL_I D [32:ConnectionThread] ConnectionThread/connect/connected: ConnectionMetadata(sessionId=-1368220575, hostType=primary, port=443, tun=false
+2026-10-14 17:46:59.377 LL_I D [39:WriterThread] WriterThread/recv/connected
+2026-10-14 17:46:59.411 LL_I D [39:WriterThread] WriterThread/handleConnected re-sending stanzas from the queue, size=0
+2026-10-14 17:46:59.433 LL_I D [31:MessageHandlerThread] message_handler/logged_flag/disconnected true change to false
+2026-10-14 17:46:59.494 LL_I D [31:MessageHandlerThread] RegAnalyticsFunnelLogger/startLatencyTimer online_abprops_download
+2026-10-14 17:46:59.546 LL_I D [31:MessageHandlerThread] message_handler/logged_flag/must_reconnect true change to true
+2026-10-14 17:46:59.614 LL_I D [24:High Pri Worker #4] MessageClient/sendIqWithCallbackInternal/add-to-pending type=220 id=00isXmppConnected=true
+2026-10-14 17:46:59.654 LL_W D [72:WhatsApp Worker #12] FutureProofMessageHandler/processFutureMessages msgStore not ready
+2026-10-14 17:46:59.718 LL_W D [50:WhatsApp Worker #6] EC04B8E62D38E19E749Acom.google.android.play.core.integrity.StandardIntegrityException: -9: Standard Integrity API error (-9): Binding to the service in the Play Store has failed. This can be due to having an old Play Store version installed on the device.
+Ask the user to update Play Store.
+ (https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/integrity/model/StandardIntegrityErrorCode.html#CANNOT_BIND_TO_SERVICE).
+2026-10-14 17:46:59.737 LL_I D [14:High Pri Worker #1] PrivateABExpFetcher/fetchAndAssignIfNeeded: fetch ineligible: SHOULD_NOT_FETCH_KILLSWITCH_OFF
+2026-10-14 17:46:59.753 LL_I D [28:WhatsApp Worker #3] messageservice/startService success
+2026-10-14 17:46:59.788 LL_I D [39:WriterThread] WriterThread/write/type=6 tag=ib, id=null
+2026-10-14 17:46:59.807 LL_I D [57:WhatsApp Worker #7] DatabaseUtils/initDatabase/injected sql log writer/using modified LoggableSQLiteDatabase db=sync.db
+2026-10-14 17:46:59.825 LL_I D [44:wa-shared-handler] XmppLifecycleManager/resetLogoutTimer com.whatsapp.MessageHandler.LOGOUT_ACTION
+2026-10-14 17:46:59.842 LL_I D [22:High Pri Worker #3] ClientPingManager/on-connected, can use short: false
+2026-10-14 17:46:59.842 LL_E D [50:WhatsApp Worker #6] ice/gpia/gpia_reg_client_prepare; exception=com.google.android.play.core.integrity.StandardIntegrityException: -9: Standard Integrity API error (-9): Binding to the service in the Play Store has failed. This can be due to having an old Play Store version installed on the device.
+Ask the user to update Play Store.
+ (https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/integrity/model/StandardIntegrityErrorCode.html#CANNOT_BIND_TO_SERVICE).
+### begin stack trace 2.26.40.77(1089927065)
+com.google.android.play.core.integrity.StandardIntegrityException: -9: Standard Integrity API error (-9): Binding to the service in the Play Store has failed. This can be due to having an old Play Store version installed on the device.
+Ask the user to update Play Store.
+ (https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/integrity/model/StandardIntegrityErrorCode.html#CANNOT_BIND_TO_SERVICE).
+	at X.GU9.A02(:30)
+	at X.IRz.run(:195)
+	at android.os.Handler.dispatchMessage(Handler.java:15)
+	at android.os.Looper.loop(Looper.java:37)
+	at android.os.HandlerThread.run(HandlerThread.java:12)
+Caused by: X.IY1: Failed to bind to the service.
+	at X.IRz.run(:192)
+	... 3 more
+### end stack trace
+2026-10-14 17:46:59.843 LL_I D [39:WriterThread] WriterThread/write/type=220 tag=iq, id=00
+2026-10-14 17:46:59.843 LL_I D [69:ReaderThread] ConnectionThreadRequestsImpl/on-xmpp-recv type=242
+2026-10-14 17:46:59.843 LL_I D [44:wa-shared-handler] XmppLifecycleManager//hasLogoutTimer has=false
+2026-10-14 17:46:59.843 LL_I D [22:High Pri Worker #3] ClientPingManager/periodic/cancel-alarm
+2026-10-14 17:46:59.844 LL_E D [50:WhatsApp Worker #6] CRITICAL EVENT = ice/gpia/gpia_reg_client_prepare: on_failure_exception/-9 null
+2026-10-14 17:46:59.844 LL_I D [69:ReaderThread] ConnectionThreadRequestsImpl/on-iq-response; id=3968800133
+2026-10-14 17:46:59.844 LL_I D [40:XmppMessageRouter] CompanionPreRegLogger: cmp_refs_recvd/cbf95c02-c5bc-4de2-bf35-78bd380e3a14
+2026-10-14 17:46:59.844 LL_I D [22:High Pri Worker #3] ClientPingManager/timeout/cancel-alarm
+2026-10-14 17:46:59.844 LL_I D [69:ReaderThread] xmppIncomingMessageRouter/handleIqResponse no callback found for id=3968800133
+2026-10-14 17:46:59.844 LL_I D [40:XmppMessageRouter] FunnelLogger/previous screen: unknown/action taken: unknown/current screen: register_as_companion/client event ts: 1792000019630/is add account flow: false/event name: cmp_refs_recvd
+2026-10-14 17:46:59.845 LL_I D [22:High Pri Worker #3] ClientPingManager/periodic/schedule-alarm
+2026-10-14 17:46:59.845 LL_I D [59:WhatsApp Worker #8] WaMsysSetup/bootstrapForReg
+2026-10-14 17:46:59.845 LL_I D [40:XmppMessageRouter] DeviceUtils/isFoldableDevice hasFoldableSensor=false isFoldableDetected=false
+2026-10-14 17:46:59.845 LL_I D [39:WriterThread] WriterThread/write/type=305 tag=iq, id=3968800133
+2026-10-14 17:46:59.845 LL_I D [59:WhatsApp Worker #8] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:46:59.845 LL_I D [40:XmppMessageRouter] DeviceUtils/isFoldableDevice hasFoldableSensor=false isFoldableDetected=false
+2026-10-14 17:46:59.846 LL_I D [59:WhatsApp Worker #8] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:46:59.846 LL_I D [40:XmppMessageRouter] DeviceUtils/isFoldableDevice hasFoldableSensor=false isFoldableDetected=false
+2026-10-14 17:46:59.846 LL_I D [59:WhatsApp Worker #8] RegistrationHttpManager/sendClientFunnelLog
+2026-10-14 17:46:59.846 LL_I D [40:XmppMessageRouter] DeviceUtils/isFoldableDevice hasFoldableSensor=false isFoldableDetected=false
+2026-10-14 17:46:59.846 LL_I D [59:WhatsApp Worker #8] RegistrationHttpManager/sendClientFunnelLog/wamsys
+2026-10-14 17:46:59.846 LL_I D [40:XmppMessageRouter] DeviceUtils/isFoldableDevice hasFoldableSensor=false isFoldableDetected=false
+2026-10-14 17:46:59.846 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:46:59.847 LL_I D [40:XmppMessageRouter] DeviceUtils/isFoldableDevice hasFoldableSensor=false isFoldableDetected=false
+2026-10-14 17:46:59.872 LL_I D [2:main] CompanionPreRegLogger: cmp_code_refresh/cbf95c02-c5bc-4de2-bf35-78bd380e3a14
+2026-10-14 17:46:59.889 LL_I D [2:main] FunnelLogger/previous screen: unknown/action taken: unknown/current screen: register_as_companion/client event ts: 1792000019870/is add account flow: false/event name: cmp_code_refresh
+2026-10-14 17:46:59.909 LL_I D [30:WhatsApp Worker #5] WaMsysSetup/bootstrapForReg
+2026-10-14 17:46:59.909 LL_I D [30:WhatsApp Worker #5] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:46:59.922 LL_I D [30:WhatsApp Worker #5] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:46:59.938 LL_I D [30:WhatsApp Worker #5] RegistrationHttpManager/sendClientFunnelLog
+2026-10-14 17:46:59.938 LL_I D [30:WhatsApp Worker #5] RegistrationHttpManager/sendClientFunnelLog/wamsys
+2026-10-14 17:46:59.939 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:46:59.961 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:47:00.015 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:47:00.128 LL_W D [57:WhatsApp Worker #7] EC04B8E62D38E19E749Acom.google.android.play.core.integrity.StandardIntegrityException: -9: Standard Integrity API error (-9): Binding to the service in the Play Store has failed. This can be due to having an old Play Store version installed on the device.
+Ask the user to update Play Store.
+ (https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/integrity/model/StandardIntegrityErrorCode.html#CANNOT_BIND_TO_SERVICE).
+2026-10-14 17:47:00.129 LL_E D [57:WhatsApp Worker #7] ice/gpia/gpia_reg_client_prepare; exception=com.google.android.play.core.integrity.StandardIntegrityException: -9: Standard Integrity API error (-9): Binding to the service in the Play Store has failed. This can be due to having an old Play Store version installed on the device.
+Ask the user to update Play Store.
+ (https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/integrity/model/StandardIntegrityErrorCode.html#CANNOT_BIND_TO_SERVICE).
+### begin stack trace 2.26.40.77(1089927065)
+com.google.android.play.core.integrity.StandardIntegrityException: -9: Standard Integrity API error (-9): Binding to the service in the Play Store has failed. This can be due to having an old Play Store version installed on the device.
+Ask the user to update Play Store.
+ (https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/integrity/model/StandardIntegrityErrorCode.html#CANNOT_BIND_TO_SERVICE).
+	at X.GU9.A02(:30)
+	at X.IRz.run(:195)
+	at android.os.Handler.dispatchMessage(Handler.java:15)
+	at android.os.Looper.loop(Looper.java:37)
+	at android.os.HandlerThread.run(HandlerThread.java:12)
+Caused by: X.IY1: Failed to bind to the service.
+	at X.IRz.run(:192)
+	... 3 more
+### end stack trace
+2026-10-14 17:47:00.130 LL_E D [57:WhatsApp Worker #7] CRITICAL EVENT = ice/gpia/gpia_reg_client_prepare: on_failure_exception/-9 null
+2026-10-14 17:47:00.697 LL_W D [29:WhatsApp Worker #4] EC04B8E62D38E19E749Acom.google.android.play.core.integrity.StandardIntegrityException: -9: Standard Integrity API error (-9): Binding to the service in the Play Store has failed. This can be due to having an old Play Store version installed on the device.
+Ask the user to update Play Store.
+ (https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/integrity/model/StandardIntegrityErrorCode.html#CANNOT_BIND_TO_SERVICE).
+2026-10-14 17:47:00.697 LL_E D [29:WhatsApp Worker #4] ice/gpia/gpia_reg_client_prepare; exception=com.google.android.play.core.integrity.StandardIntegrityException: -9: Standard Integrity API error (-9): Binding to the service in the Play Store has failed. This can be due to having an old Play Store version installed on the device.
+Ask the user to update Play Store.
+ (https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/integrity/model/StandardIntegrityErrorCode.html#CANNOT_BIND_TO_SERVICE).
+### begin stack trace 2.26.40.77(1089927065)
+com.google.android.play.core.integrity.StandardIntegrityException: -9: Standard Integrity API error (-9): Binding to the service in the Play Store has failed. This can be due to having an old Play Store version installed on the device.
+Ask the user to update Play Store.
+ (https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/integrity/model/StandardIntegrityErrorCode.html#CANNOT_BIND_TO_SERVICE).
+	at X.GU9.A02(:30)
+	at X.IRz.run(:195)
+	at android.os.Handler.dispatchMessage(Handler.java:15)
+	at android.os.Looper.loop(Looper.java:37)
+	at android.os.HandlerThread.run(HandlerThread.java:12)
+Caused by: X.IY1: Failed to bind to the service.
+	at X.IRz.run(:192)
+	... 3 more
+### end stack trace
+2026-10-14 17:47:00.698 LL_E D [29:WhatsApp Worker #4] CRITICAL EVENT = ice/gpia/gpia_reg_client_prepare: on_failure_exception/-9 null
+2026-10-14 17:47:00.896 LL_W D [2:main] MainIdleExecutor/execute onIdle with timeout for: BaseAsyncLifecycleExecutor/trigger:210/RegisterAsCompanionActivity
+2026-10-14 17:47:01.259 LL_W D [29:WhatsApp Worker #4] EC04B8E62D38E19E749Acom.google.android.play.core.integrity.StandardIntegrityException: -9: Standard Integrity API error (-9): Binding to the service in the Play Store has failed. This can be due to having an old Play Store version installed on the device.
+Ask the user to update Play Store.
+ (https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/integrity/model/StandardIntegrityErrorCode.html#CANNOT_BIND_TO_SERVICE).
+2026-10-14 17:47:01.260 LL_E D [29:WhatsApp Worker #4] ice/gpia/gpia_reg_client_prepare; exception=com.google.android.play.core.integrity.StandardIntegrityException: -9: Standard Integrity API error (-9): Binding to the service in the Play Store has failed. This can be due to having an old Play Store version installed on the device.
+Ask the user to update Play Store.
+ (https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/integrity/model/StandardIntegrityErrorCode.html#CANNOT_BIND_TO_SERVICE).
+### begin stack trace 2.26.40.77(1089927065)
+com.google.android.play.core.integrity.StandardIntegrityException: -9: Standard Integrity API error (-9): Binding to the service in the Play Store has failed. This can be due to having an old Play Store version installed on the device.
+Ask the user to update Play Store.
+ (https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/integrity/model/StandardIntegrityErrorCode.html#CANNOT_BIND_TO_SERVICE).
+	at X.GU9.A02(:30)
+	at X.IRz.run(:195)
+	at android.os.Handler.dispatchMessage(Handler.java:15)
+	at android.os.Looper.loop(Looper.java:37)
+	at android.os.HandlerThread.run(HandlerThread.java:12)
+Caused by: X.IY1: Failed to bind to the service.
+	at X.IRz.run(:192)
+	... 3 more
+### end stack trace
+2026-10-14 17:47:01.261 LL_E D [29:WhatsApp Worker #4] CRITICAL EVENT = ice/gpia/gpia_reg_client_prepare: on_failure_exception/-9 null
+2026-10-14 17:47:01.279 LL_E D [72:WhatsApp Worker #12] ice/integrityatmd/gpia_at_md_prepare; exception=com.google.android.play.core.integrity.StandardIntegrityException: -9: Standard Integrity API error (-9): Binding to the service in the Play Store has failed. This can be due to having an old Play Store version installed on the device.
+Ask the user to update Play Store.
+ (https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/integrity/model/StandardIntegrityErrorCode.html#CANNOT_BIND_TO_SERVICE).
+### begin stack trace 2.26.40.77(1089927065)
+com.google.android.play.core.integrity.StandardIntegrityException: -9: Standard Integrity API error (-9): Binding to the service in the Play Store has failed. This can be due to having an old Play Store version installed on the device.
+Ask the user to update Play Store.
+ (https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/integrity/model/StandardIntegrityErrorCode.html#CANNOT_BIND_TO_SERVICE).
+	at X.GU9.A02(:30)
+	at X.IRz.run(:195)
+	at android.os.Handler.dispatchMessage(Handler.java:15)
+	at android.os.Looper.loop(Looper.java:37)
+	at android.os.HandlerThread.run(HandlerThread.java:12)
+Caused by: X.IY1: Failed to bind to the service.
+	at X.IRz.run(:192)
+	... 3 more
+### end stack trace
+2026-10-14 17:47:01.284 LL_E D [72:WhatsApp Worker #12] CRITICAL EVENT = ice/integrityatmd/gpia_at_md_prepare: 5 null
+2026-10-14 17:47:01.296 LL_W D [2:main] MainIdleExecutor/execute onIdle with timeout for: BaseAsyncLifecycleExecutor/trigger:220/RegisterAsCompanionActivity
+2026-10-14 17:47:01.359 LL_W D [2:main] MainIdleExecutor/execute onIdle with timeout for: BaseAsyncLifecycleExecutor/trigger:230/RegisterAsCompanionActivity
+2026-10-14 17:47:12.836 LL_I D [2:main] presencestatemanager/setUnavailable previous-state: available-waiting-timeout
+2026-10-14 17:47:12.836 LL_I D [2:main] presencestatemanager/timeout/foreground un-available
+2026-10-14 17:47:12.837 LL_I D [59:WhatsApp Worker #8] PresenceSendMethods/sendUnavailableForChat/wl
+2026-10-14 17:47:12.837 LL_I D [59:WhatsApp Worker #8] MessageHandler/sendUnavailableForChat
+2026-10-14 17:47:12.848 LL_I D [39:WriterThread] WriterThread/write/sendUnavailableForChat
+2026-10-14 17:47:14.747 LL_I D [22:High Pri Worker #3] ClientPingManager/periodic/receiver
+2026-10-14 17:47:14.748 LL_I D [22:High Pri Worker #3] ClientPingManager/send-ping
+2026-10-14 17:47:14.748 LL_I D [22:High Pri Worker #3] ClientPingManager/periodic/cancel-alarm
+2026-10-14 17:47:14.748 LL_I D [22:High Pri Worker #3] ClientPingManager/timeout/schedule-alarm
+2026-10-14 17:47:14.764 LL_I D [22:High Pri Worker #3] MessageClient/sendIqWithCallbackIfConnectedInternal/add-to-pending type=22 id=01
+2026-10-14 17:47:14.781 LL_I D [39:WriterThread] WriterThread/write/type=22 tag=iq, id=01
+2026-10-14 17:47:14.810 LL_I D [69:ReaderThread] ConnectionThreadRequestsImpl/on-iq-response; id=01
+2026-10-14 17:47:14.828 LL_I D [22:High Pri Worker #3] ClientPingManager/recv/onSuccess; timestamp=1792000035
+2026-10-14 17:47:14.829 LL_I D [42:High Pri Worker #7] ClientPingManager/ping-response
+2026-10-14 17:47:14.829 LL_I D [42:High Pri Worker #7] ClientPingManager/periodic/cancel-alarm
+2026-10-14 17:47:14.829 LL_I D [42:High Pri Worker #7] ClientPingManager/timeout/cancel-alarm
+2026-10-14 17:47:14.829 LL_I D [42:High Pri Worker #7] ClientPingManager/periodic/schedule-alarm
+2026-10-14 17:47:19.805 LL_I D [2:main] CompanionPreRegLogger: cmp_code_refresh/cbf95c02-c5bc-4de2-bf35-78bd380e3a14
+2026-10-14 17:47:19.818 LL_I D [2:main] FunnelLogger/previous screen: unknown/action taken: unknown/current screen: register_as_companion/client event ts: 1792000039799/is add account flow: false/event name: cmp_code_refresh
+2026-10-14 17:47:19.837 LL_I D [26:WhatsApp Worker #1] WaMsysSetup/bootstrapForReg
+2026-10-14 17:47:19.849 LL_I D [26:WhatsApp Worker #1] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:47:19.858 LL_I D [26:WhatsApp Worker #1] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:47:19.876 LL_I D [26:WhatsApp Worker #1] RegistrationHttpManager/sendClientFunnelLog
+2026-10-14 17:47:19.894 LL_I D [26:WhatsApp Worker #1] RegistrationHttpManager/sendClientFunnelLog/wamsys
+2026-10-14 17:47:19.910 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:47:20.051 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:47:39.010 LL_I D [59:WhatsApp Worker #8] FBCredentialsStore/getFBIdentity/FbUserType: canonical
+2026-10-14 17:47:39.045 LL_I D [59:WhatsApp Worker #8] FBCredentialsStore/getFBIdentity/fbUsers is empty
+2026-10-14 17:47:39.098 LL_I D [66:main] FBCredentialsStore/getFBIdentity/FbUserType: canonical
+2026-10-14 17:47:39.116 LL_I D [66:main] FBCredentialsStore/getFBIdentity/fbUsers is empty
+2026-10-14 17:47:39.833 LL_I D [2:main] CompanionPreRegLogger: cmp_code_refresh/cbf95c02-c5bc-4de2-bf35-78bd380e3a14
+2026-10-14 17:47:39.851 LL_I D [2:main] FunnelLogger/previous screen: unknown/action taken: unknown/current screen: register_as_companion/client event ts: 1792000059827/is add account flow: false/event name: cmp_code_refresh
+2026-10-14 17:47:39.868 LL_I D [71:WhatsApp Worker #11] WaMsysSetup/bootstrapForReg
+2026-10-14 17:47:39.886 LL_I D [71:WhatsApp Worker #11] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:47:39.904 LL_I D [71:WhatsApp Worker #11] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:47:39.912 LL_I D [71:WhatsApp Worker #11] RegistrationHttpManager/sendClientFunnelLog
+2026-10-14 17:47:39.930 LL_I D [71:WhatsApp Worker #11] RegistrationHttpManager/sendClientFunnelLog/wamsys
+2026-10-14 17:47:39.949 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:47:39.976 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:47:57.630 LL_I D [2:main] app/dt/clear dt=com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity@f554ed90 dialog_toast=com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity@f554ed90
+2026-10-14 17:47:57.646 LL_I D [2:main] app/dt/clear done
+2026-10-14 17:47:57.650 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity.onPause
+2026-10-14 17:47:57.681 LL_I D [2:main] presencestatemanager/startTransitionToUnavailable/new-state un-available
+2026-10-14 17:47:57.699 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity.onPauseDone
+2026-10-14 17:47:57.735 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.settings.ui.SettingsHelpActivity.onCreate
+2026-10-14 17:47:58.054 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.settings.ui.SettingsHelpActivity.onStart
+2026-10-14 17:47:58.068 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.settings.ui.SettingsHelpActivity.onResume
+2026-10-14 17:47:58.074 LL_I D [2:main] app/dt/set com.whatsapp.settings.ui.SettingsHelpActivity@67d9ad81
+2026-10-14 17:47:58.074 LL_I D [2:main] app/dt/set done
+2026-10-14 17:47:58.089 LL_I D [26:WhatsApp Worker #1] FBCredentialsStore/getFBIdentity/FbUserType: support
+2026-10-14 17:47:58.106 LL_I D [26:WhatsApp Worker #1] FBCredentialsStore/getFBIdentity/fbUsers is empty
+2026-10-14 17:47:58.125 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity.onStop
+2026-10-14 17:47:58.146 LL_I D [26:WhatsApp Worker #1] SupportUser/Fetch Certificate
+2026-10-14 17:47:58.178 LL_I D [2:main] app/dt/set com.whatsapp.settings.ui.SettingsHelpActivity@67d9ad81
+2026-10-14 17:47:58.182 LL_I D [26:WhatsApp Worker #1] MessageClient/sendIqWithCallbackInternal/add-to-pending type=264 id=02isXmppConnected=true
+2026-10-14 17:47:58.182 LL_I D [2:main] app/dt/set done
+2026-10-14 17:47:58.182 LL_I D [44:wa-shared-handler] XmppLifecycleManager/resetLogoutTimer com.whatsapp.MessageHandler.LOGOUT_ACTION
+2026-10-14 17:47:58.182 LL_I D [39:WriterThread] WriterThread/write/type=264 tag=iq, id=02
+2026-10-14 17:47:58.182 LL_I D [44:wa-shared-handler] XmppLifecycleManager//hasLogoutTimer has=false
+2026-10-14 17:48:00.746 LL_W D [2:main] MainIdleExecutor/execute onIdle with timeout for: BaseAsyncLifecycleExecutor/trigger:210/SettingsHelpActivity
+2026-10-14 17:48:01.076 LL_W D [2:main] MainIdleExecutor/execute onIdle with timeout for: BaseAsyncLifecycleExecutor/trigger:220/SettingsHelpActivity
+2026-10-14 17:48:01.112 LL_I D [2:main] presencestatemanager/setAvailable/new-state: available setIfUnavailable:true
+2026-10-14 17:48:01.154 LL_I D [29:WhatsApp Worker #4] MessageHandler/sendAvailableForChat
+2026-10-14 17:48:01.155 LL_W D [2:main] MainIdleExecutor/execute onIdle with timeout for: BaseAsyncLifecycleExecutor/trigger:230/SettingsHelpActivity
+2026-10-14 17:48:01.155 LL_I D [44:wa-shared-handler] XmppLifecycleManager/resetLogoutTimer com.whatsapp.MessageHandler.LOGOUT_ACTION
+2026-10-14 17:48:01.155 LL_I D [29:WhatsApp Worker #4] ClientPingManager/on-demand-ping
+2026-10-14 17:48:01.155 LL_I D [32:ConnectionThread] memanager/getoldme
+2026-10-14 17:48:01.156 LL_I D [39:WriterThread] WriterThread/write/sendAvailableForChat
+2026-10-14 17:48:01.156 LL_I D [44:wa-shared-handler] XmppLifecycleManager//hasLogoutTimer has=false
+2026-10-14 17:48:01.157 LL_I D [24:High Pri Worker #4] ClientPingManager/send-ping
+2026-10-14 17:48:01.158 LL_I D [24:High Pri Worker #4] ClientPingManager/periodic/cancel-alarm
+2026-10-14 17:48:01.159 LL_I D [24:High Pri Worker #4] ClientPingManager/timeout/schedule-alarm
+2026-10-14 17:48:01.159 LL_I D [24:High Pri Worker #4] MessageClient/sendIqWithCallbackIfConnectedInternal/add-to-pending type=22 id=03
+2026-10-14 17:48:01.160 LL_I D [39:WriterThread] WriterThread/write/type=22 tag=iq, id=03
+2026-10-14 17:48:01.220 LL_I D [69:ReaderThread] ConnectionThreadRequestsImpl/on-iq-response; id=03
+2026-10-14 17:48:01.240 LL_I D [22:High Pri Worker #3] ClientPingManager/recv/onSuccess; timestamp=1792000082
+2026-10-14 17:48:01.240 LL_I D [24:High Pri Worker #4] ClientPingManager/ping-response
+2026-10-14 17:48:01.240 LL_I D [24:High Pri Worker #4] ClientPingManager/periodic/cancel-alarm
+2026-10-14 17:48:01.241 LL_I D [24:High Pri Worker #4] ClientPingManager/timeout/cancel-alarm
+2026-10-14 17:48:01.241 LL_I D [24:High Pri Worker #4] ClientPingManager/periodic/schedule-alarm
+2026-10-14 17:48:09.531 LL_I D [2:main] UXLogging/backpressed:SettingsHelpActivity
+2026-10-14 17:48:09.545 LL_I D [2:main] app/dt/clear dt=com.whatsapp.settings.ui.SettingsHelpActivity@67d9ad81 dialog_toast=com.whatsapp.settings.ui.SettingsHelpActivity@67d9ad81
+2026-10-14 17:48:09.563 LL_I D [2:main] app/dt/clear done
+2026-10-14 17:48:09.581 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.settings.ui.SettingsHelpActivity.onPause
+2026-10-14 17:48:09.599 LL_I D [2:main] presencestatemanager/startTransitionToUnavailable/new-state available-waiting-timeout
+2026-10-14 17:48:09.599 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.settings.ui.SettingsHelpActivity.onPauseDone
+2026-10-14 17:48:09.627 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity.onStart
+2026-10-14 17:48:09.653 LL_I D [2:main] CompanionPreRegLogger: cmp_code_refresh/cbf95c02-c5bc-4de2-bf35-78bd380e3a14
+2026-10-14 17:48:09.660 LL_I D [2:main] FunnelLogger/previous screen: unknown/action taken: unknown/current screen: register_as_companion/client event ts: 1792000089648/is add account flow: false/event name: cmp_code_refresh
+2026-10-14 17:48:09.661 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity.onResume
+2026-10-14 17:48:09.661 LL_I D [2:main] app/dt/set com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity@f554ed90
+2026-10-14 17:48:09.662 LL_I D [2:main] app/dt/set done
+2026-10-14 17:48:09.671 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.settings.ui.SettingsHelpActivity.onStop
+2026-10-14 17:48:09.689 LL_I D [2:main] app/dt/clear dt=com.whatsapp.settings.ui.SettingsHelpActivity@67d9ad81 dialog_toast=com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity@f554ed90
+2026-10-14 17:48:09.707 LL_I D [2:main] app/dt/clear done
+2026-10-14 17:48:09.724 LL_I D [71:WhatsApp Worker #11] WaMsysSetup/bootstrapForReg
+2026-10-14 17:48:09.737 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.settings.ui.SettingsHelpActivity.onDestroy
+2026-10-14 17:48:09.742 LL_I D [71:WhatsApp Worker #11] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:48:09.758 LL_I D [2:main] app/dt/set com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity@f554ed90
+2026-10-14 17:48:09.776 LL_I D [2:main] app/dt/set done
+2026-10-14 17:48:09.776 LL_I D [71:WhatsApp Worker #11] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:48:09.776 LL_I D [71:WhatsApp Worker #11] RegistrationHttpManager/sendClientFunnelLog
+2026-10-14 17:48:09.777 LL_I D [71:WhatsApp Worker #11] RegistrationHttpManager/sendClientFunnelLog/wamsys
+2026-10-14 17:48:09.777 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:48:09.884 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:48:12.668 LL_W D [2:main] MainIdleExecutor/execute onIdle with timeout for: BaseAsyncLifecycleExecutor/trigger:220/RegisterAsCompanionActivity
+2026-10-14 17:48:13.330 LL_I D [2:main] app/dt/clear dt=com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity@f554ed90 dialog_toast=com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity@f554ed90
+2026-10-14 17:48:13.331 LL_I D [2:main] app/dt/clear done
+2026-10-14 17:48:13.331 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity.onPause
+2026-10-14 17:48:13.331 LL_I D [2:main] presencestatemanager/startTransitionToUnavailable/new-state available-waiting-timeout
+2026-10-14 17:48:13.331 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity.onPauseDone
+2026-10-14 17:48:13.354 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.settings.ui.SettingsTabActivity.onCreate
+2026-10-14 17:48:13.457 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.492 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.492 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.493 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.493 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.493 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.493 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.493 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.494 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.494 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.494 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.494 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.494 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.494 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.494 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.495 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.495 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.495 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.495 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.495 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.496 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.496 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.496 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.496 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.509 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.510 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.510 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.510 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.510 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.510 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.510 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.511 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.511 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.511 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.511 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.511 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.512 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.512 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.512 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.512 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.512 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.512 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.513 LL_I D [2:main] LogoutManager/isPrimaryLogoutEnabled/result=false
+2026-10-14 17:48:13.513 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.513 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.513 LL_I D [2:main] WhatsAppPlusGatingManager/isWhatsAppPlusEnabled/master kill switch is disabled
+2026-10-14 17:48:13.513 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.513 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.514 LL_I D [2:main] MetaOneGatingManager/isMetaOneEnabled/master kill switch is disabled
+2026-10-14 17:48:13.514 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.514 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.514 LL_I D [2:main] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:13.514 LL_I D [2:main] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
+2026-10-14 17:48:13.527 LL_I D [2:main] SettingsTabActivity/onCreate/no-me
+2026-10-14 17:48:13.528 LL_W D [2:main] MainIdleExecutor/execute onIdle with timeout for: BaseAsyncLifecycleExecutor/trigger:230/RegisterAsCompanionActivity
+2026-10-14 17:48:13.780 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.Main.onCreate
+2026-10-14 17:48:13.796 LL_I D [2:main] AccountSwitcher/processNewUserIntentAfterAccountSwitching
+2026-10-14 17:48:13.796 LL_I D [2:main] AccountSwitcher/processNewUserIntentAfterAccountSwitching/isOpenLinkCompanionFlow=false
+2026-10-14 17:48:13.796 LL_I D [2:main] DebugWaSharedPreferences/isPerfDeviceIdGenerated/result=true
+2026-10-14 17:48:13.797 LL_I D [2:main] memanager/getoldme
+2026-10-14 17:48:13.814 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.Main.onStart
+2026-10-14 17:48:13.832 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.Main.onResume
+2026-10-14 17:48:13.848 LL_I D [2:main] app/dt/set com.whatsapp.Main@1d6ccdff
+2026-10-14 17:48:13.849 LL_I D [2:main] app/dt/set done
+2026-10-14 17:48:13.867 LL_I D [2:main] app/dt/clear dt=com.whatsapp.settings.ui.SettingsTabActivity@44ec7c96 dialog_toast=com.whatsapp.Main@1d6ccdff
+2026-10-14 17:48:13.884 LL_I D [2:main] app/dt/clear done
+2026-10-14 17:48:13.900 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.settings.ui.SettingsTabActivity.onDestroy
+2026-10-14 17:48:13.909 LL_I D [2:main] app/dt/set com.whatsapp.Main@1d6ccdff
+2026-10-14 17:48:13.934 LL_I D [2:main] app/dt/set done
+2026-10-14 17:48:14.223 LL_I D [2:main] app/dt/clear dt=com.whatsapp.Main@1d6ccdff dialog_toast=com.whatsapp.Main@1d6ccdff
+2026-10-14 17:48:14.259 LL_I D [2:main] app/dt/clear done
+2026-10-14 17:48:14.260 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.Main.onPause
+2026-10-14 17:48:14.260 LL_I D [2:main] presencestatemanager/startTransitionToUnavailable/new-state available-waiting-timeout
+2026-10-14 17:48:14.265 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.Main.onPauseDone
+2026-10-14 17:48:14.301 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.registration.app.EULA.onCreate
+2026-10-14 17:48:14.314 LL_I D [2:main] EULA/sendInitialMigrationInfoNeededBroadcast
+2026-10-14 17:48:14.332 LL_I D [2:main] InterAppCommunicationManager/smbIsCapableOfMigratingFromConsumer=false
+2026-10-14 17:48:14.332 LL_I D [2:main] InterAppCommunicationManager/sendInitialMigrationInfoNeededBroadcast/sendInitialMigrationInfoNeededBroadcast
+2026-10-14 17:48:14.333 LL_I D [2:main] PackageManagerUtils/Failed to get package info for:com.whatsapp.w4b
+2026-10-14 17:48:14.333 LL_I D [2:main] PackageManagerUtils/Failed to get package info:com.instagram.android
+2026-10-14 17:48:14.333 LL_I D [2:main] PackageManagerUtils/Failed to get package info for:com.facebook.katana
+2026-10-14 17:48:14.334 LL_I D [2:main] PackageManagerUtils/Failed to get package info for:com.facebook.wakizashi
+2026-10-14 17:48:14.385 LL_E D [59:WhatsApp Worker #8] AppManagerInstallReferrerUtils/getInstallReferrerFromAppManager/onError NOT_PRELOADED
+2026-10-14 17:48:14.441 LL_W D [2:main] number format not valid: null
+2026-10-14 17:48:14.459 LL_I D [29:WhatsApp Worker #4] WaShortcutsHelper/deletealldynamicshortcuts
+2026-10-14 17:48:14.475 LL_I D [29:WhatsApp Worker #4] WaShortcutsHelper/deleteallcachedshortcuts
+2026-10-14 17:48:14.481 LL_I D [72:WhatsApp Worker #12] FoaBackupTokenRequester/requestFoaBackupToken
+2026-10-14 17:48:14.711 LL_I D [26:WhatsApp Worker #1] WaMsysSetup/bootstrapForReg
+2026-10-14 17:48:14.755 LL_I D [72:WhatsApp Worker #12] FoaBackupTokenInterAppCommunicationManager/isEligibleForFb
+2026-10-14 17:48:14.778 LL_I D [26:WhatsApp Worker #1] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:48:14.814 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.registration.app.EULA.onStart
+2026-10-14 17:48:14.837 LL_I D [72:WhatsApp Worker #12] PackageManagerUtils/Failed to get package info for:com.facebook.katana
+2026-10-14 17:48:14.854 LL_I D [26:WhatsApp Worker #1] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:48:14.855 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.registration.app.EULA.onResume
+2026-10-14 17:48:14.855 LL_I D [72:WhatsApp Worker #12] FoaBackupTokenInterAppCommunicationManager/isEligibleForFb/fb app not installed
+2026-10-14 17:48:14.856 LL_I D [26:WhatsApp Worker #1] RegistrationHttpManager/sendPrePNClientFunnelLog
+2026-10-14 17:48:14.856 LL_I D [2:main] app/dt/set com.whatsapp.registration.app.EULA@2eb96bd6
+2026-10-14 17:48:14.856 LL_I D [72:WhatsApp Worker #12] PackageManagerUtils/Failed to get package info for:com.instagram.android
+2026-10-14 17:48:14.856 LL_I D [26:WhatsApp Worker #1] RegistrationHttpManager/sendPrePNClientFunnelLog/wamsys
+2026-10-14 17:48:14.856 LL_I D [2:main] app/dt/set done
+2026-10-14 17:48:14.857 LL_I D [72:WhatsApp Worker #12] FoaBackupTokenInterAppCommunicationManager/isEligibleForIg/is ig installed: false
+2026-10-14 17:48:14.857 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:48:14.857 LL_I D [2:main] EULA/onResume/Fetching abprops
+2026-10-14 17:48:14.857 LL_I D [72:WhatsApp Worker #12] EULARepository/retrieveBackupToken/try to retrieve token from block store
+2026-10-14 17:48:14.857 LL_I D [22:High Pri Worker #3] ABPropsUseCase/fetching prechatd ABProps
+2026-10-14 17:48:14.858 LL_I D [22:High Pri Worker #3] InterAppCommunicationManager/migrateFromConsumerAppFlowEnabled/sibling-country-code = null
+2026-10-14 17:48:14.858 LL_I D [22:High Pri Worker #3] InterAppCommunicationManager/smbIsCapableOfMigratingFromConsumer=false
+2026-10-14 17:48:14.858 LL_I D [22:High Pri Worker #3] InterAppCommunicationManager/migrateFromConsumerAppFlowEnabled = false
+2026-10-14 17:48:14.858 LL_I D [22:High Pri Worker #3] RegistrationHttpManager/checkPreChatdABProps/qpl/start
+2026-10-14 17:48:14.858 LL_I D [22:High Pri Worker #3] WaMsysSetup/bootstrapForReg
+2026-10-14 17:48:14.859 LL_I D [22:High Pri Worker #3] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:48:14.859 LL_I D [22:High Pri Worker #3] RegistrationHttpManager/checkPreChatdABProps/wamsys/reg-onboard-abprop-request
+2026-10-14 17:48:14.859 LL_I D [22:High Pri Worker #3] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:48:14.859 LL_I D [22:High Pri Worker #3] RegistrationHttpManager/checkPreChatdABProps/wamsys
+2026-10-14 17:48:14.859 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.Main.onStop
+2026-10-14 17:48:14.860 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:48:14.860 LL_I D [2:main] app/dt/clear dt=com.whatsapp.Main@1d6ccdff dialog_toast=com.whatsapp.registration.app.EULA@2eb96bd6
+2026-10-14 17:48:14.860 LL_I D [2:main] app/dt/clear done
+2026-10-14 17:48:14.860 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.Main.onDestroy
+2026-10-14 17:48:14.860 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity.onStop
+2026-10-14 17:48:14.889 LL_I D [2:main] CompanionPreRegLogger: cmp_reg_exit/cbf95c02-c5bc-4de2-bf35-78bd380e3a14
+2026-10-14 17:48:14.917 LL_I D [2:main] FunnelLogger/previous screen: unknown/action taken: unknown/current screen: register_as_companion/client event ts: 1792000094862/is add account flow: false/event name: cmp_reg_exit
+2026-10-14 17:48:14.958 LL_I D [18:High Pri Worker #2] companion/registration/reset
+2026-10-14 17:48:15.010 LL_E D [72:WhatsApp Worker #12] BackupTokenUtils/retrieveBlockStore/exception receiving bytes; exception=java.util.concurrent.ExecutionException: com.google.android.gms.common.api.ApiException: 17: API: Blockstore.API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+### begin stack trace 2.26.40.77(1089927065)
+java.util.concurrent.ExecutionException: com.google.android.gms.common.api.ApiException: 17: API: Blockstore.API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+	at com.google.android.gms.tasks.Tasks.await(:89)
+	at X.IRx.run(:1500)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+Caused by: com.google.android.gms.common.api.ApiException: 17: API: Blockstore.API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+	at X.H52.A00(:12)
+	at X.Hgh.A01(:31)
+	at X.I2n.A02(:44)
+	at X.I2n.A01(:9)
+	at X.I2n.A0C(:68)
+	at X.IPJ.run(:95)
+	at android.os.Handler.dispatchMessage(Handler.java:15)
+	at android.os.Looper.loop(Looper.java:37)
+	at android.os.HandlerThread.run(HandlerThread.java:12)
+### end stack trace
+2026-10-14 17:48:15.064 LL_I D [2:main] app/dt/clear dt=com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity@f554ed90 dialog_toast=com.whatsapp.registration.app.EULA@2eb96bd6
+2026-10-14 17:48:15.136 LL_I D [76:WhatsApp Worker #13] WaMsysSetup/bootstrapForReg
+2026-10-14 17:48:15.189 LL_E D [72:WhatsApp Worker #12] BackupTokenUtils/retrieveBlockStore; exception=java.util.concurrent.ExecutionException: com.google.android.gms.common.api.ApiException: 17: API: Blockstore.API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+### begin stack trace 2.26.40.77(1089927065)
+java.util.concurrent.ExecutionException: com.google.android.gms.common.api.ApiException: 17: API: Blockstore.API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+	at com.google.android.gms.tasks.Tasks.await(:89)
+	at X.IRx.run(:1500)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+Caused by: com.google.android.gms.common.api.ApiException: 17: API: Blockstore.API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+	at X.H52.A00(:12)
+	at X.Hgh.A01(:31)
+	at X.I2n.A02(:44)
+	at X.I2n.A01(:9)
+	at X.I2n.A0C(:68)
+	at X.IPJ.run(:95)
+	at android.os.Handler.dispatchMessage(Handler.java:15)
+	at android.os.Looper.loop(Looper.java:37)
+	at android.os.HandlerThread.run(HandlerThread.java:12)
+### end stack trace
+2026-10-14 17:48:15.207 LL_I D [2:main] app/dt/clear done
+2026-10-14 17:48:15.225 LL_I D [76:WhatsApp Worker #13] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:48:15.243 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/pre_pn/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:48:15.279 LL_E D [72:WhatsApp Worker #12] CRITICAL EVENT = BackupTokenUtils/retrieveBlockStore: java.util.concurrent.ExecutionException : com.google.android.gms.common.api.ApiException: 17: API: Blockstore.API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null} null
+2026-10-14 17:48:15.316 LL_I D [18:High Pri Worker #2] MessageHandler/service/stop/unregister:false logoutReason=16
+2026-10-14 17:48:15.336 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.companionmode.registration.ui.RegisterAsCompanionActivity.onDestroy
+2026-10-14 17:48:15.337 LL_I D [76:WhatsApp Worker #13] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:48:15.337 LL_I D [72:WhatsApp Worker #12] BackupTokenUtils/saveBackupTokenRetrievalErrorMessage/Block Store token error message: com.google.android.gms.common.api.ApiException | 17: API: Blockstore.API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+2026-10-14 17:48:15.338 LL_I D [31:MessageHandlerThread] MessageHandler/stop
+2026-10-14 17:48:15.338 LL_I D [26:WhatsApp Worker #1] PrePnBaseFunnelLogger/send/current_screen: eula_with_language_selector, /action_taken: view, /event_name: wamo_tos_registration_welcome, /previous_screen: register_as_companion, /client_metrics: {isWamoTosRegistrationEnabled=true, detectedCountry=us, isFeta=0, rc=release}/event_name: wamo_tos_registration_welcome/is_add_account_flow: 0/access_funnel_type: wa/app_campaign_download_source: unknown|unknown/reg_client_event_ts: 1792000094459/device_manufacturer: Google
+2026-10-14 17:48:15.339 LL_I D [76:WhatsApp Worker #13] RegistrationHttpManager/sendClientFunnelLog
+2026-10-14 17:48:15.339 LL_I D [72:WhatsApp Worker #12] BackupTokenTelemetryRecorder/recordBlockstoreRetrievalOutcome/3
+2026-10-14 17:48:15.340 LL_I D [2:main] app/dt/set com.whatsapp.registration.app.EULA@2eb96bd6
+2026-10-14 17:48:15.340 LL_I D [31:MessageHandlerThread] server disconnected
+2026-10-14 17:48:15.340 LL_I D [76:WhatsApp Worker #13] RegistrationHttpManager/sendClientFunnelLog/wamsys
+2026-10-14 17:48:15.341 LL_I D [72:WhatsApp Worker #12] BackupTokenTelemetryRecorder/recordBlockstoreRetrievalError/com.google.android.gms.common.api.ApiException
+2026-10-14 17:48:15.341 LL_I D [22:High Pri Worker #3] RegistrationHttpManager/checkPreChatdABProps/qpl/end status=1
+2026-10-14 17:48:15.342 LL_I D [2:main] app/dt/set done
+2026-10-14 17:48:15.342 LL_I D [31:MessageHandlerThread] routeselector/cancelrouterequesttimer
+2026-10-14 17:48:15.342 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:48:15.342 LL_I D [72:WhatsApp Worker #12] BackupTokenUtils/retrieveBlockStore/Block Store token not retrieved
+2026-10-14 17:48:15.343 LL_I D [22:High Pri Worker #3] PreChatdAbPropsFetcher/fetchPreChatdABProps/success
+2026-10-14 17:48:15.343 LL_I D [31:MessageHandlerThread] presencestatemanager/setUnavailable previous-state: available-waiting-timeout
+2026-10-14 17:48:15.343 LL_I D [22:High Pri Worker #3] CheckIfReinstalledTask/updatePreChatdABProps
+2026-10-14 17:48:15.343 LL_E D [72:WhatsApp Worker #12] EULARepository/retrieveBackupToken/account transfer/error during import; exception=java.util.concurrent.ExecutionException: com.google.android.gms.common.api.ApiException: 17: API: AccountTransfer.ACCOUNT_TRANSFER_API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+### begin stack trace 2.26.40.77(1089927065)
+java.util.concurrent.ExecutionException: com.google.android.gms.common.api.ApiException: 17: API: AccountTransfer.ACCOUNT_TRANSFER_API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+	at com.google.android.gms.tasks.Tasks.await(:89)
+	at X.IRx.run(:1778)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+Caused by: com.google.android.gms.common.api.ApiException: 17: API: AccountTransfer.ACCOUNT_TRANSFER_API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+	at X.H52.A00(:12)
+	at X.Hgh.A01(:31)
+	at X.I2n.A02(:44)
+	at X.I2n.A01(:9)
+	at X.I2n.A0C(:68)
+	at X.IPJ.run(:95)
+	at android.os.Handler.dispatchMessage(Handler.java:15)
+	at android.os.Looper.loop(Looper.java:37)
+	at android.os.HandlerThread.run(HandlerThread.java:12)
+### end stack trace
+2026-10-14 17:48:15.343 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:48:15.343 LL_I D [31:MessageHandlerThread] message_handler/logged_flag/disconnected false change to true
+2026-10-14 17:48:15.344 LL_E D [72:WhatsApp Worker #12] EULARepository/create/exception during retrieving data from account transfer; exception=java.util.concurrent.ExecutionException: com.google.android.gms.common.api.ApiException: 17: API: AccountTransfer.ACCOUNT_TRANSFER_API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+### begin stack trace 2.26.40.77(1089927065)
+java.util.concurrent.ExecutionException: com.google.android.gms.common.api.ApiException: 17: API: AccountTransfer.ACCOUNT_TRANSFER_API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+	at com.google.android.gms.tasks.Tasks.await(:89)
+	at X.IRx.run(:1778)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+Caused by: com.google.android.gms.common.api.ApiException: 17: API: AccountTransfer.ACCOUNT_TRANSFER_API is not available on this device. Connection failed with: GO5{statusCode=API_UNAVAILABLE, resolution=null, message=null}
+	at X.H52.A00(:12)
+	at X.Hgh.A01(:31)
+	at X.I2n.A02(:44)
+	at X.I2n.A01(:9)
+	at X.I2n.A0C(:68)
+	at X.IPJ.run(:95)
+	at android.os.Handler.dispatchMessage(Handler.java:15)
+	at android.os.Looper.loop(Looper.java:37)
+	at android.os.HandlerThread.run(HandlerThread.java:12)
+### end stack trace
+2026-10-14 17:48:15.345 LL_I D [32:ConnectionThread] connection_thread/logged_flag/quit false change to true
+2026-10-14 17:48:15.345 LL_I D [22:High Pri Worker #3] RecaptchaClientHandler/recaptcha is not enabled for this user: 916
+2026-10-14 17:48:15.345 LL_I D [22:High Pri Worker #3] ABPropsUseCase/success fetching prechatd ABProps
+2026-10-14 17:48:15.345 LL_I D [32:ConnectionThread] LongRunningTaskTracker/setLongRunningTaskState/offline_resume:false
+2026-10-14 17:48:15.345 LL_I D [22:High Pri Worker #3] PasskeyUseCase/requestLoginChallenge/Passkey Login ABProp is disabled
+2026-10-14 17:48:15.345 LL_I D [32:ConnectionThread] connection_thread/logged_flag/disconnecting false change to true
+2026-10-14 17:48:15.346 LL_I D [39:WriterThread] WriterThread/write/logout
+2026-10-14 17:48:15.346 LL_I D [22:High Pri Worker #3] SessionlessMobileConfigLifecycle/onEulaPreChatdFetchSucceeded preRegMode=0; sessionless MC fetch not attempted
+2026-10-14 17:48:15.346 LL_I D [80:WhatsApp Worker #17] PrepareCredentialsManager/generateRandomBase64UrlSafeChallenge: challenge generated
+2026-10-14 17:48:15.346 LL_I D [79:WhatsApp Worker #16] WaMsysSetup/bootstrapForReg
+2026-10-14 17:48:15.346 LL_I D [80:WhatsApp Worker #17] PrepareCredentialsManager/createDummyRequest: built request for rpId=whatsapp.com
+2026-10-14 17:48:15.347 LL_I D [79:WhatsApp Worker #16] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:48:15.347 LL_I D [77:WhatsApp Worker #14] WaMsysSetup/bootstrapForReg
+2026-10-14 17:48:15.347 LL_I D [77:WhatsApp Worker #14] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:48:15.347 LL_I D [79:WhatsApp Worker #16] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:48:15.347 LL_I D [77:WhatsApp Worker #14] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:48:15.348 LL_I D [79:WhatsApp Worker #16] RegistrationHttpManager/sendPrePNClientFunnelLog
+2026-10-14 17:48:15.348 LL_I D [77:WhatsApp Worker #14] RegistrationHttpManager/sendPrePNClientFunnelLog
+2026-10-14 17:48:15.348 LL_I D [77:WhatsApp Worker #14] RegistrationHttpManager/sendPrePNClientFunnelLog/wamsys
+2026-10-14 17:48:15.348 LL_I D [79:WhatsApp Worker #16] RegistrationHttpManager/sendPrePNClientFunnelLog/wamsys
+2026-10-14 17:48:15.349 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:48:15.349 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:48:15.400 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/pre_pn/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:48:15.418 LL_I D [79:WhatsApp Worker #16] PrePnBaseFunnelLogger/send/current_screen: discoverable_credential, /action_taken: skip, /event_name: discoverable_cred_request_challenge_disabled, /previous_screen: eula_with_language_selector, /event_name: discoverable_cred_request_challenge_disabled/is_add_account_flow: 0/access_funnel_type: wa/app_campaign_download_source: unknown|unknown/reg_client_event_ts: 1792000095256/device_manufacturer: Google
+2026-10-14 17:48:15.441 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/pre_pn/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:48:15.451 LL_I D [77:WhatsApp Worker #14] PrePnBaseFunnelLogger/send/current_screen: system, /action_taken: no_action, /event_name: prepare_cred_start, /previous_screen: discoverable_credential, /event_name: prepare_cred_start/is_add_account_flow: 0/access_funnel_type: wa/app_campaign_download_source: unknown|unknown/reg_client_event_ts: 1792000095257/device_manufacturer: Google
+2026-10-14 17:48:15.472 LL_E D [69:ReaderThread] ConnectionReader/read/next-tree; exception=java.io.IOException: Closed before read completed!
+### begin stack trace 2.26.40.77(1089927065)
+java.io.IOException: Closed before read completed!
+	at X.1SM.A00(:20)
+	at X.15g.A07(:12)
+	at X.1Ya.run(:44)
+### end stack trace
+2026-10-14 17:48:15.473 LL_I D [69:ReaderThread] ReaderThread/io-error; exception=java.io.IOException: Closed before read completed!
+### begin stack trace 2.26.40.77(1089927065)
+java.io.IOException: Closed before read completed!
+	at X.1SM.A00(:20)
+	at X.15g.A07(:12)
+	at X.1Ya.run(:44)
+### end stack trace
+2026-10-14 17:48:15.474 LL_I D [69:ReaderThread] ReaderThread/error 1
+2026-10-14 17:48:15.474 LL_I D [32:ConnectionThread] ConnectionThread/closeSocket
+2026-10-14 17:48:15.474 LL_I D [32:ConnectionThread] connection_thread/logged_flag/connected true change to false
+2026-10-14 17:48:15.475 LL_I D [32:ConnectionThread] connection_thread/logged_flag/disconnecting true change to false
+2026-10-14 17:48:15.475 LL_I D [32:ConnectionThread] ChangeNumberManager/clearChangeNumberIQInProgress
+2026-10-14 17:48:15.475 LL_I D [32:ConnectionThread] ConnectionThread/quit after disconnected
+2026-10-14 17:48:15.475 LL_I D [31:MessageHandlerThread] message_handler/logged_flag/disconnected true change to true
+2026-10-14 17:48:15.885 LL_E D [78:WhatsApp Worker #15] CRITICAL EVENT = falco/fflogger-already-loaded:  null
+2026-10-14 17:48:15.901 LL_I D [76:WhatsApp Worker #13] WaMsysSetup/bootstrapForReg
+2026-10-14 17:48:15.919 LL_I D [76:WhatsApp Worker #13] WaMsysSetup/bootstrapForReg/already bootstrapped, skip
+2026-10-14 17:48:15.937 LL_I D [76:WhatsApp Worker #13] RegistrationHttpManager/addCommonFieldStatParams/releaseChannel=RELEASE
+2026-10-14 17:48:15.954 LL_I D [76:WhatsApp Worker #13] RegistrationHttpManager/sendPrePNClientFunnelLog
+2026-10-14 17:48:15.964 LL_I D [76:WhatsApp Worker #13] RegistrationHttpManager/sendPrePNClientFunnelLog/wamsys
+2026-10-14 17:48:15.981 LL_I D [53:NetworkContext] resolving [REDACTED_PII][MetaServiceIP]
+2026-10-14 17:48:16.063 LL_I D [53:NetworkContext] WamsysRegistrationWrapper/pre_pn/send-funnel-log/status/1/failureReason/0
+2026-10-14 17:48:16.065 LL_I D [76:WhatsApp Worker #13] PrePnBaseFunnelLogger/send/current_screen: abprop_exposure, /action_taken: no_action, /event_name: ab_prechatd_exposure, /previous_screen: system, /exposure_error_type: empty_exposure/trace_id_int: 1183729367739030944/event_name: ab_prechatd_exposure/is_add_account_flow: 0/access_funnel_type: wa/app_campaign_download_source: unknown|unknown/reg_client_event_ts: 1792000095885/device_manufacturer: Google
+2026-10-14 17:48:17.361 LL_W D [2:main] MainIdleExecutor/execute onIdle with timeout for: BaseAsyncLifecycleExecutor/trigger:210/EULA
+2026-10-14 17:48:17.718 LL_W D [2:main] MainIdleExecutor/execute onIdle with timeout for: BaseAsyncLifecycleExecutor/trigger:220/EULA
+2026-10-14 17:48:17.811 LL_I D [2:main] presencestatemanager/setAvailable/new-state: available setIfUnavailable:true
+2026-10-14 17:48:17.830 LL_W D [2:main] MainIdleExecutor/execute onIdle with timeout for: BaseAsyncLifecycleExecutor/trigger:230/EULA
+2026-10-14 17:48:24.456 LL_W D [59:WhatsApp Worker #8] EULA/exception while waiting on task killers thread to finish during onCreate ; exception=java.util.concurrent.TimeoutException
+### begin stack trace 2.26.40.77(1089927065)
+java.util.concurrent.TimeoutException
+	at X.18g.A01(:38)
+	at X.Gfp.A0e(:17)
+	at X.1Zo.doInBackground(:2)
+	at android.os.AsyncTask$2.call(AsyncTask.java:68)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+	at X.1Ux.run(:953)
+	at java.lang.Thread.run(Thread.java:1563)
+### end stack trace
+2026-10-14 17:48:24.886 LL_I D [2:main] UXLogging/backpressed:EULA
+2026-10-14 17:48:24.903 LL_I D [2:main] app/dt/clear dt=com.whatsapp.registration.app.EULA@2eb96bd6 dialog_toast=com.whatsapp.registration.app.EULA@2eb96bd6
+2026-10-14 17:48:24.920 LL_I D [2:main] app/dt/clear done
+2026-10-14 17:48:24.926 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.registration.app.EULA.onPause
+2026-10-14 17:48:25.264 LL_I D [2:main] presencestatemanager/startTransitionToUnavailable/new-state available-waiting-timeout
+2026-10-14 17:48:25.264 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.registration.app.EULA.onPauseDone
+2026-10-14 17:48:25.306 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.registration.app.EULA.onStop
+2026-10-14 17:48:25.316 LL_I D [2:main] ActivityLifecycleCallbacks/application backgrounded
+2026-10-14 17:48:25.317 LL_I D [2:main] AppAuthManager/onApplicationBackground
+2026-10-14 17:48:25.317 LL_I D [2:main] AppAuthManager/setIsAuthenticationNeeded: true
+2026-10-14 17:48:25.326 LL_I D [2:main] app/dt/clear dt=com.whatsapp.registration.app.EULA@2eb96bd6 dialog_toast=null
+2026-10-14 17:48:25.342 LL_I D [2:main] app/dt/clear done
+2026-10-14 17:48:25.376 LL_I D [82:WhatsApp Worker #18] OngoingCallBadger/clearBadges wasCleared=false
+2026-10-14 17:48:25.389 LL_I D [35:Notifications] updating dismissed notification hash
+2026-10-14 17:48:25.390 LL_I D [2:main] ActivityLifecycleCallbacks/com.whatsapp.registration.app.EULA.onDestroy
+2026-10-14 17:48:25.390 LL_I D [82:WhatsApp Worker #18] SubscriptionAgeGatingManager/isInRestrictedJurisdiction inUs=false inBr=false restricted=false
+2026-10-14 17:48:25.390 LL_W D [78:WhatsApp Worker #15] Intent Intent { act=android.intent.action.BADGE_COUNT_UPDATE (has extras) } is implicit. For apps targeting API 34+ (Android 14+) implicit broadcasts will NOT be delivered to un-exported internal broadcast receivers. So, if thisbroadcast is meant for an unexported internal receiver make the receiver exported or make the Intent explicit. More information here https://fburl.com/dxdppmde
+2026-10-14 17:48:25.390 LL_I D [82:WhatsApp Worker #18] SubscriptionAgeGatingManager/isEligibleForSubscriptionsByAge notRestricted eligible=true
