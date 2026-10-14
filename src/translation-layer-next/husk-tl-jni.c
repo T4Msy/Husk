@@ -821,15 +821,15 @@ static void *jni_GetStaticMethodID(void *env, jo cls, const char *name, const ch
 #define GEN_CALLS(T, CT, F) \
     CT jni_Call##T##MethodA(void *env, jo o, void *mid, const jvalue *a) { (void)env; return (CT)call_a(0, o, mid, a, "A", __builtin_return_address(0)).F; } \
     CT jni_Call##T##MethodV(void *env, jo o, void *mid, tl_va_list *ap) { (void)env; return (CT)call_va(0, o, mid, ap, "V", __builtin_return_address(0)).F; } \
-    CT tl_vai_jni_Call##T##Method(tl_va_frame *f) { tl_va_list ap; tl_va_start(f, 3, 0, &ap); return (CT)call_va(0, (jo)f->gp[1], (void *)f->gp[2], &ap, "inline", __builtin_return_address(1)).F; } \
+    CT tl_vai_jni_Call##T##Method(tl_va_frame *f) { tl_va_list ap; tl_va_start(f, 3, 0, &ap); return (CT)call_va(0, (jo)f->gp[1], (void *)f->gp[2], &ap, "inline", __builtin_return_address(0)).F; } \
     TL_VA_STUB(tl_va_jni_Call##T##Method, tl_vai_jni_Call##T##Method); \
     CT jni_CallNonvirtual##T##MethodA(void *env, jo o, jo c, void *mid, const jvalue *a) { (void)env; (void)c; return (CT)call_a(1, o, mid, a, "A", __builtin_return_address(0)).F; } \
     CT jni_CallNonvirtual##T##MethodV(void *env, jo o, jo c, void *mid, tl_va_list *ap) { (void)env; (void)c; return (CT)call_va(1, o, mid, ap, "V", __builtin_return_address(0)).F; } \
-    CT tl_vai_jni_CallNonvirtual##T##Method(tl_va_frame *f) { tl_va_list ap; tl_va_start(f, 4, 0, &ap); return (CT)call_va(1, (jo)f->gp[1], (void *)f->gp[3], &ap, "inline", __builtin_return_address(1)).F; } \
+    CT tl_vai_jni_CallNonvirtual##T##Method(tl_va_frame *f) { tl_va_list ap; tl_va_start(f, 4, 0, &ap); return (CT)call_va(1, (jo)f->gp[1], (void *)f->gp[3], &ap, "inline", __builtin_return_address(0)).F; } \
     TL_VA_STUB(tl_va_jni_CallNonvirtual##T##Method, tl_vai_jni_CallNonvirtual##T##Method); \
     CT jni_CallStatic##T##MethodA(void *env, jo c, void *mid, const jvalue *a) { (void)env; (void)c; return (CT)call_a(2, NULL, mid, a, "A", __builtin_return_address(0)).F; } \
     CT jni_CallStatic##T##MethodV(void *env, jo c, void *mid, tl_va_list *ap) { (void)env; (void)c; return (CT)call_va(2, NULL, mid, ap, "V", __builtin_return_address(0)).F; } \
-    CT tl_vai_jni_CallStatic##T##Method(tl_va_frame *f) { tl_va_list ap; tl_va_start(f, 3, 0, &ap); return (CT)call_va(2, NULL, (void *)f->gp[2], &ap, "inline", __builtin_return_address(1)).F; } \
+    CT tl_vai_jni_CallStatic##T##Method(tl_va_frame *f) { tl_va_list ap; tl_va_start(f, 3, 0, &ap); return (CT)call_va(2, NULL, (void *)f->gp[2], &ap, "inline", __builtin_return_address(0)).F; } \
     TL_VA_STUB(tl_va_jni_CallStatic##T##Method, tl_vai_jni_CallStatic##T##Method); \
     extern void tl_va_jni_Call##T##Method(void); extern void tl_va_jni_CallNonvirtual##T##Method(void); extern void tl_va_jni_CallStatic##T##Method(void);
 
@@ -838,15 +838,15 @@ JV_TYPES(GEN_CALLS)
 /* void is its own case: nothing to return */
 void jni_CallVoidMethodA(void *env, jo o, void *mid, const jvalue *a) { (void)env; call_a(0, o, mid, a, "A", __builtin_return_address(0)); }
 void jni_CallVoidMethodV(void *env, jo o, void *mid, tl_va_list *ap) { (void)env; call_va(0, o, mid, ap, "V", __builtin_return_address(0)); }
-int tl_vai_jni_CallVoidMethod(tl_va_frame *f) { tl_va_list ap; tl_va_start(f, 3, 0, &ap); call_va(0, (jo)f->gp[1], (void *)f->gp[2], &ap, "inline", __builtin_return_address(1)); return 0; }
+int tl_vai_jni_CallVoidMethod(tl_va_frame *f) { tl_va_list ap; tl_va_start(f, 3, 0, &ap); call_va(0, (jo)f->gp[1], (void *)f->gp[2], &ap, "inline", __builtin_return_address(0)); return 0; }
 TL_VA_STUB(tl_va_jni_CallVoidMethod, tl_vai_jni_CallVoidMethod);
 void jni_CallNonvirtualVoidMethodA(void *env, jo o, jo c, void *mid, const jvalue *a) { (void)env; (void)c; call_a(1, o, mid, a, "A", __builtin_return_address(0)); }
 void jni_CallNonvirtualVoidMethodV(void *env, jo o, jo c, void *mid, tl_va_list *ap) { (void)env; (void)c; call_va(1, o, mid, ap, "V", __builtin_return_address(0)); }
-int tl_vai_jni_CallNonvirtualVoidMethod(tl_va_frame *f) { tl_va_list ap; tl_va_start(f, 4, 0, &ap); call_va(1, (jo)f->gp[1], (void *)f->gp[3], &ap, "inline", __builtin_return_address(1)); return 0; }
+int tl_vai_jni_CallNonvirtualVoidMethod(tl_va_frame *f) { tl_va_list ap; tl_va_start(f, 4, 0, &ap); call_va(1, (jo)f->gp[1], (void *)f->gp[3], &ap, "inline", __builtin_return_address(0)); return 0; }
 TL_VA_STUB(tl_va_jni_CallNonvirtualVoidMethod, tl_vai_jni_CallNonvirtualVoidMethod);
 void jni_CallStaticVoidMethodA(void *env, jo c, void *mid, const jvalue *a) { (void)env; (void)c; call_a(2, NULL, mid, a, "A", __builtin_return_address(0)); }
 void jni_CallStaticVoidMethodV(void *env, jo c, void *mid, tl_va_list *ap) { (void)env; (void)c; call_va(2, NULL, mid, ap, "V", __builtin_return_address(0)); }
-int tl_vai_jni_CallStaticVoidMethod(tl_va_frame *f) { tl_va_list ap; tl_va_start(f, 3, 0, &ap); call_va(2, NULL, (void *)f->gp[2], &ap, "inline", __builtin_return_address(1)); return 0; }
+int tl_vai_jni_CallStaticVoidMethod(tl_va_frame *f) { tl_va_list ap; tl_va_start(f, 3, 0, &ap); call_va(2, NULL, (void *)f->gp[2], &ap, "inline", __builtin_return_address(0)); return 0; }
 TL_VA_STUB(tl_va_jni_CallStaticVoidMethod, tl_vai_jni_CallStaticVoidMethod);
 extern void tl_va_jni_CallVoidMethod(void); extern void tl_va_jni_CallNonvirtualVoidMethod(void); extern void tl_va_jni_CallStaticVoidMethod(void);
 
@@ -879,7 +879,7 @@ static jo new_object(jo cls, void *mid, int how, const jvalue *a, tl_va_list *ap
 }
 static jo jni_NewObjectA(void *env, jo cls, void *mid, const jvalue *a) { (void)env; return new_object(cls, mid, 2, a, NULL, "A", __builtin_return_address(0)); }
 static jo jni_NewObjectV(void *env, jo cls, void *mid, tl_va_list *ap) { (void)env; return new_object(cls, mid, 1, NULL, ap, "V", __builtin_return_address(0)); }
-jo tl_vai_jni_NewObject(tl_va_frame *f) { tl_va_list ap; tl_va_start(f, 3, 0, &ap); return new_object((jo)f->gp[1], (void *)f->gp[2], 1, NULL, &ap, "inline", __builtin_return_address(1)); }
+jo tl_vai_jni_NewObject(tl_va_frame *f) { tl_va_list ap; tl_va_start(f, 3, 0, &ap); return new_object((jo)f->gp[1], (void *)f->gp[2], 1, NULL, &ap, "inline", __builtin_return_address(0)); }
 TL_VA_STUB(tl_va_jni_NewObject, tl_vai_jni_NewObject);
 extern void tl_va_jni_NewObject(void);
 
