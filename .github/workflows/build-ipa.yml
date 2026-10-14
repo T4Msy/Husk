@@ -98,7 +98,7 @@ jobs:
         run: ./scripts/build_rppairing_ios.sh
       - name: Build and package
         run: |
-          ./scripts/package_ipa.sh "$PWD/build/Husk.ipa" || { tail -200 /tmp/husk_ipa/build.log; grep -E 'error:' /tmp/husk_ipa/build.log | head -50; exit 1; }
+          ./scripts/package_ipa.sh "$PWD/build/Husk.ipa" || { tail -200 /tmp/husk_ipa/build.log; grep -E 'error:' /tmp/husk_ipa/build.log | head -50; { grep -E 'error:|warning:.*error|BUILD FAILED' /tmp/husk_ipa/build.log | head -40 || tail -40 /tmp/husk_ipa/build.log; } | while IFS= read -r l; do echo "::error::$l"; done; exit 1; }
           ./scripts/package_ipa.sh --trollstore "$PWD/build/Husk.tipa"
       - name: Check the package
         run: |
