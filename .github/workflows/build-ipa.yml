@@ -35,6 +35,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: '21' }
+      - name: Variadic va_list reader regression (AAPCS64)
+        run: cc -O2 -Wall -Werror -o /tmp/va_regress src/translation-layer-next/tests/va_regress.c && /tmp/va_regress
       - name: Tools
         run: sudo apt-get update -qq && sudo apt-get install -y -qq qemu-utils e2fsprogs
       - name: Lineage image and R8
