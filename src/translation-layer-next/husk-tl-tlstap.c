@@ -16,6 +16,7 @@
  */
 #define _DARWIN_C_SOURCE
 #include <stddef.h>
+#include <string.h>
 
 #include "husk-tl-ld.h"
 
@@ -48,6 +49,27 @@ static void tap_log(const char *dir, const unsigned char *b, int n)
     }
     line[j] = 0;
     tl_log_line("tls-tap: %s %d: %s", dir, n, line);
+
+    /* The request's cc/in parameters (country code, national number) live in the body, past the 384-byte
+       header window above; the server rejects registration with {"param":"in","failure_reason":"bad_format"},
+       so surface exactly what was sent. Search the whole buffer for the form fields and log their values. */
+    if (dir[0] == 'T') {
+        static const char *const keys[] = { "cc=", "in=", "mcc=", "mnc=", "sim_mcc=", "sim_mnc=", NULL };
+        for (int k = 0; keys[k]; k++) {
+            size_t klen = strlen(keys[k]);
+            for (int i = 0; i + (int)klen < n; i++) {
+                if ((i == 0 || b[i - 1] == '&' || b[i - 1] == '?' || b[i - 1] == '\n') &&
+                    !memcmp(b + i, keys[k], klen)) {
+                    char val[48]; int v = 0;
+                    for (int p = i + (int)klen; p < n && b[p] != '&' && b[p] != '\r' && b[p] != '\n' && v < (int)sizeof(val) - 1; p++)
+                        val[v++] = (b[p] >= 0x20 && b[p] < 0x7f) ? (char)b[p] : '.';
+                    val[v] = 0;
+                    tl_log_line("tls-tap: param %s%s", keys[k], val);
+                    break;
+                }
+            }
+        }
+    }
 }
 
 static int tap_SSL_read(void *ssl, void *buf, int num)
