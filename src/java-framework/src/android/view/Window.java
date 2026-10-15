@@ -50,6 +50,7 @@ public class Window {
     private ViewGroup mContentParent;
     private int mFeatures, mLocalFeatures;
     private WindowManager mWindowManager;
+    private boolean mTranslucent;
     private boolean mFloating, mDecorFits = true, mActive, mDestroyed, mIsActivityWindow;
     private int mStatusBarColor, mNavigationBarColor;
     private CharSequence mTitle;
@@ -66,6 +67,7 @@ public class Window {
         Context c = mContext;
         TypedArray a = c.obtainStyledAttributes(husk.S.Window);
         mFloating = a.getBoolean(husk.S.Window_windowIsFloating, false);
+        mTranslucent = a.getBoolean(husk.S.Window_windowIsTranslucent, false);
         if (a.getBoolean(husk.S.Window_windowNoTitle, false)) mFeatures |= 1 << FEATURE_NO_TITLE;
         else if (a.getBoolean(husk.S.Window_windowActionBar, false) && (mFeatures & (1 << FEATURE_NO_TITLE)) == 0) mFeatures |= 1 << FEATURE_ACTION_BAR;
         if (a.getBoolean(husk.S.Window_windowFullscreen, false)) mAttrs.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
@@ -138,6 +140,8 @@ public class Window {
     public void setFeatureDrawable(int f, Drawable d) {}
     public void setFeatureInt(int f, int v) {}
     public boolean isFloating() { ensureStyle(); return mFloating; }
+    /** An opaque window over the whole screen: what is under it does not show (Android stops drawing the activities below). */
+    public boolean huskCoversBelow() { ensureStyle(); return !mFloating && !mTranslucent; }
     public boolean isActive() { return mActive; }
     public void makeActive() { mActive = true; }
     public final boolean isDestroyed() { return mDestroyed; }
@@ -228,22 +232,27 @@ public class Window {
     public boolean shouldCloseOnTouchHusk() { return mDecor != null && mDecor.closeOnTouchOutside(); }
     public void setAllowEnterTransitionOverlap(boolean b) {}
     public void setAllowReturnTransitionOverlap(boolean b) {}
-    public void setEnterTransition(android.transition.Transition t) {}
-    public void setExitTransition(android.transition.Transition t) {}
-    public void setReturnTransition(android.transition.Transition t) {}
-    public void setReenterTransition(android.transition.Transition t) {}
-    public void setSharedElementEnterTransition(android.transition.Transition t) {}
-    public void setSharedElementExitTransition(android.transition.Transition t) {}
-    public void setSharedElementsUseOverlay(boolean b) {}
-    public void setTransitionBackgroundFadeDuration(long d) {}
-    public android.transition.Transition getEnterTransition() { return null; } public android.transition.Transition getExitTransition() { return null; }
-    public android.transition.Transition getReturnTransition() { return null; } public android.transition.Transition getReenterTransition() { return null; }
-    public android.transition.Transition getSharedElementEnterTransition() { return null; } public android.transition.Transition getSharedElementExitTransition() { return null; }
-    public android.transition.Transition getSharedElementReturnTransition() { return null; } public android.transition.Transition getSharedElementReenterTransition() { return null; }
-    public void setSharedElementReturnTransition(android.transition.Transition t) {} public void setSharedElementReenterTransition(android.transition.Transition t) {}
+    private android.transition.Transition mEnterT, mExitT, mReturnT, mReenterT, mSharedEnterT, mSharedExitT, mSharedReturnT, mSharedReenterT;
+    private boolean mSharedOverlay = true;
+    private long mTransitionFade = 300;
+    private android.transition.TransitionManager mTransitionManager;
+    public void setEnterTransition(android.transition.Transition t) { mEnterT = t; }
+    public void setExitTransition(android.transition.Transition t) { mExitT = t; }
+    public void setReturnTransition(android.transition.Transition t) { mReturnT = t; }
+    public void setReenterTransition(android.transition.Transition t) { mReenterT = t; }
+    public void setSharedElementEnterTransition(android.transition.Transition t) { mSharedEnterT = t; }
+    public void setSharedElementExitTransition(android.transition.Transition t) { mSharedExitT = t; }
+    public void setSharedElementsUseOverlay(boolean b) { mSharedOverlay = b; }
+    public void setTransitionBackgroundFadeDuration(long d) { if (d < 0) throw new IllegalArgumentException("negative durations are not allowed"); mTransitionFade = d; }
+    public android.transition.Transition getEnterTransition() { return mEnterT; } public android.transition.Transition getExitTransition() { return mExitT; }
+    /* unset return / reenter transitions are the enter / exit ones, as the platform's */
+    public android.transition.Transition getReturnTransition() { return mReturnT != null ? mReturnT : mEnterT; } public android.transition.Transition getReenterTransition() { return mReenterT != null ? mReenterT : mExitT; }
+    public android.transition.Transition getSharedElementEnterTransition() { return mSharedEnterT; } public android.transition.Transition getSharedElementExitTransition() { return mSharedExitT; }
+    public android.transition.Transition getSharedElementReturnTransition() { return mSharedReturnT != null ? mSharedReturnT : mSharedEnterT; } public android.transition.Transition getSharedElementReenterTransition() { return mSharedReenterT != null ? mSharedReenterT : mSharedExitT; }
+    public void setSharedElementReturnTransition(android.transition.Transition t) { mSharedReturnT = t; } public void setSharedElementReenterTransition(android.transition.Transition t) { mSharedReenterT = t; }
     public boolean getAllowEnterTransitionOverlap() { return true; } public boolean getAllowReturnTransitionOverlap() { return true; }
-    public boolean getSharedElementsUseOverlay() { return true; } public long getTransitionBackgroundFadeDuration() { return 0; }
-    public void setTransitionManager(android.transition.TransitionManager m) {} public android.transition.TransitionManager getTransitionManager() { return null; }
+    public boolean getSharedElementsUseOverlay() { return mSharedOverlay; } public long getTransitionBackgroundFadeDuration() { return mTransitionFade; }
+    public void setTransitionManager(android.transition.TransitionManager m) { mTransitionManager = m; } public android.transition.TransitionManager getTransitionManager() { return mTransitionManager; }
     public android.transition.Scene getContentScene() { return null; }
     public void addOnFrameMetricsAvailableListener(OnFrameMetricsAvailableListener l, android.os.Handler h) {}
     public void removeOnFrameMetricsAvailableListener(OnFrameMetricsAvailableListener l) {}

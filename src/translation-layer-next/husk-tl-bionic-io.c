@@ -94,6 +94,17 @@ static int synth_file(const char *content)
     return fd;
 }
 
+/* /proc/sys/kernel/random/boot_id: one UUID, stable for the life of the process (the host has no /proc to read it from). */
+static char g_boot_id[40];
+static pthread_once_t g_boot_id_once = PTHREAD_ONCE_INIT;
+static void mint_boot_id(void)
+{
+    unsigned char u[16]; arc4random_buf(u, sizeof u);
+    u[6] = (u[6] & 0x0f) | 0x40; u[8] = (u[8] & 0x3f) | 0x80;  /* RFC 4122 version 4 */
+    snprintf(g_boot_id, sizeof g_boot_id, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x\n",
+             u[0],u[1],u[2],u[3], u[4],u[5], u[6],u[7], u[8],u[9], u[10],u[11],u[12],u[13],u[14],u[15]);
+}
+
 static const char *synth_content(const char *path, char *buf, size_t n)
 {
     if (!strcmp(path, "/proc/cpuinfo")) {
@@ -122,6 +133,24 @@ static const char *synth_content(const char *path, char *buf, size_t n)
     }
     if (!strcmp(path, "/proc/self/status")) {
         snprintf(buf, n, "Name:\tapp_process64\nState:\tR (running)\nTgid:\t%d\nPid:\t%d\nPPid:\t1\nUid:\t10001\t10001\t10001\t10001\nThreads:\t8\nVmRSS:\t  300000 kB\n", getpid(), getpid());
+        return buf;
+    }
+    /*
+     * The kernel's random UUIDs. boot_id is one UUID that stays the same for the life of a boot; the host
+     * has no /proc, so we mint one on first use and keep it. /proc/sys/kernel/random/uuid gives a fresh one
+     * on every read. WhatsApp's integrity hashing reads boot_id during registration; without it the hash is
+     * never built and the server gets an incomplete attestation.
+     */
+    if (!strcmp(path, "/proc/sys/kernel/random/boot_id")) {
+        pthread_once(&g_boot_id_once, mint_boot_id);
+        snprintf(buf, n, "%s", g_boot_id);
+        return buf;
+    }
+    if (!strcmp(path, "/proc/sys/kernel/random/uuid")) {
+        unsigned char u[16]; arc4random_buf(u, sizeof u);
+        u[6] = (u[6] & 0x0f) | 0x40; u[8] = (u[8] & 0x3f) | 0x80;  /* RFC 4122 version 4 */
+        snprintf(buf, n, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x\n",
+                 u[0],u[1],u[2],u[3], u[4],u[5], u[6],u[7], u[8],u[9], u[10],u[11],u[12],u[13],u[14],u[15]);
         return buf;
     }
     return NULL;
@@ -476,9 +505,29 @@ void tl_note_missing_file(const char *path)
     const char *dot = strrchr(path, '.');
     if (strstr(path, "/obb/") && dot && !strcmp(dot, ".obb")) { said = true; tl_log_line("husk: the app's expansion file (OBB) is missing: %s", path); }
 }
+/* The guest's cryptographically secure randomness. Code that opens /dev/urandom -- libc++'s std::random_device, BoringSSL's
+ * seeding, and WhatsApp's libsignal auth-key (Curve25519) generation -- treats a short read or an error as fatal: the key
+ * generation then fails and registration aborts in native code. iOS does serve /dev/urandom, but to remove it as a variable it
+ * is served here straight from the host's CSPRNG (arc4random), which cannot fail or short-read. getrandom(2) and the raw
+ * getrandom syscall already come from the same source. */
+void arc4random_buf(void *, size_t);
+static bool g_urandom_fd[4096];
+static bool is_urandom_path(const char *p)
+{
+    return p && (!strcmp(p, "/dev/urandom") || !strcmp(p, "/dev/random") || !strcmp(p, "/dev/srandom")
+                 || !strcmp(p, "/dev/hwrng") || !strcmp(p, "/dev/hw_random"));
+}
+
 static int b_open(const char *path, int flags, unsigned mode)
 {
     char buf[1024]; static __thread char content[32768];
+    if (is_urandom_path(path) && (flags & 3) == O_RDONLY) {
+        int fd = open("/dev/null", O_RDONLY);                         /* a real descriptor the guest can poll/close; reads are intercepted */
+        if (fd >= 0 && fd < 4096) { g_urandom_fd[fd] = true; static int said; if (said++ < 4) tl_log_line("crypto: %s served from the host CSPRNG (fd %d)", path, fd); }
+        else if (fd >= 0) close(fd), fd = -1;
+        if (fd < 0) tl_set_guest_errno(2);
+        return fd;
+    }
     jar_entry jar;
     if (jar_lookup(path, &jar)) {
         if (!jar.found || jar.dir || (flags & 3) != 0) { tl_set_guest_errno(jar.dir ? 21 : 2); ftrace_open_jar(path, -1); return -1; }
@@ -526,7 +575,7 @@ static bool net_trace_fd(int fd);
 static int g_evfd_peer[1024];
 void tl_eventfd_register(int rd, int wr) { if (rd >= 0 && rd < 1024) g_evfd_peer[rd] = wr + 1; }
 static int evfd_peer(int fd) { return fd >= 0 && fd < 1024 ? g_evfd_peer[fd] - 1 : -1; }
-static int b_close(int fd) { if (evfd_peer(fd) >= 0) { close(evfd_peer(fd)); g_evfd_peer[fd] = 0; } if (vfd_is(fd)) g_vfd[fd].on = false; bool sock = net_trace_fd(fd); TL_ERRNO_BEGIN(); int r = close(fd); tl_atomic_closed(fd); TL_ERRNO_END(); if (sock) tl_log_line("net: close(fd %d)", fd); return r; }
+static int b_close(int fd) { if (fd >= 0 && fd < 4096) g_urandom_fd[fd] = false; if (evfd_peer(fd) >= 0) { close(evfd_peer(fd)); g_evfd_peer[fd] = 0; } if (vfd_is(fd)) g_vfd[fd].on = false; bool sock = net_trace_fd(fd); TL_ERRNO_BEGIN(); int r = close(fd); tl_atomic_closed(fd); TL_ERRNO_END(); if (sock) tl_log_line("net: close(fd %d)", fd); return r; }
 /* close() as the guest calls it (for other shims that close on its behalf: fdsan's close_with_tag) */
 int tl_guest_close(int fd) { return b_close(fd); }
 static bool net_trace_fd(int fd)
@@ -539,6 +588,11 @@ static bool net_trace_fd(int fd)
 }
 static long b_read(int fd, void *p, size_t n)
 {
+    if (fd >= 0 && fd < 4096 && g_urandom_fd[fd]) {
+        if (n) arc4random_buf(p, n);
+        static int said; if (said++ < 4) tl_log_line("crypto: guest read %zu random bytes from the host CSPRNG (fd %d)", n, fd);
+        return (long)n;
+    }
     if (vfd_is(fd)) {
         vfd *v = &g_vfd[fd];
         if (v->pos >= v->size) return 0;
@@ -1361,6 +1415,7 @@ static long futex_call(uint32_t *addr, int op, uint32_t val, const struct timesp
 }
 
 static long linux_syscall_impl(long a0, long a1, long a2, long a3, long a4, long a5, long nr);
+static int b_poll(struct pollfd *fds, unsigned long n, int timeout);   /* defined below; the raw ppoll routes here */
 long tl_linux_syscall(long a0, long a1, long a2, long a3, long a4, long a5, long nr)
 {
     static int trace = -1;
@@ -1398,7 +1453,7 @@ static long linux_syscall_impl(long a0, long a1, long a2, long a3, long a4, long
     case 113: { int r = clock_gettime(clock_to_darwin((int)a0), (struct timespec *)a1); return r < 0 ? -tl_errno_to_guest(errno) : 0; }
     case 169: return b_gettimeofday((int64_t *)a0, (void *)a1);
     case 93: case 94: tl_log_line("bionic: exit(%ld) by raw system call", a0); exit((int)a0);
-    case 278: arc4random_buf((void *)a0, (size_t)a1); return a1;                        /* getrandom */
+    case 278: { if ((size_t)a1) arc4random_buf((void *)a0, (size_t)a1); static int said; if (said++ < 4) tl_log_line("crypto: getrandom syscall %ld bytes from the host CSPRNG", (long)a1); return a1; } /* getrandom */
     case 283: return 0;                                                                 /* membarrier */
     case 134: case 135: return 0;                                                       /* rt_sigaction, rt_sigprocmask: accepted */
     case 233: return 0;                                                                 /* madvise */
@@ -1427,7 +1482,20 @@ static long linux_syscall_impl(long a0, long a1, long a2, long a3, long a4, long
     case 226: { int r = b_mprotect((void *)a0, (size_t)a1, (int)a2); return r < 0 ? -*tl_guest_errno_ptr() : 0; }
     case 79:  { int r = b_fstatat((int)a0, (const char *)a1, (guest_stat *)a2, (int)a3); return r < 0 ? -*tl_guest_errno_ptr() : 0; }
     case 80:  { int r = b_fstat((int)a0, (guest_stat *)a1); return r < 0 ? -*tl_guest_errno_ptr() : 0; }
+    case 73: {                                                                          /* ppoll: Msys waits on its sockets this way */
+        const struct timespec *ts = (const struct timespec *)a2;
+        int ms = ts ? (int)(ts->tv_sec * 1000 + ts->tv_nsec / 1000000) : -1;            /* NULL timeout = wait forever */
+        int r = b_poll((struct pollfd *)a0, (unsigned long)a1, ms);                     /* guest pollfd/POLLIN match Darwin's */
+        return r < 0 ? -(long)(*tl_guest_errno_ptr()) : r;
+    }
     default: break;
+    }
+    /* The socket family: libwhatsapp's Msys makes some of these as raw `svc` (sendmsg confirmed),
+       not through the libc imports. Route them to the same wrappers the imports use. */
+    {
+        long nv;
+        if (tl_net_raw_syscall(nr, a0, a1, a2, a3, a4, a5, &nv))
+            return nv < 0 ? -(long)(*tl_guest_errno_ptr()) : nv;
     }
     char what[96];
     snprintf(what, sizeof(what), "raw system call %ld is not provided (ENOSYS)", nr);

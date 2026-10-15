@@ -605,7 +605,7 @@ public class TelephonyManager {
     public void getNetworkSlicingConfiguration(java.util.concurrent.Executor p0, android.os.OutcomeReceiver p1) {}
     public java.lang.String getNetworkSpecifier() { return null; }
     public int getNetworkType(int p0) { return 0; }
-    public java.lang.String getNetworkTypeName() { return null; }
+    public java.lang.String getNetworkTypeName() { return "UNKNOWN"; }
     public int getNumberOfModemsWithSimultaneousDataConnections() { return 0; }
     public java.lang.String getOtaSpNumberSchemaForPhone(int p0, java.lang.String p1) { return null; }
     public java.util.Set getPackagesWithCarrierPrivileges() { return new java.util.HashSet(); }
@@ -619,10 +619,10 @@ public class TelephonyManager {
     public android.util.Pair getRadioHalVersion() { return null; }
     public java.util.Set getRadioPowerOffReasons() { return new java.util.HashSet(); }
     public int getRadioPowerState() { return 0; }
-    public android.telephony.ServiceState getServiceState() { return null; }
-    public android.telephony.ServiceState getServiceState(int p0) { return null; }
-    public android.telephony.ServiceState getServiceStateForSlot(int p0) { return null; }
-    public android.telephony.ServiceState getServiceStateForSubscriber(int p0) { return null; }
+    public ServiceState getServiceState() { ServiceState s = new ServiceState(); s.setState(ServiceState.STATE_OUT_OF_SERVICE); s.setVoiceRegState(ServiceState.STATE_OUT_OF_SERVICE); s.setDataRegState(ServiceState.STATE_OUT_OF_SERVICE); return s; }
+    public ServiceState getServiceState(int flags) { return getServiceState(); }
+    public ServiceState getServiceStateForSlot(int slot) { return getServiceState(); }
+    public ServiceState getServiceStateForSubscriber(int sub) { return getServiceState(); }
     public java.util.List getShaIdFromAllowList(java.lang.String p0, int p1) { return new java.util.ArrayList(); }
     public android.telephony.SignalStrength getSignalStrength() { return null; }
     public int getSimApplicationState() { return 0; }
@@ -638,7 +638,7 @@ public class TelephonyManager {
     public java.lang.String getSimOperator(int p0) { return null; }
     public java.lang.String getSimOperatorName(int p0) { return null; }
     public java.lang.String getSimOperatorNameForPhone(int p0) { return null; }
-    public java.lang.String getSimOperatorNumeric() { return null; }
+    public java.lang.String getSimOperatorNumeric() { return ""; }
     public java.lang.String getSimOperatorNumeric(int p0) { return null; }
     public java.lang.String getSimOperatorNumericForPhone(int p0) { return null; }
     public java.lang.String getSimSerialNumber() { return null; }

@@ -144,7 +144,7 @@ static char *b_dirname(const char *p)
     memcpy(buf, p, n); buf[n] = 0;
     return buf;
 }
-static long b_getrandom(void *buf, size_t n, unsigned flags) { (void)flags; arc4random_buf(buf, n); return (long)n; }
+static long b_getrandom(void *buf, size_t n, unsigned flags) { (void)flags; if (n) arc4random_buf(buf, n); static int said; if (said++ < 4) { void tl_log_line(const char *, ...); tl_log_line("crypto: getrandom() %zu bytes from the host CSPRNG", n); } return (long)n; }
 static long b_random(void) { return random(); }
 static void b_srandom(unsigned seed) { srandom(seed); }
 /* POSIX timers (Facebook's profilers and watchdogs make them): made, never fired -- delivering their signals into the guest is not done */

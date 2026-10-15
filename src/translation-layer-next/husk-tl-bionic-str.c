@@ -4,6 +4,7 @@
  */
 #define _DARWIN_C_SOURCE
 #include "husk-tl-bionic.h"
+#include "husk-tl-ld.h"
 
 #include <ctype.h>
 #include <crt_externs.h>
@@ -499,7 +500,12 @@ static v2u64 b_wcstold(const wchar_t *s, wchar_t **end) { TL_ERRNO_BEGIN(); doub
 
 static long b_strtol(const char *s, char **e, int b) { TL_ERRNO_BEGIN(); long r = strtol(s, e, b); TL_ERRNO_END(); return r; }
 static long long b_strtoll(const char *s, char **e, int b) { TL_ERRNO_BEGIN(); long long r = strtoll(s, e, b); TL_ERRNO_END(); return r; }
-static unsigned long b_strtoul(const char *s, char **e, int b) { TL_ERRNO_BEGIN(); unsigned long r = strtoul(s, e, b); TL_ERRNO_END(); return r; }
+
+static unsigned long b_strtoul(const char *s, char **e, int b)
+{
+    TL_ERRNO_BEGIN(); unsigned long r = strtoul(s, e, b); TL_ERRNO_END();
+    return r;
+}
 static unsigned long long b_strtoull(const char *s, char **e, int b) { TL_ERRNO_BEGIN(); unsigned long long r = strtoull(s, e, b); TL_ERRNO_END(); return r; }
 static long long b_strtoll_l(const char *s, char **e, int b, locale_t l) { TL_ERRNO_BEGIN(); long long r = strtoll_l(s, e, b, l); TL_ERRNO_END(); return r; }
 static unsigned long long b_strtoull_l(const char *s, char **e, int b, locale_t l) { TL_ERRNO_BEGIN(); unsigned long long r = strtoull_l(s, e, b, l); TL_ERRNO_END(); return r; }

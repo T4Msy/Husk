@@ -43,8 +43,9 @@ public class Spinner extends AbsSpinner implements android.content.DialogInterfa
     public void setPopupBackgroundDrawable(Drawable d) { mPopupBackground = d; }
     public void setPopupBackgroundResource(int r) { setPopupBackgroundDrawable(getContext().getDrawable(r)); }
     public Drawable getPopupBackground() { return mPopupBackground; }
-    public void setDropDownVerticalOffset(int o) {} public int getDropDownVerticalOffset() { return 0; }
-    public void setDropDownHorizontalOffset(int o) {} public int getDropDownHorizontalOffset() { return 0; }
+    private int mDropDownVerticalOffset, mDropDownHorizontalOffset;
+    public void setDropDownVerticalOffset(int o) { mDropDownVerticalOffset = o; } public int getDropDownVerticalOffset() { return mDropDownVerticalOffset; }
+    public void setDropDownHorizontalOffset(int o) { mDropDownHorizontalOffset = o; } public int getDropDownHorizontalOffset() { return mDropDownHorizontalOffset; }
     public void setDropDownWidth(int w) { mDropDownWidth = w; } public int getDropDownWidth() { return mDropDownWidth; }
     public void setGravity(int g) { if (mGravity != g) { mGravity = g; requestLayout(); } } public int getGravity() { return mGravity; }
     public Context getPopupContext() { return mPopupContext; }
@@ -144,7 +145,8 @@ public class Spinner extends AbsSpinner implements android.content.DialogInterfa
         mPopup.setAnchorView(this);
         mPopup.setModal(true);
         mPopup.setWidth(mDropDownWidth == ViewGroup.LayoutParams.MATCH_PARENT ? getWidth() : ListPopupWindow.WRAP_CONTENT);
-        mPopup.setVerticalOffset(-getHeight());
+        mPopup.setVerticalOffset(mDropDownVerticalOffset - getHeight());
+        mPopup.setHorizontalOffset(mDropDownHorizontalOffset);
         mPopup.setOnItemClickListener((parent, v, position, id) -> { setSelection(position); mPopup.dismiss(); });
         mPopup.setSelection(mSelectedPosition);
         mPopup.show();

@@ -3,7 +3,10 @@ package android.graphics;
 /**
  * A stream of frames from a producer (a Surface made on it: MediaCodec's video, lockCanvas drawing, an EGL window surface) to a
  * consumer. Husk keeps the frames in software: a back buffer the producer draws, and the front one the consumer (a TextureView)
- * shows. GL consumers (updateTexImage into an external texture) get no pixels yet.
+ * shows. A GL consumer (a texture made on a texture name, sampled through GL_TEXTURE_EXTERNAL_OES, which the GL layer treats as
+ * a plain 2D texture) gets frames the camera posts as RGBA in direct buffers (huskPostGL): updateTexImage uploads the newest
+ * into the texture on the app's GL thread, and getTransformMatrix is then the vertical flip Android's buffers have, the
+ * frames already turned upright.
  */
 public class SurfaceTexture {
     public interface OnFrameAvailableListener { void onFrameAvailable(SurfaceTexture t); }
@@ -81,11 +84,66 @@ public class SurfaceTexture {
     }
     /** The latest frame (null before the first). */
     public Bitmap huskFront() { synchronized (mLock) { return mFront; } }
-    public void updateTexImage() { if (mReleased) throw new IllegalStateException("updateTexImage on a released SurfaceTexture"); }
+
+    // ---- a GL consumer: RGBA frames in direct buffers, uploaded by updateTexImage
+    private java.nio.ByteBuffer mGLPending;
+    private final java.nio.ByteBuffer[] mGLPool = new java.nio.ByteBuffer[3];
+    private int mGLNext, mGLW, mGLH, mTexW, mTexH;
+    private boolean mGLFrames;
+    /** Made on a texture name and shown by no TextureView: frames go to the GL texture. */
+    public boolean huskIsGL() { return mTex != 0 && huskView == null; }
+    /** A direct buffer of at least bytes for a producer to fill: never the one waiting for updateTexImage, which holds the lock while it uploads. */
+    public java.nio.ByteBuffer huskGLBuffer(int bytes) {
+        synchronized (mLock) {
+            for (int i = 0; i < mGLPool.length; i++) {
+                int k = (mGLNext + i) % mGLPool.length;
+                if (mGLPool[k] != null && mGLPool[k] == mGLPending) continue;
+                if (mGLPool[k] == null || mGLPool[k].capacity() < bytes) mGLPool[k] = java.nio.ByteBuffer.allocateDirect(bytes).order(java.nio.ByteOrder.nativeOrder());
+                mGLNext = (k + 1) % mGLPool.length;
+                mGLPool[k].rewind();
+                return mGLPool[k];
+            }
+            return null;
+        }
+    }
+    public java.nio.ByteBuffer huskPendingGL() { synchronized (mLock) { return mGLPending; } }
+    /** A producer's frame for the GL texture: w x h RGBA rows, top first, in a buffer from huskGLBuffer. */
+    public void huskPostGL(java.nio.ByteBuffer rgba, int w, int h) {
+        synchronized (mLock) {
+            if (mReleased) return;
+            mGLPending = rgba; mGLW = w; mGLH = h; mGLFrames = true; mTimestamp = System.nanoTime();
+        }
+        OnFrameAvailableListener l = mListener; android.os.Handler h2 = mHandler;
+        if (l != null && h2 != null) h2.post(() -> l.onFrameAvailable(this));
+    }
+    public void updateTexImage() {
+        if (mReleased) throw new IllegalStateException("updateTexImage on a released SurfaceTexture");
+        synchronized (mLock) {
+            java.nio.ByteBuffer b = mGLPending;
+            if (b == null || mTex == 0) return;
+            int w = mGLW, h = mGLH;
+            b.rewind();
+            android.opengl.GLES20.glBindTexture(android.opengl.GLES20.GL_TEXTURE_2D, mTex);
+            android.opengl.GLES20.glPixelStorei(android.opengl.GLES20.GL_UNPACK_ALIGNMENT, 4);
+            if (w != mTexW || h != mTexH) {
+                android.opengl.GLES20.glTexImage2D(android.opengl.GLES20.GL_TEXTURE_2D, 0, android.opengl.GLES20.GL_RGBA, w, h, 0, android.opengl.GLES20.GL_RGBA, android.opengl.GLES20.GL_UNSIGNED_BYTE, b);
+                android.opengl.GLES20.glTexParameteri(android.opengl.GLES20.GL_TEXTURE_2D, android.opengl.GLES20.GL_TEXTURE_MIN_FILTER, android.opengl.GLES20.GL_LINEAR);
+                android.opengl.GLES20.glTexParameteri(android.opengl.GLES20.GL_TEXTURE_2D, android.opengl.GLES20.GL_TEXTURE_MAG_FILTER, android.opengl.GLES20.GL_LINEAR);
+                android.opengl.GLES20.glTexParameteri(android.opengl.GLES20.GL_TEXTURE_2D, android.opengl.GLES20.GL_TEXTURE_WRAP_S, android.opengl.GLES20.GL_CLAMP_TO_EDGE);
+                android.opengl.GLES20.glTexParameteri(android.opengl.GLES20.GL_TEXTURE_2D, android.opengl.GLES20.GL_TEXTURE_WRAP_T, android.opengl.GLES20.GL_CLAMP_TO_EDGE);
+                mTexW = w; mTexH = h;
+            } else android.opengl.GLES20.glTexSubImage2D(android.opengl.GLES20.GL_TEXTURE_2D, 0, 0, 0, w, h, android.opengl.GLES20.GL_RGBA, android.opengl.GLES20.GL_UNSIGNED_BYTE, b);
+            mGLPending = null;
+        }
+    }
     public void releaseTexImage() {}
-    public void detachFromGLContext() { mTex = 0; }
-    public void attachToGLContext(int tex) { mTex = tex; }
-    public void getTransformMatrix(float[] m) { android.opengl.Matrix.setIdentityM(m, 0); }
+    public void detachFromGLContext() { mTex = 0; mTexW = mTexH = 0; }
+    public void attachToGLContext(int tex) { mTex = tex; mTexW = mTexH = 0; }
+    /** Identity, or for frames uploaded by updateTexImage the vertical flip of a top-down buffer sampled by GL. */
+    public void getTransformMatrix(float[] m) {
+        android.opengl.Matrix.setIdentityM(m, 0);
+        if (mGLFrames) { m[5] = -1; m[13] = 1; }
+    }
     public long getTimestamp() { return mTimestamp; }
     public int getDataSpace() { return 0; }
     public boolean isSingleBuffered() { return false; }

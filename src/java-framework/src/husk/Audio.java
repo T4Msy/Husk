@@ -33,6 +33,15 @@ public final class Audio {
     public static native int decRead(long dec, short[] buf);
     public static native void decSeek(long dec, int ms);
     public static native void decClose(long dec);
+    // the microphone (AudioRecord): a record id, started and stopped, read at the record's rate and channel count
+    public static native int recOpen(int rate, int channels);
+    public static native int recStart(int id);
+    public static native void recStop(int id);
+    public static native void recClose(int id);
+    public static native int recRead(int id, short[] data, int off, int n, boolean blocking);
+    public static native int recReadBytes(int id, byte[] data, int off, int n, int encoding, boolean blocking);
+    public static native int recReadFloat(int id, float[] data, int off, int n, boolean blocking);
+    public static native long recFrames(int id);
 
     private static java.lang.reflect.Field sDescriptor;
     /** A FileDescriptor's number. */

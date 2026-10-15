@@ -145,6 +145,8 @@ public class EGL14 {
     private static javax.microedition.khronos.egl.EGLContext ctx(EGLContext x) { return x != null && x.husk != null ? (javax.microedition.khronos.egl.EGLContext) x.husk : EGL10.EGL_NO_CONTEXT; }
     private static javax.microedition.khronos.egl.EGLSurface s(EGLSurface x) { return x != null && x.husk != null ? (javax.microedition.khronos.egl.EGLSurface) x.husk : EGL10.EGL_NO_SURFACE; }
     private static int[] tail(int[] a, int off) { if (a == null) return null; int[] r = new int[a.length - off]; System.arraycopy(a, off, r, 0, r.length); return r; }
+    /** The EGL10 surface behind a handle (EGLExt's presentation time goes to it). */
+    static Object huskUnwrap(EGLSurface x) { return x != null ? x.husk : null; }
 
     public static int eglGetError() { return E.eglGetError(); }
     public static EGLDisplay eglGetDisplay(int id) { return wrap(E.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY), EGLDisplay.class); }

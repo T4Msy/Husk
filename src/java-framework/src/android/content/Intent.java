@@ -77,24 +77,65 @@ public class Intent implements Cloneable, android.os.Parcelable {
     public static Intent makeMainActivity(ComponentName c) { Intent i = new Intent(ACTION_MAIN); i.setComponent(c); i.addCategory(CATEGORY_LAUNCHER); return i; }
     public static Intent makeMainSelectorActivity(String action, String category) { Intent i = new Intent(action); i.addCategory(category); return i; }
     public static Intent makeRestartActivityTask(ComponentName c) { Intent i = makeMainActivity(c); i.addFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK); return i; }
+    /* AOSP's format: <data>#Intent;action=..;category=..;type=..;launchFlags=0x..;package=..;component=..;S.key=..;i.key=..;end */
     public static Intent parseUri(String uri, int flags) throws java.net.URISyntaxException {
-        if (uri.startsWith("intent:") || uri.startsWith("#Intent;")) {
-            Intent i = new Intent(ACTION_VIEW);
-            int h = uri.indexOf("#Intent;");
-            if (h > 7) i.setData(Uri.parse(uri.substring(0, h).replaceFirst("^intent:", "")));
-            if (h >= 0) for (String part : uri.substring(h + 8).split(";")) {
-                int eq = part.indexOf('='); if (eq < 0) continue; String k = part.substring(0, eq), v = Uri.decode(part.substring(eq + 1));
-                if (k.equals("action")) i.setAction(v); else if (k.equals("category")) i.addCategory(v); else if (k.equals("type")) i.type = v; else if (k.equals("package")) i.pkg = v;
-                else if (k.equals("component")) i.setComponent(ComponentName.unflattenFromString(v)); else if (k.equals("scheme") && i.data != null) i.data = Uri.parse(v + ":" + i.data);
-                else if (k.startsWith("S.")) i.putExtra(k.substring(2), v); else if (k.startsWith("i.")) i.putExtra(k.substring(2), Integer.parseInt(v)); else if (k.startsWith("B.")) i.putExtra(k.substring(2), Boolean.parseBoolean(v));
+        if (uri == null) throw new java.net.URISyntaxException("null", "null uri");
+        int h = uri.lastIndexOf("#Intent;");
+        if (h < 0) return new Intent(ACTION_VIEW, Uri.parse(uri.startsWith("intent:") ? uri.substring(7) : uri));
+        Intent i = new Intent(ACTION_VIEW);
+        String d = uri.substring(0, h);
+        if (d.startsWith("intent:")) d = d.substring(7);
+        String scheme = null;
+        for (String part : uri.substring(h + 8).split(";")) {
+            if (part.equals("end")) break;
+            int eq = part.indexOf('='); if (eq < 0) continue;
+            String k = part.substring(0, eq), v = Uri.decode(part.substring(eq + 1));
+            if (k.equals("action")) i.action = v; else if (k.equals("category")) i.addCategory(v); else if (k.equals("type")) i.type = v;
+            else if (k.equals("launchFlags")) i.flags = Integer.decode(v); else if (k.equals("package")) i.pkg = v;
+            else if (k.equals("component")) i.component = ComponentName.unflattenFromString(v); else if (k.equals("scheme")) scheme = v;
+            else if (k.equals("identifier")) i.identifier = v;
+            else if (k.length() > 2 && k.charAt(1) == '.') {
+                String key = k.substring(2);
+                try {
+                    switch (k.charAt(0)) {
+                    case 'S': i.putExtra(key, v); break; case 'B': i.putExtra(key, Boolean.parseBoolean(v)); break;
+                    case 'b': i.putExtra(key, Byte.parseByte(v)); break; case 'c': i.putExtra(key, v.charAt(0)); break;
+                    case 'd': i.putExtra(key, Double.parseDouble(v)); break; case 'f': i.putExtra(key, Float.parseFloat(v)); break;
+                    case 'i': i.putExtra(key, Integer.parseInt(v)); break; case 'l': i.putExtra(key, Long.parseLong(v)); break;
+                    case 's': i.putExtra(key, Short.parseShort(v)); break;
+                    default: throw new java.net.URISyntaxException(uri, "unknown EXTRA type");
+                    }
+                } catch (NumberFormatException e) { throw new java.net.URISyntaxException(uri, "EXTRA value can't be parsed"); }
             }
-            return i;
         }
-        return new Intent(ACTION_VIEW, Uri.parse(uri));
+        if (d.length() > 0) i.data = Uri.parse(scheme != null && !d.contains(":") ? scheme + ":" + d : d);
+        else if (scheme != null) i.data = Uri.parse(scheme + ":");
+        return i;
+    }
+    private static void uriExtra(StringBuilder b, String key, Object v) {
+        char t;
+        if (v instanceof String) t = 'S'; else if (v instanceof Boolean) t = 'B'; else if (v instanceof Byte) t = 'b'; else if (v instanceof Character) t = 'c';
+        else if (v instanceof Double) t = 'd'; else if (v instanceof Float) t = 'f'; else if (v instanceof Integer) t = 'i'; else if (v instanceof Long) t = 'l';
+        else if (v instanceof Short) t = 's'; else return;
+        b.append(t).append('.').append(Uri.encode(key)).append('=').append(Uri.encode(String.valueOf(v))).append(';');
+    }
+    public String toUri(int flags) {
+        StringBuilder u = new StringBuilder(128);
+        if (data != null) u.append(data.toString()); else if ((flags & URI_INTENT_SCHEME) != 0) u.append("intent:");
+        StringBuilder f = new StringBuilder();
+        if (action != null && !(ACTION_VIEW.equals(action))) f.append("action=").append(Uri.encode(action)).append(';');
+        if (categories != null) for (String c : categories) f.append("category=").append(Uri.encode(c)).append(';');
+        if (type != null) f.append("type=").append(Uri.encode(type, "/")).append(';');
+        if (this.flags != 0) f.append("launchFlags=0x").append(Integer.toHexString(this.flags)).append(';');
+        if (pkg != null) f.append("package=").append(Uri.encode(pkg)).append(';');
+        if (component != null) f.append("component=").append(Uri.encode(component.flattenToShortString(), "/")).append(';');
+        if (identifier != null) f.append("identifier=").append(Uri.encode(identifier)).append(';');
+        if (extras != null) for (String k : extras.keySet()) uriExtra(f, k, extras.get(k));
+        if (f.length() > 0) u.append("#Intent;").append(f).append("end");
+        return u.toString();
     }
     public static Intent getIntent(String uri) throws java.net.URISyntaxException { return parseUri(uri, 0); }
     public static Intent getIntentOld(String uri) throws java.net.URISyntaxException { return parseUri(uri, 0); }
-    public String toUri(int flags) { return data != null ? data.toString() : "#Intent;" + (action != null ? "action=" + action + ";" : "") + "end"; }
     public String getAction() { return action; }
     public Intent setAction(String a) { action = a; return this; }
     public Uri getData() { return data; }
@@ -611,7 +652,39 @@ public class Intent implements Cloneable, android.os.Parcelable {
     public static void maybeMarkAsMissingCreatorToken(java.lang.Object p0) {}
     public static java.lang.String normalizeMimeType(java.lang.String p0) { return null; }
     public static android.content.Intent parseCommandArgs(android.os.ShellCommand p0, android.content.Intent.CommandOptionHandler p1) { return null; }
-    public static android.content.Intent parseIntent(android.content.res.Resources p0, org.xmlpull.v1.XmlPullParser p1, android.util.AttributeSet p2) { return null; }
+    public static Intent parseIntent(android.content.res.Resources res, org.xmlpull.v1.XmlPullParser parser, android.util.AttributeSet attrs) throws org.xmlpull.v1.XmlPullParserException, java.io.IOException {
+        Intent intent = new Intent();
+        final String NS = "http://schemas.android.com/apk/res/android";
+        String action = attrs.getAttributeValue(NS, "action");
+        if (action != null) intent.setAction(action);
+        String data = attrs.getAttributeValue(NS, "data"), type = attrs.getAttributeValue(NS, "mimeType");
+        intent.setDataAndType(data != null ? android.net.Uri.parse(data) : null, type);
+        String pkg = attrs.getAttributeValue(NS, "targetPackage"), cls = attrs.getAttributeValue(NS, "targetClass");
+        if (pkg != null && cls != null) intent.setComponent(new ComponentName(pkg, cls));
+        else if (pkg != null) intent.setPackage(pkg);
+        String id = attrs.getAttributeValue(NS, "identifier");
+        if (id != null) intent.setIdentifier(id);
+        int depth = parser.getDepth(), ev;
+        while ((ev = parser.next()) != org.xmlpull.v1.XmlPullParser.END_DOCUMENT && (ev != org.xmlpull.v1.XmlPullParser.END_TAG || parser.getDepth() > depth)) {
+            if (ev != org.xmlpull.v1.XmlPullParser.START_TAG) continue;
+            String name = parser.getName();
+            if ("categories".equals(name)) {
+                android.util.AttributeSet a = android.util.Xml.asAttributeSet(parser);
+                for (int i = 0; i < a.getAttributeCount(); i++) if ("category".equals(a.getAttributeName(i))) intent.addCategory(a.getAttributeValue(i));
+                skipTag(parser);
+            } else if ("extra".equals(name)) {
+                android.util.AttributeSet a = android.util.Xml.asAttributeSet(parser);
+                String key = a.getAttributeValue(NS, "name"), value = a.getAttributeValue(NS, "value");
+                if (key != null) { if (value != null) intent.putExtra(key, value); }
+                skipTag(parser);
+            } else throw new org.xmlpull.v1.XmlPullParserException("Unknown element under <intent>: " + name, parser, null);
+        }
+        return intent;
+    }
+    private static void skipTag(org.xmlpull.v1.XmlPullParser p) throws org.xmlpull.v1.XmlPullParserException, java.io.IOException {
+        int depth = p.getDepth(), ev;
+        while ((ev = p.next()) != org.xmlpull.v1.XmlPullParser.END_DOCUMENT && (ev != org.xmlpull.v1.XmlPullParser.END_TAG || p.getDepth() > depth)) {}
+    }
     public static void printIntentArgsHelp(java.io.PrintWriter p0, java.lang.String p1) {}
     public static android.content.Intent restoreFromXml(org.xmlpull.v1.XmlPullParser p0) { return null; }
     public android.content.Intent addExtendedFlags(int p0) { return this; }
@@ -667,7 +740,7 @@ public class Intent implements Cloneable, android.os.Parcelable {
     public java.lang.String toShortString(boolean p0, boolean p1, boolean p2, boolean p3) { return null; }
     public void toShortString(java.lang.StringBuilder p0, boolean p1, boolean p2, boolean p3, boolean p4) {}
     public void toString(java.lang.StringBuilder p0) {}
-    public java.lang.String toURI() { return null; }
+    public java.lang.String toURI() { return toUri(0); }
     // ---- end of generated members
     // ---- generated by tools/compat/genstubs.py: the platform's nested classes this class does not write
     public interface CommandOptionHandler {

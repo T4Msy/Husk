@@ -11,6 +11,7 @@
 
 #include "husk-tl-dvm.h"
 #include "husk-tl-jni-internal.h"
+#include "husk-tl-gc.h"
 
 typedef struct dvm_dex dvm_dex;
 typedef struct dvm_class dvm_class;
@@ -87,6 +88,7 @@ struct dvm_class {
     char elem;                      /* arrays: the element's descriptor letter ('L' or '[' for objects) */
     char prim;                      /* primitive classes: their letter */
     bool art_tables;                /* inf/sf and dm/vm are each one length-prefixed block (DVM_MEMBERS_HDR before them) */
+    _Atomic(void *) memo;           /* answers worked out once for this class: call targets by call site, assignability */
 };
 
 #define DVM_MEMBERS_HDR 16

@@ -20,7 +20,24 @@ public class PopupMenu {
     public PopupMenu(Context c, View anchor, int gravity, int popupStyleAttr, int popupStyleRes) { mContext = c; mAnchor = anchor; mGravity = gravity; mMenu = new husk.MenuImpl(c); }
     public void setGravity(int g) { mGravity = g; }
     public int getGravity() { return mGravity; }
-    public View.OnTouchListener getDragToOpenListener() { return null; }
+    private View.OnTouchListener mDragListener;
+    public View.OnTouchListener getDragToOpenListener() {
+        if (mDragListener == null) mDragListener = new View.OnTouchListener() {
+            private float mDownX, mDownY; private boolean mForwarding;
+            public boolean onTouch(View v, MotionEvent e) {
+                switch (e.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN: mDownX = e.getX(); mDownY = e.getY(); mForwarding = false; break;
+                case MotionEvent.ACTION_MOVE: {
+                    int slop = ViewConfiguration.get(v.getContext()).getScaledTouchSlop();
+                    if (!mForwarding && v.isEnabled() && (Math.abs(e.getX() - mDownX) > slop || Math.abs(e.getY() - mDownY) > slop)) { mForwarding = true; v.setPressed(false); show(); return true; }
+                    break; }
+                case MotionEvent.ACTION_UP: case MotionEvent.ACTION_CANCEL: mForwarding = false; break;
+                }
+                return mForwarding;
+            }
+        };
+        return mDragListener;
+    }
     public Menu getMenu() { return mMenu; }
     public MenuInflater getMenuInflater() { return new MenuInflater(mContext); }
     public void inflate(int menuRes) { getMenuInflater().inflate(menuRes, mMenu); }

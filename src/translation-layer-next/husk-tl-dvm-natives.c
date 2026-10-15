@@ -50,7 +50,7 @@ NAT(Object_internalClone)
         int32_t n; const uint16_t *s = chars(self, &n); c = tl_dvm_string_u16(s, n);
     } else {
         c = dvm_new_object(self->cls);
-        if (self->nfields) { c->fields = calloc(self->nfields, sizeof(jvalue)); memcpy(c->fields, self->fields, self->nfields * sizeof(jvalue)); c->nfields = self->nfields; }
+        if (self->nfields) { c->fields = tl_gc_payload_calloc(self->nfields, sizeof(jvalue)); memcpy(c->fields, self->fields, self->nfields * sizeof(jvalue)); c->nfields = self->nfields; }
     }
     c->refs = 1u << 30;
     *ret = L(c);
@@ -677,10 +677,18 @@ NAT(Thread_nativeCreate)
     dvm_field *pf = s->thread ? thread_peer(s->thread) : NULL;
     if (pf) dvm_slots(s->thread)[pf->slot].j = (int64_t)(uintptr_t)s->thread;     /* alive from here (before it runs: start() then isAlive() is true) */
     pthread_attr_t at; pthread_attr_init(&at);
-    pthread_attr_setstacksize(&at, 32u << 20);
+    /* 8 MB: an app's pools make dozens of threads, and iOS gives an app far less address space than Android does (32 MB each ran
+       it out); the interpreter throws StackOverflowError before a thread's stack runs out */
+    pthread_attr_setstacksize(&at, 8u << 20);
     pthread_attr_setdetachstate(&at, PTHREAD_CREATE_DETACHED);
     pthread_t th;
-    if (pthread_create(&th, &at, thread_main, s) != 0) { free(s); return dvm_throw("java/lang/OutOfMemoryError", "pthread_create"); }
+    int err = pthread_create(&th, &at, thread_main, s);
+    if (err) { tl_gc_collect("thread start failed"); err = pthread_create(&th, &at, thread_main, s); }
+    if (err) {
+        free(s);
+        tl_log_line("dvm: pthread_create failed (%s)", strerror(err));
+        return dvm_throw("java/lang/OutOfMemoryError", "pthread_create: %s", strerror(err));
+    }
     return true;
 }
 
@@ -1572,6 +1580,9 @@ NAT(U_allocateInstance)
     (void)self;
     jobj *cls = a[0].l;
     if (!cls) return npe("class");
+    /* ART's allocateInstance initialises the class first */
+    dvm_class *c = dvm_class_of(cls->klass.jc);
+    if (c && !dvm_ensure_init(c)) return false;
     jobj *o = dvm_new_object(cls->klass.jc); dvm_slots(o);
     *ret = L(o);
     return true;
@@ -2066,11 +2077,49 @@ NAT(System_load)
     return !tl_jni_pending();
 }
 
+/* Class.isInstance / isAssignableFrom: from the classes themselves. libcore's walk the mirrors' superClass fields, which are
+ * filled when a mirror is first looked into -- one looked into while its class was still being linked kept a null superClass,
+ * and every subclass then failed the check (an AtomicIntegerFieldUpdater on a coroutine Mutex threw ClassCastException). */
+NAT(Class_isInstance)
+{
+    jobj *o = a[0].l;
+    *ret = Z(o && self && self->kind == TL_K_CLASS && dvm_instance_of(o, self->klass.jc));
+    return true;
+}
+NAT(Class_isAssignableFrom)
+{
+    jobj *c = a[0].l;
+    if (!c) return npe("cls");
+    *ret = Z(self && self->kind == TL_K_CLASS && c->kind == TL_K_CLASS && dvm_assignable(c->klass.jc, self->klass.jc));
+    return true;
+}
+
+/* and getSuperclass, which reads the same field */
+NAT(Class_getSuperclass)
+{
+    (void)a;
+    *ret = L(NULL);
+    if (!self || self->kind != TL_K_CLASS) return true;
+    tl_jclass *jc = self->klass.jc;
+    dvm_class *c = dvm_class_of(jc);
+    if ((c && ((c->flags & 0x200) || c->prim)) || !strcmp(jc->name, "java/lang/Object")) return true;
+    if (jc->name[0] == '[') { *ret = L(tl_jni_class("java/lang/Object")->mirror); return true; }
+    if (jc->super) *ret = L(jc->super->mirror);
+    return true;
+}
+
 dvm_native_fn dvm_fast_path(const char *cls, const char *name, const char *sig)
 {
+    if (!strcmp(cls, "java/lang/Class") && !strcmp(name, "getSuperclass") && !strcmp(sig, "()Ljava/lang/Class;")) return Class_getSuperclass;
+    if (!strcmp(cls, "java/lang/Class") && !strcmp(name, "isInstance") && !strcmp(sig, "(Ljava/lang/Object;)Z")) return Class_isInstance;
+    if (!strcmp(cls, "java/lang/Class") && !strcmp(name, "isAssignableFrom") && !strcmp(sig, "(Ljava/lang/Class;)Z")) return Class_isAssignableFrom;
     if (!strcmp(cls, "java/lang/Object") && !strcmp(name, "getClass") && !strcmp(sig, "()Ljava/lang/Class;")) return Object_getClass;
     if (!strcmp(cls, "java/lang/System") && !strcmp(name, "loadLibrary") && !strcmp(sig, "(Ljava/lang/String;)V")) return System_loadLibrary;
     if (!strcmp(cls, "java/lang/System") && !strcmp(name, "load") && !strcmp(sig, "(Ljava/lang/String;)V")) return System_load;
+    /* Runtime.runFinalization: ART's allocator puts every finalizable object on FinalizerReference's list, and its sentinel
+       check asserts the one it just made is there. Nothing here queues finalizers, so there is nothing to wait for (WhatsApp
+       calls it from a worker and its crash handler restarts the app on the AssertionError). */
+    if (!strcmp(cls, "java/lang/ref/FinalizerReference") && !strcmp(name, "finalizeAllEnqueued") && !strcmp(sig, "(J)V")) return VMR_zero;
     if (strcmp(cls, "java/lang/String")) return NULL;
     if (!strcmp(name, "length") && !strcmp(sig, "()I")) return String_length;
     if (!strcmp(name, "equals") && !strcmp(sig, "(Ljava/lang/Object;)Z")) return String_equals;

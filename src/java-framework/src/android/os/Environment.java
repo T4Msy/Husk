@@ -97,7 +97,7 @@ public class Environment {
     public static java.io.File getProductDirectory() { return null; }
     public static java.io.File getProductServicesDirectory() { return null; }
     public static java.io.File getStorageDirectory() { return null; }
-    public static java.lang.String getStorageState(java.io.File p0) { return null; }
+    public static java.lang.String getStorageState(java.io.File p) { return MEDIA_MOUNTED; }
     public static java.io.File getSystemExtDirectory() { return null; }
     public static java.io.File getUserConfigDirectory(int p0) { return null; }
     public static java.io.File getUserSystemDirectory(int p0) { return null; }

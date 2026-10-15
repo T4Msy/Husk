@@ -21,7 +21,7 @@ public abstract class BroadcastOptions extends android.app.ComponentOptions {
     public BroadcastOptions(android.os.Bundle p0) { super(); }
     public static android.app.BroadcastOptions fromBundle(android.os.Bundle p0) { return null; }
     public static android.app.BroadcastOptions fromBundleNullable(android.os.Bundle p0) { return null; }
-    public static android.app.BroadcastOptions makeBasic() { return null; }
+    public static android.app.BroadcastOptions makeBasic() { return new android.app.BroadcastOptions() {}; }
     public static android.app.BroadcastOptions makeWithDeferUntilActive(boolean p0) { return null; }
     public boolean allowsBackgroundActivityStarts() { return false; }
     public void clearDeferralPolicy() {}
@@ -80,5 +80,5 @@ public abstract class BroadcastOptions extends android.app.ComponentOptions {
     public void setTemporaryAppAllowlist(long p0, int p1, int p2, java.lang.String p3) {}
     public void setTemporaryAppWhitelistDuration(long p0) { huskProps.put("TemporaryAppWhitelistDuration", Long.valueOf(p0)); }
     public boolean testRequireCompatChange(int p0) { return false; }
-    public android.os.Bundle toBundle() { return null; }
+    public android.os.Bundle toBundle() { return new android.os.Bundle(); }
 }

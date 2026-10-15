@@ -37,8 +37,14 @@ public class Time {
     public boolean after(android.text.format.Time p0) { return false; }
     public boolean before(android.text.format.Time p0) { return false; }
     public void clear(java.lang.String p0) {}
-    public java.lang.String format2445() { return null; }
-    public java.lang.String format3339(boolean p0) { return null; }
+    public java.lang.String format2445() { return String.format(java.util.Locale.US, allDay ? "%04d%02d%02d" : "%04d%02d%02dT%02d%02d%02d" + ("UTC".equals(timezone) ? "Z" : ""), year, month + 1, monthDay, hour, minute, second); }
+    public java.lang.String format3339(boolean allDay) {
+        if (allDay) return String.format(java.util.Locale.US, "%04d-%02d-%02d", year, month + 1, monthDay);
+        java.util.TimeZone tz = java.util.TimeZone.getTimeZone(timezone);
+        if ("UTC".equals(timezone)) return String.format(java.util.Locale.US, "%04d-%02d-%02dT%02d:%02d:%02d.000Z", year, month + 1, monthDay, hour, minute, second);
+        int off = tz.getOffset(toMillis(false)) / 60000;
+        return String.format(java.util.Locale.US, "%04d-%02d-%02dT%02d:%02d:%02d.000%s%02d:%02d", year, month + 1, monthDay, hour, minute, second, off < 0 ? "-" : "+", Math.abs(off) / 60, Math.abs(off) % 60);
+    }
     public int getActualMaximum(int p0) { return 0; }
     public int getWeekNumber() { return 0; }
     public long normalize(boolean p0) { return 0L; }

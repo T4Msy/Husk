@@ -124,8 +124,12 @@ public class ContentResolver {
     public java.util.List<UriPermission> getPersistedUriPermissions() { return new ArrayList<>(); }
     public static final class UriPermission {}
     public static void requestSync(android.accounts.Account a, String authority, Bundle extras) {}
-    public static void setSyncAutomatically(android.accounts.Account a, String authority, boolean sync) {}
-    public static boolean getMasterSyncAutomatically() { return false; }
+    private static final java.util.HashMap<String, Boolean> sSyncAuto = new java.util.HashMap<>();
+    private static boolean sMasterSync = true;
+    public static void setSyncAutomatically(android.accounts.Account a, String authority, boolean sync) { synchronized (sSyncAuto) { sSyncAuto.put(a + "/" + authority, sync); } }
+    public static boolean getSyncAutomatically(android.accounts.Account a, String authority) { synchronized (sSyncAuto) { Boolean b = sSyncAuto.get(a + "/" + authority); return b != null && b; } }
+    public static boolean getMasterSyncAutomatically() { return sMasterSync; }
+    public static void setMasterSyncAutomatically(boolean b) { sMasterSync = b; }
     public final Uri canonicalize(Uri u) { return u; }
     public final Uri uncanonicalize(Uri u) { return u; }
     public final android.graphics.Bitmap loadThumbnail(Uri u, android.util.Size s, android.os.CancellationSignal c) throws java.io.IOException {
@@ -214,7 +218,6 @@ public class ContentResolver {
     public static java.lang.String[] getSyncAdapterPackagesForAuthorityAsUser(java.lang.String p0, int p1) { return null; }
     public static android.content.SyncAdapterType[] getSyncAdapterTypes() { return null; }
     public static android.content.SyncAdapterType[] getSyncAdapterTypesAsUser(int p0) { return null; }
-    public static boolean getSyncAutomatically(android.accounts.Account p0, java.lang.String p1) { return false; }
     public static boolean getSyncAutomaticallyAsUser(android.accounts.Account p0, java.lang.String p1, int p2) { return false; }
     public static boolean hasInvalidScheduleAsEjExtras(android.os.Bundle p0) { return false; }
     public static android.os.Bundle includeSqlSelectionArgs(android.os.Bundle p0, java.lang.String p1, java.lang.String[] p2) { return null; }
@@ -229,7 +232,6 @@ public class ContentResolver {
     public static void requestSyncAsUser(android.accounts.Account p0, java.lang.String p1, int p2, android.os.Bundle p3) {}
     public static void setIsSyncable(android.accounts.Account p0, java.lang.String p1, int p2) {}
     public static void setIsSyncableAsUser(android.accounts.Account p0, java.lang.String p1, int p2, int p3) {}
-    public static void setMasterSyncAutomatically(boolean p0) {}
     public static void setMasterSyncAutomaticallyAsUser(boolean p0, int p1) {}
     public static void setSyncAutomaticallyAsUser(android.accounts.Account p0, java.lang.String p1, boolean p2, int p3) {}
     public static int syncErrorStringToInt(java.lang.String p0) { return 0; }
@@ -239,7 +241,14 @@ public class ContentResolver {
     public static void validateSyncExtrasBundle(android.os.Bundle p0) {}
     public static android.content.ContentResolver wrap(android.content.ContentProvider p0) { return null; }
     public static android.content.ContentResolver wrap(android.content.ContentProviderClient p0) { return null; }
-    public android.content.ContentProviderResult[] applyBatch(java.lang.String p0, java.util.ArrayList p1) { return null; }
+    /* the provider of that authority applies them; with none (the platform's own, as Contacts), nothing changes: one empty result each */
+    public android.content.ContentProviderResult[] applyBatch(java.lang.String authority, java.util.ArrayList ops) throws android.os.RemoteException, OperationApplicationException {
+        ContentProvider p = byAuthority(authority);
+        if (p != null) return p.applyBatch((java.util.ArrayList<ContentProviderOperation>) ops);
+        ContentProviderResult[] r = new ContentProviderResult[ops.size()];
+        for (int i = 0; i < r.length; i++) r[i] = new ContentProviderResult(0);
+        return r;
+    }
     public void cancelSync(android.net.Uri p0) {}
     public android.net.Uri canonicalizeOrElse(android.net.Uri p0) { return null; }
     public int checkUriPermission(android.net.Uri p0, int p1, int p2) { return 0; }

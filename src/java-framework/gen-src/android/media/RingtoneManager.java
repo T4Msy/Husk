@@ -26,12 +26,16 @@ public class RingtoneManager {
     public RingtoneManager(android.content.Context p0) {}
     public RingtoneManager(android.content.Context p0, boolean p1) {}
     public static void ensureDefaultRingtones(android.content.Context p0) {}
-    public static android.net.Uri getActualDefaultRingtoneUri(android.content.Context p0, int p1) { return null; }
+    public static android.net.Uri getActualDefaultRingtoneUri(android.content.Context c, int type) { return getDefaultUri(type); }
     public static android.net.Uri getCacheForType(int p0) { return null; }
     public static android.net.Uri getCacheForType(int p0, int p1) { return null; }
     public static int getDefaultType(android.net.Uri p0) { return 0; }
-    public static android.net.Uri getDefaultUri(int p0) { return null; }
-    public static android.media.Ringtone getRingtone(android.content.Context p0, android.net.Uri p1) { return null; }
+    /* the settings URIs the platform answers with */
+    public static android.net.Uri getDefaultUri(int type) {
+        String n = (type & 2) != 0 ? "notification_sound" : (type & 4) != 0 ? "alarm_alert" : "ringtone";
+        return android.net.Uri.parse("content://settings/system/" + n);
+    }
+    public static android.media.Ringtone getRingtone(android.content.Context c, android.net.Uri u) { return new android.media.Ringtone(c, true); }
     public static android.media.Ringtone getRingtone(android.content.Context p0, android.net.Uri p1, android.media.VolumeShaper.Configuration p2) { return null; }
     public static android.media.Ringtone getRingtone(android.content.Context p0, android.net.Uri p1, android.media.VolumeShaper.Configuration p2, android.media.AudioAttributes p3) { return null; }
     public static android.media.Ringtone getRingtone(android.content.Context p0, android.net.Uri p1, android.media.VolumeShaper.Configuration p2, boolean p3) { return null; }

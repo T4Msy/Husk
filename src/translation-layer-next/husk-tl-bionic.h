@@ -42,6 +42,10 @@ extern const tl_bionic_entry tl_tab_core[];
 extern const tl_bionic_entry tl_tab_str[];
 extern const tl_bionic_entry tl_tab_io[];
 extern const tl_bionic_entry tl_tab_net[];
+/* Route a raw `svc` network syscall (Linux arm64 number) to the libc-import wrapper of the same
+   name, which translates the Linux sockaddr/msghdr/flags to Darwin. Returns false for a non-network
+   number; on true, *out is the wrapper's result (-1 with the guest errno set, on failure). */
+bool tl_net_raw_syscall(long nr, long a0, long a1, long a2, long a3, long a4, long a5, long *out);
 extern const tl_bionic_entry tl_tab_io2[];
 extern const tl_bionic_entry tl_tab_str2[];
 extern const tl_bionic_entry tl_tab_pthread[];
@@ -57,6 +61,7 @@ void *tl_vk_resolve(const char *name);    /* husk-tl-vulkan.m: Vulkan by name, t
 bool tl_vk_available(void);                /* a MoltenVK was configured, so libvulkan.so can be opened */
 
 extern void (*tl_guest_exit_hook)(int status);   /* set by an app host: exit() from guest code calls it instead of exiting */
+extern void (*tl_guest_abort_hook)(void);        /* set by the Java runtime: logs what the aborting thread was doing in Java */
 
 void *tl_bionic_find(const char *name);
 bool  tl_bionic_is_system_lib(const char *soname);

@@ -9,10 +9,67 @@ public class ThumbnailUtils {
     public ThumbnailUtils() {}
     public static android.graphics.Bitmap createAudioThumbnail(java.io.File p0, android.util.Size p1, android.os.CancellationSignal p2) { return null; }
     public static android.graphics.Bitmap createAudioThumbnail(java.lang.String p0, int p1) { return null; }
-    public static android.graphics.Bitmap createImageThumbnail(java.io.File p0, android.util.Size p1, android.os.CancellationSignal p2) { return null; }
-    public static android.graphics.Bitmap createImageThumbnail(java.lang.String p0, int p1) { return null; }
-    public static android.graphics.Bitmap createVideoThumbnail(java.io.File p0, android.util.Size p1, android.os.CancellationSignal p2) { return null; }
-    public static android.graphics.Bitmap createVideoThumbnail(java.lang.String p0, int p1) { return null; }
-    public static android.graphics.Bitmap extractThumbnail(android.graphics.Bitmap p0, int p1, int p2) { return null; }
-    public static android.graphics.Bitmap extractThumbnail(android.graphics.Bitmap p0, int p1, int p2, int p3) { return null; }
+    /* the platform's: decoded at about the size asked, then cut to it; an IOException when the file is not an image */
+    public static android.graphics.Bitmap createImageThumbnail(java.io.File f, android.util.Size size, android.os.CancellationSignal signal) throws java.io.IOException {
+        android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+        android.graphics.BitmapFactory.decodeFile(f.getPath(), o);
+        if (o.outWidth <= 0 || o.outHeight <= 0) throw new java.io.IOException("not an image: " + f);
+        int sample = 1;
+        while (o.outWidth / (sample * 2) >= size.getWidth() && o.outHeight / (sample * 2) >= size.getHeight()) sample *= 2;
+        o = new android.graphics.BitmapFactory.Options(); o.inSampleSize = sample;
+        android.graphics.Bitmap b = android.graphics.BitmapFactory.decodeFile(f.getPath(), o);
+        if (b == null) throw new java.io.IOException("could not decode " + f);
+        return extractThumbnail(b, size.getWidth(), size.getHeight());
+    }
+    public static android.graphics.Bitmap createImageThumbnail(java.lang.String path, int kind) {
+        int s = kind == 3 /* MICRO_KIND */ ? 96 : 512;
+        try { return createImageThumbnail(new java.io.File(path), new android.util.Size(s, kind == 3 ? 96 : 384), null); } catch (java.io.IOException e) { return null; }
+    }
+    /* the platform's: the file's representative frame, decoded no larger than needed, then cut to the size */
+    public static android.graphics.Bitmap createVideoThumbnail(java.io.File f, android.util.Size size, android.os.CancellationSignal signal) throws java.io.IOException {
+        android.graphics.Bitmap b;
+        try (MediaMetadataRetriever r = new MediaMetadataRetriever()) {
+            r.setDataSource(f.getPath());
+            b = r.getScaledFrameAtTime(-1, MediaMetadataRetriever.OPTION_CLOSEST_SYNC, Math.max(size.getWidth(), size.getHeight()) * 2, Math.max(size.getWidth(), size.getHeight()) * 2);
+        } catch (RuntimeException e) { throw new java.io.IOException("not a video: " + f + " (" + e.getMessage() + ")"); }
+        if (b == null) throw new java.io.IOException("no frame in " + f);
+        return extractThumbnail(b, size.getWidth(), size.getHeight());
+    }
+    public static android.graphics.Bitmap createVideoThumbnail(java.lang.String path, int kind) {
+        try { return createVideoThumbnail(new java.io.File(path), kind == 3 /* MICRO_KIND */ ? new android.util.Size(96, 96) : new android.util.Size(512, 384), null); } catch (java.io.IOException e) { return null; }
+    }
+    /** For MediaStore's thumbnails: the item behind a content URI decoded to fit the size (an image, else a frame of a video). */
+    public static android.graphics.Bitmap huskScaledFromUri(android.content.ContentResolver cr, android.net.Uri u, android.util.Size size, android.graphics.BitmapFactory.Options opts) throws java.io.IOException {
+        String type = cr.getType(u);
+        if (type != null && type.startsWith("video/")) {
+            String path = null;
+            try (android.database.Cursor c = cr.query(u, new String[] { "_data" }, null, null, null)) { if (c != null && c.moveToFirst()) path = c.getString(0); }
+            return path == null ? null : createVideoThumbnail(new java.io.File(path), size, null);
+        }
+        android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+        try (java.io.InputStream in = cr.openInputStream(u)) { if (in == null) return null; android.graphics.BitmapFactory.decodeStream(in, null, o); }
+        if (o.outWidth <= 0 || o.outHeight <= 0) return null;
+        android.graphics.BitmapFactory.Options d = new android.graphics.BitmapFactory.Options();
+        d.inSampleSize = Math.max(1, Math.min(o.outWidth / size.getWidth(), o.outHeight / size.getHeight()));
+        if (opts != null) { d.inPreferredConfig = opts.inPreferredConfig; }
+        android.graphics.Bitmap b;
+        try (java.io.InputStream in = cr.openInputStream(u)) { if (in == null) return null; b = android.graphics.BitmapFactory.decodeStream(in, null, d); }
+        if (b == null) return null;
+        float scale = Math.min((float) size.getWidth() / b.getWidth(), (float) size.getHeight() / b.getHeight());
+        if (scale >= 1) return b;
+        android.graphics.Bitmap r = android.graphics.Bitmap.createScaledBitmap(b, Math.max(1, Math.round(b.getWidth() * scale)), Math.max(1, Math.round(b.getHeight() * scale)), true);
+        if (r != b) b.recycle();
+        return r;
+    }
+    /* the platform's: scaled to cover w x h, then the centre cut out */
+    public static android.graphics.Bitmap extractThumbnail(android.graphics.Bitmap src, int w, int h) {
+        if (src == null || w <= 0 || h <= 0) return null;
+        float s = Math.max((float) w / src.getWidth(), (float) h / src.getHeight());
+        int sw = Math.max(w, Math.round(src.getWidth() * s)), sh = Math.max(h, Math.round(src.getHeight() * s));
+        android.graphics.Bitmap scaled = android.graphics.Bitmap.createScaledBitmap(src, sw, sh, true);
+        return android.graphics.Bitmap.createBitmap(scaled, (sw - w) / 2, (sh - h) / 2, w, h);
+    }
+    public static android.graphics.Bitmap extractThumbnail(android.graphics.Bitmap src, int w, int h, int opts) { return extractThumbnail(src, w, h); }
 }

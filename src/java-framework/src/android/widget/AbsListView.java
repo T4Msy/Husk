@@ -213,7 +213,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Fi
     boolean performLongPress(final View child, final int longPressPosition, final long longPressId) {
         boolean handled = false;
         if (mOnItemLongClickListener != null) handled = mOnItemLongClickListener.onItemLongClick(this, child, longPressPosition, longPressId);
-        if (!handled) { handled = super.showContextMenuForChild(this); }
+        if (!handled) { mContextMenuInfo = new AdapterContextMenuInfo(child, longPressPosition, longPressId); handled = super.showContextMenuForChild(this); }
         if (handled) performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
         return handled;
     }
@@ -590,7 +590,8 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Fi
     public void beforeTextChanged(java.lang.CharSequence p0, int p1, int p2, int p3) {}
     public int getBottomEdgeEffectColor() { return 0; }
     protected int getBottomPaddingOffset() { return 0; }
-    protected android.view.ContextMenu.ContextMenuInfo getContextMenuInfo() { return null; }
+    private AdapterContextMenuInfo mContextMenuInfo;
+    protected android.view.ContextMenu.ContextMenuInfo getContextMenuInfo() { return mContextMenuInfo; }
     public void getFocusedRect(android.graphics.Rect p0) {}
     protected int getLeftPaddingOffset() { return 0; }
     protected int getRightPaddingOffset() { return 0; }

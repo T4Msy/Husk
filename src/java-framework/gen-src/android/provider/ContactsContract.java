@@ -85,8 +85,9 @@ public final class ContactsContract {
             public static final int TYPE_MOBILE = 4;
             public static final int TYPE_OTHER = 3;
             public static final int TYPE_WORK = 2;
-            public static java.lang.CharSequence getTypeLabel(android.content.res.Resources p0, int p1, java.lang.CharSequence p2) { return null; }
-            public static int getTypeLabelResource(int p0) { return 0; }
+            public static java.lang.CharSequence getTypeLabel(android.content.res.Resources res, int type, java.lang.CharSequence label) { if (type == 0 && !android.text.TextUtils.isEmpty(label)) return label; String s = huskTypeLabel(type); return s != null ? s : (type == 0 ? "Custom" : "Other"); }
+            public static int getTypeLabelResource(int type) { return 0; }
+            static String huskTypeLabel(int type) { switch (type) { case 1: return "Home"; case 2: return "Work"; case 3: return "Other"; case 4: return "Mobile"; default: return null; } }
             protected Email() {}
         }
         public static final class Event implements android.provider.ContactsContract.DataColumnsWithJoins, android.provider.ContactsContract.CommonDataKinds.CommonColumns, android.provider.ContactsContract.ContactCounts {
@@ -96,7 +97,8 @@ public final class ContactsContract {
             public static final int TYPE_ANNIVERSARY = 1;
             public static final int TYPE_BIRTHDAY = 3;
             public static final int TYPE_OTHER = 2;
-            public static java.lang.CharSequence getTypeLabel(android.content.res.Resources p0, int p1, java.lang.CharSequence p2) { return null; }
+            public static java.lang.CharSequence getTypeLabel(android.content.res.Resources res, int type, java.lang.CharSequence label) { if (type == 0 && !android.text.TextUtils.isEmpty(label)) return label; String s = huskTypeLabel(type); return s != null ? s : (type == 0 ? "Custom" : "Other"); }
+            static String huskTypeLabel(int type) { switch (type) { case 1: return "Anniversary"; case 2: return "Other"; case 3: return "Birthday"; default: return null; } }
             public static int getTypeResource(java.lang.Integer p0) { return 0; }
             protected Event() {}
         }
@@ -133,9 +135,10 @@ public final class ContactsContract {
             public static final int TYPE_OTHER = 3;
             public static final int TYPE_WORK = 2;
             public static java.lang.CharSequence getProtocolLabel(android.content.res.Resources p0, int p1, java.lang.CharSequence p2) { return null; }
-            public static int getProtocolLabelResource(int p0) { return 0; }
-            public static java.lang.CharSequence getTypeLabel(android.content.res.Resources p0, int p1, java.lang.CharSequence p2) { return null; }
-            public static int getTypeLabelResource(int p0) { return 0; }
+            public static int getProtocolLabelResource(int protocol) { return 0; }
+            public static java.lang.CharSequence getTypeLabel(android.content.res.Resources res, int type, java.lang.CharSequence label) { if (type == 0 && !android.text.TextUtils.isEmpty(label)) return label; String s = huskTypeLabel(type); return s != null ? s : (type == 0 ? "Custom" : "Other"); }
+            public static int getTypeLabelResource(int type) { return 0; }
+            static String huskTypeLabel(int type) { switch (type) { case 1: return "Home"; case 2: return "Work"; case 3: return "Other"; default: return null; } }
             protected Im() {}
         }
         public static final class Nickname implements android.provider.ContactsContract.DataColumnsWithJoins, android.provider.ContactsContract.CommonDataKinds.CommonColumns, android.provider.ContactsContract.ContactCounts {
@@ -169,8 +172,9 @@ public final class ContactsContract {
             public static final java.lang.String TITLE = "data4";
             public static final int TYPE_OTHER = 2;
             public static final int TYPE_WORK = 1;
-            public static java.lang.CharSequence getTypeLabel(android.content.res.Resources p0, int p1, java.lang.CharSequence p2) { return null; }
-            public static int getTypeLabelResource(int p0) { return 0; }
+            public static java.lang.CharSequence getTypeLabel(android.content.res.Resources res, int type, java.lang.CharSequence label) { if (type == 0 && !android.text.TextUtils.isEmpty(label)) return label; String s = huskTypeLabel(type); return s != null ? s : (type == 0 ? "Custom" : "Other"); }
+            public static int getTypeLabelResource(int type) { return 0; }
+            static String huskTypeLabel(int type) { switch (type) { case 1: return "Work"; case 2: return "Other"; default: return null; } }
             protected Organization() {}
         }
         public static final class Phone implements android.provider.ContactsContract.DataColumnsWithJoins, android.provider.ContactsContract.CommonDataKinds.CommonColumns, android.provider.ContactsContract.ContactCounts {
@@ -207,8 +211,9 @@ public final class ContactsContract {
             public static final int TYPE_WORK_PAGER = 18;
             public static java.lang.CharSequence getDisplayLabel(android.content.Context p0, int p1, java.lang.CharSequence p2) { return null; }
             public static java.lang.CharSequence getDisplayLabel(android.content.Context p0, int p1, java.lang.CharSequence p2, java.lang.CharSequence[] p3) { return null; }
-            public static java.lang.CharSequence getTypeLabel(android.content.res.Resources p0, int p1, java.lang.CharSequence p2) { return null; }
-            public static int getTypeLabelResource(int p0) { return 0; }
+            public static java.lang.CharSequence getTypeLabel(android.content.res.Resources res, int type, java.lang.CharSequence label) { if (type == 0 && !android.text.TextUtils.isEmpty(label)) return label; String s = huskTypeLabel(type); return s != null ? s : (type == 0 ? "Custom" : "Other"); }
+            public static int getTypeLabelResource(int type) { return 0; }
+            static String huskTypeLabel(int type) { switch (type) { case 1: return "Home"; case 2: return "Mobile"; case 3: return "Work"; case 4: return "Work Fax"; case 5: return "Home Fax"; case 6: return "Pager"; case 7: return "Other"; case 8: return "Callback"; case 9: return "Car"; case 10: return "Company Main"; case 11: return "ISDN"; case 12: return "Main"; case 13: return "Other Fax"; case 14: return "Radio"; case 15: return "Telex"; case 16: return "TTY TDD"; case 17: return "Work Mobile"; case 18: return "Work Pager"; case 19: return "Assistant"; case 20: return "MMS"; default: return null; } }
             protected Phone() {}
         }
         public static final class Photo implements android.provider.ContactsContract.DataColumnsWithJoins, android.provider.ContactsContract.ContactCounts {
@@ -236,8 +241,9 @@ public final class ContactsContract {
             public static final int TYPE_RELATIVE = 12;
             public static final int TYPE_SISTER = 13;
             public static final int TYPE_SPOUSE = 14;
-            public static java.lang.CharSequence getTypeLabel(android.content.res.Resources p0, int p1, java.lang.CharSequence p2) { return null; }
-            public static int getTypeLabelResource(int p0) { return 0; }
+            public static java.lang.CharSequence getTypeLabel(android.content.res.Resources res, int type, java.lang.CharSequence label) { if (type == 0 && !android.text.TextUtils.isEmpty(label)) return label; String s = huskTypeLabel(type); return s != null ? s : (type == 0 ? "Custom" : "Other"); }
+            public static int getTypeLabelResource(int type) { return 0; }
+            static String huskTypeLabel(int type) { switch (type) { case 1: return "Assistant"; case 2: return "Brother"; case 3: return "Child"; case 4: return "Domestic Partner"; case 5: return "Father"; case 6: return "Friend"; case 7: return "Manager"; case 8: return "Mother"; case 9: return "Parent"; case 10: return "Partner"; case 11: return "Referred by"; case 12: return "Relative"; case 13: return "Sister"; case 14: return "Spouse"; default: return null; } }
             protected Relation() {}
         }
         public static final class SipAddress implements android.provider.ContactsContract.DataColumnsWithJoins, android.provider.ContactsContract.CommonDataKinds.CommonColumns, android.provider.ContactsContract.ContactCounts {
@@ -247,8 +253,9 @@ public final class ContactsContract {
             public static final int TYPE_HOME = 1;
             public static final int TYPE_OTHER = 3;
             public static final int TYPE_WORK = 2;
-            public static java.lang.CharSequence getTypeLabel(android.content.res.Resources p0, int p1, java.lang.CharSequence p2) { return null; }
-            public static int getTypeLabelResource(int p0) { return 0; }
+            public static java.lang.CharSequence getTypeLabel(android.content.res.Resources res, int type, java.lang.CharSequence label) { if (type == 0 && !android.text.TextUtils.isEmpty(label)) return label; String s = huskTypeLabel(type); return s != null ? s : (type == 0 ? "Custom" : "Other"); }
+            public static int getTypeLabelResource(int type) { return 0; }
+            static String huskTypeLabel(int type) { switch (type) { case 1: return "Home"; case 2: return "Work"; case 3: return "Other"; default: return null; } }
             protected SipAddress() {}
         }
         public static final class StructuredName implements android.provider.ContactsContract.DataColumnsWithJoins, android.provider.ContactsContract.ContactCounts {
@@ -283,8 +290,9 @@ public final class ContactsContract {
             public static final int TYPE_HOME = 1;
             public static final int TYPE_OTHER = 3;
             public static final int TYPE_WORK = 2;
-            public static java.lang.CharSequence getTypeLabel(android.content.res.Resources p0, int p1, java.lang.CharSequence p2) { return null; }
-            public static int getTypeLabelResource(int p0) { return 0; }
+            public static java.lang.CharSequence getTypeLabel(android.content.res.Resources res, int type, java.lang.CharSequence label) { if (type == 0 && !android.text.TextUtils.isEmpty(label)) return label; String s = huskTypeLabel(type); return s != null ? s : (type == 0 ? "Custom" : "Other"); }
+            public static int getTypeLabelResource(int type) { return 0; }
+            static String huskTypeLabel(int type) { switch (type) { case 1: return "Home"; case 2: return "Work"; case 3: return "Other"; default: return null; } }
             protected StructuredPostal() {}
         }
         public static final class Website implements android.provider.ContactsContract.DataColumnsWithJoins, android.provider.ContactsContract.CommonDataKinds.CommonColumns, android.provider.ContactsContract.ContactCounts {
@@ -360,10 +368,14 @@ public final class ContactsContract {
         public static android.net.Uri getLookupUri(long p0, java.lang.String p1) { return null; }
         public static android.net.Uri getLookupUri(android.content.ContentResolver p0, android.net.Uri p1) { return null; }
         public static boolean isEnterpriseContactId(long p0) { return false; }
-        public static android.net.Uri lookupContact(android.content.ContentResolver p0, android.net.Uri p1) { return null; }
+        /* the lookup URI is kept as the contact's URI: there is no contacts provider to re-find the contact in */
+        public static android.net.Uri lookupContact(android.content.ContentResolver resolver, android.net.Uri lookupUri) { return lookupUri; }
         public static void markAsContacted(android.content.ContentResolver p0, long p1) {}
-        public static java.io.InputStream openContactPhotoInputStream(android.content.ContentResolver p0, android.net.Uri p1) { return null; }
-        public static java.io.InputStream openContactPhotoInputStream(android.content.ContentResolver p0, android.net.Uri p1, boolean p2) { return null; }
+        public static java.io.InputStream openContactPhotoInputStream(android.content.ContentResolver cr, android.net.Uri contactUri) { return openContactPhotoInputStream(cr, contactUri, false); }
+        /** The contact's photo as the platform opens it (its photo or display-photo item); null when there is none. */
+        public static java.io.InputStream openContactPhotoInputStream(android.content.ContentResolver cr, android.net.Uri contactUri, boolean preferHighres) {
+            try { return cr.openInputStream(android.net.Uri.withAppendedPath(contactUri, preferHighres ? "display_photo" : "photo")); } catch (Exception e) { return null; }
+        }
         protected Contacts() {}
         public static final class AggregationSuggestions implements android.provider.BaseColumns, android.provider.ContactsContract.ContactsColumns, android.provider.ContactsContract.ContactOptionsColumns, android.provider.ContactsContract.ContactStatusColumns {
             private final java.util.HashMap<String, Object> huskProps = new java.util.HashMap<>();
@@ -425,7 +437,7 @@ public final class ContactsContract {
         public static final java.lang.String CONTENT_TYPE = "vnd.android.cursor.dir/data";
         public static android.net.Uri CONTENT_URI = android.net.Uri.parse("content://com.android.contacts/data");
         public static final java.lang.String VISIBLE_CONTACTS_ONLY = "visible_contacts_only";
-        public static android.net.Uri getContactLookupUri(android.content.ContentResolver p0, android.net.Uri p1) { return null; }
+        public static android.net.Uri getContactLookupUri(android.content.ContentResolver resolver, android.net.Uri contactUri) { return contactUri; }
         protected Data() {}
     }
     public interface DataColumns {
@@ -784,7 +796,7 @@ public final class ContactsContract {
         public static final java.lang.String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/raw_contact";
         public static final java.lang.String CONTENT_TYPE = "vnd.android.cursor.dir/raw_contact";
         public static android.net.Uri CONTENT_URI = android.net.Uri.parse("content://com.android.contacts/raw_contacts");
-        public static android.net.Uri getContactLookupUri(android.content.ContentResolver p0, android.net.Uri p1) { return null; }
+        public static android.net.Uri getContactLookupUri(android.content.ContentResolver resolver, android.net.Uri contactUri) { return contactUri; }
         public static java.lang.String getLocalAccountName(android.content.Context p0) { return null; }
         public static java.lang.String getLocalAccountType(android.content.Context p0) { return null; }
         public static android.content.EntityIterator newEntityIterator(android.database.Cursor p0) { return null; }

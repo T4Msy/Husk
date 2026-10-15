@@ -137,13 +137,27 @@ public final class ViewRoot implements ViewParent {
     static int screenH() { return Native.screenHeight(); }
 
     // ---- the frame
+    /* Frames drawn back to back for ten seconds mean something animates for good: what asked for the next frame is logged, a few
+       times a run, so a spinner or animator nobody sees can be found from a report. */
+    private static int sBackToBack, sAnimLogs;
+    private static long sLastFrameNs;
     public static void scheduleFrame() {
         if (sScheduled) return;
         sScheduled = true;
+        if (sBackToBack >= 600 && sAnimLogs < 6) {
+            sBackToBack = 0; sAnimLogs++;
+            StackTraceElement[] st = new Throwable().getStackTrace();
+            StringBuilder b = new StringBuilder("frames back to back for 10 s; the next asked for by:");
+            for (int i = 1; i < st.length && i < 16; i++) b.append("\n\tat ").append(st[i]);
+            android.util.Log.i("Husk", b.toString());
+        }
         Choreographer.getMainThreadInstance().postCallback(Choreographer.CALLBACK_TRAVERSAL, ViewRoot::doFrame, null);
     }
     private static void doFrame() {
         sScheduled = false;
+        long t = System.nanoTime();
+        sBackToBack = t - sLastFrameNs < 50_000_000L ? sBackToBack + 1 : 0;
+        sLastFrameNs = t;
         ArrayList<ViewRoot> roots = new ArrayList<>(sRoots);
         for (ViewRoot r : roots) if (!r.mRemoved) r.performLayout();
         for (ViewRoot r : roots) if (!r.mRemoved && r.mObserver.dispatchOnPreDraw()) { scheduleFrame(); }
@@ -263,7 +277,22 @@ public final class ViewRoot implements ViewParent {
         int gen = sScreen.getGenerationId();
         Paint dim = null;
         boolean drew = false;
-        for (ViewRoot r : roots) {
+        // Windows under an opaque full-screen activity window are not seen: drawn from that window up, as Android draws only the
+        // activity on top (a chat over the chat list redrew the whole list every frame). Not while that window moves or fades in.
+        int first = 0;
+        for (int i = roots.size() - 1; i > 0; i--) {
+            ViewRoot r = roots.get(i);
+            if (r.mRemoved || r.mView.getVisibility() != View.VISIBLE) continue;
+            View v = r.mView;
+            if (r.mLp.type == WindowManager.LayoutParams.TYPE_BASE_APPLICATION && v instanceof DecorView && ((DecorView) v).getWindowHusk().huskCoversBelow()
+                && r.mX <= 0 && r.mY <= 0 && r.mX + r.mW >= sw && r.mY + r.mH >= sh && r.mLp.alpha >= 1f
+                && v.getAlpha() >= 1f && v.getTranslationX() == 0 && v.getTranslationY() == 0 && v.getScaleX() == 1f && v.getScaleY() == 1f && v.getAnimation() == null) {
+                first = i;
+                break;
+            }
+        }
+        for (int ri = first; ri < roots.size(); ri++) {
+            ViewRoot r = roots.get(ri);
             if (r.mRemoved || r.mView.getVisibility() != View.VISIBLE) continue;
             if ((r.mLp.flags & WindowManager.LayoutParams.FLAG_DIM_BEHIND) != 0 && r.mLp.dimAmount > 0) {
                 if (dim == null) dim = new Paint();

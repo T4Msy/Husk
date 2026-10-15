@@ -44,6 +44,8 @@ void tl_javaapp_set_paused(bool paused);
 /* The host keyboard's typing, to the focused text field: text, one delete before the cursor, the editor action (return), the
    keyboard closed by the host. */
 void tl_javaapp_text(const char *utf8);
+/* A test-harness command for husk.AppRunner.harnessCommand: "start <activity class>", "dump" (the view tree on top, to the log). */
+void tl_javaapp_harness_command(const char *cmd);
 void tl_javaapp_text_delete(void);
 void tl_javaapp_text_action(void);
 void tl_javaapp_keyboard_closed(void);

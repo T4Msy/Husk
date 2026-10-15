@@ -313,7 +313,7 @@ int tl_vai_android_log_buf_print(tl_va_frame *f)
 TL_VA_STUB(tl_va_android_log_buf_print, tl_vai_android_log_buf_print);
 extern void tl_va_android_log_buf_print(void);
 
-static void guest_abort(const char *why);
+static void guest_abort(const char *why, void *lr, void *fp);
 
 int tl_vai_android_log_assert(tl_va_frame *f)
 {
@@ -323,7 +323,7 @@ int tl_vai_android_log_assert(tl_va_frame *f)
     if (fmt) { tl_va_start(f, 3, 0, &ap); tl_format(text, sizeof(text), fmt, &ap); }
     else snprintf(text, sizeof(text), "assertion failed: %s", f->gp[0] ? (const char *)f->gp[0] : "?");
     log_emit(7, (const char *)f->gp[1], text);
-    guest_abort("__android_log_assert");
+    guest_abort("__android_log_assert", NULL, NULL);
     return 0;
 }
 TL_VA_STUB(tl_va_android_log_assert, tl_vai_android_log_assert);
@@ -349,14 +349,19 @@ static void bionic_closelog(void) {}
 
 /* --------------------------------------------------- C runtime and aborts */
 
+/* An address in guest code as "<library file> +<offset from its base> (<nearest export>+<distance>)". The offset is what a
+   disassembler of the library is given; the export is only the closest exported name before it, which says little once the
+   distance is large (most of a library's functions are not exported), so it comes second. */
 static void describe_caller(void *lr, char *out, size_t n)
 {
     const char *ln = NULL; const void *sa = NULL;
     const char *sym = tl_ld_symbol_at(lr, &ln, &sa);
     extern void *tl_ld_lib_base(const tl_lib *L);
-    if (ln && sym) snprintf(out, n, "%s %s+%#lx", ln, sym, sa ? (unsigned long)((const char *)lr - (const char *)sa) : 0ul);
-    else if (ln) snprintf(out, n, "%s +%#lx", ln, (unsigned long)((const char *)lr - (const char *)tl_ld_lib_base(tl_ld_lib_of(lr))));
-    else snprintf(out, n, "%p", lr);
+    if (!ln) { snprintf(out, n, "%p", lr); return; }
+    const char *base = strrchr(ln, '/') ? strrchr(ln, '/') + 1 : ln;
+    unsigned long off = (unsigned long)((const char *)lr - (const char *)tl_ld_lib_base(tl_ld_lib_of(lr)));
+    if (sym && sa) snprintf(out, n, "%s +%#lx (%s+%#lx)", base, off, sym, (unsigned long)((const char *)lr - (const char *)sa));
+    else snprintf(out, n, "%s +%#lx", base, off);
 }
 /* the guest's frames above an exit or abort, by frame pointer */
 static void log_guest_frames(void *fp)
@@ -372,24 +377,114 @@ static void log_guest_frames(void *fp)
     }
 }
 
-static void guest_abort(const char *why)
-{
-    char where[200];
-    describe_caller(__builtin_return_address(0), where, sizeof(where));
-    tl_log_line("bionic: guest abort (%s) at %s", why, where);
-    abort();
-}
-
-static void bionic_abort(void)
-{
-    char where[200];
-    describe_caller(__builtin_return_address(0), where, sizeof(where));
-    tl_log_line("bionic: abort() called from %s", where);
-    abort();
-}
-
 /* When set, a guest exit() ends the guest, not the app that is hosting it. The hook does not return. */
 void (*tl_guest_exit_hook)(int status);
+/* When set, called as guest code aborts, before the process goes: what the thread was doing in Java. */
+void (*tl_guest_abort_hook)(void);
+
+/* The abort still happens: the guest asked for it. What is logged first is what is needed to find out why: the call site as a
+   library offset, the guest frames above it (fp: the frame of the function the guest called), and the Java side of the thread. */
+__attribute__((noinline)) static void abort_context(void *fp)
+{
+    if (fp) log_guest_frames(fp);
+    if (tl_guest_abort_hook) tl_guest_abort_hook();
+}
+
+__attribute__((noinline, noreturn)) static void guest_abort(const char *why, void *lr, void *fp)
+{
+    char where[200];
+    if (lr) describe_caller(lr, where, sizeof(where)); else snprintf(where, sizeof(where), "?");
+    tl_log_line("bionic: guest abort (%s) at %s", why, where);
+    abort_context(fp);
+    abort();
+}
+
+/* When guest code reaches a bare abort() (a failed native CHECK with no message), the only thing that says *why* is the state the
+   checking function held at the branch. abort() is a leaf the guest reaches with `bl`, so on entry to our handler the guest's
+   callee-saved registers x19..x29 are still live and untouched — the values the aborting function was testing. We snapshot them
+   before the C prologue of the real handler can clobber any, then hand off. The abort still happens: nothing here suppresses it. */
+/* Non-static (external linkage) so the separate __asm__ block below can name them: clang may rename file-local symbols, and the
+   Mach-O assembler then cannot resolve them from inline asm. Mirrors the tl_va_clobber / tl_va_common convention in husk-tl-va.c. */
+extern uint64_t tl_abort_regs[11];
+extern void tl_bionic_abort_impl(void);
+uint64_t tl_abort_regs[11];   /* x19,x20,x21,x22,x23,x24,x25,x26,x27,x28,x29 */
+
+/* The corvus registration ENC= builder (libwhatsapp +0x50c210) aborts when one of its three components is null. The register dump
+   names which one; for the string component this adds *why* without logging any content. That component is built by UTF-8-decoding
+   a C string into a managed String, which yields null on invalid UTF-8. The two string objects it reads keep their backing char*
+   at field +0x20. We report only each one's NULL-ness, byte length, UTF-8 validity and the offset of the first invalid byte — never
+   a byte of the content — so no phone number, code or token can leak, while still localising which input carries the bad bytes. */
+#define TL_ENC_BUILDER_ABORT_OFF 0x50c210UL
+static void tl_enc_param_probe(void)
+{
+    static const char *const name[2] = { "ENC-blob(x20)", "ENC-concat(x21)" };
+    for (int i = 0; i < 2; i++) {
+        uintptr_t obj = (uintptr_t)tl_abort_regs[1 + i];   /* x20 then x21 */
+        if (!obj) { tl_log_line("bionic:   %s: object is NULL", name[i]); continue; }
+        const unsigned char *p = *(const unsigned char *const *)(obj + 0x20);
+        if (!p) { tl_log_line("bionic:   %s: backing string is NULL", name[i]); continue; }
+        size_t n = 0; const size_t cap = 1u << 16;
+        while (n < cap && p[n]) n++;
+        long bad = -1;
+        for (size_t j = 0; j < n; ) {
+            unsigned c = p[j];
+            size_t need = c < 0x80 ? 0 : (c & 0xe0) == 0xc0 ? 1 : (c & 0xf0) == 0xe0 ? 2 : (c & 0xf8) == 0xf0 ? 3 : 99;
+            if (need == 99 || j + need >= n) { bad = (long)j; break; }
+            int ok = 1;
+            for (size_t k = 1; k <= need; k++) if ((p[j + k] & 0xc0) != 0x80) { ok = 0; break; }
+            if (!ok) { bad = (long)j; break; }
+            j += need + 1;
+        }
+        tl_log_line("bionic:   %s: len=%zu valid_utf8=%s first_bad_off=%ld",
+                    name[i], n, bad < 0 ? "yes" : "no", bad);
+        /* Structural prefix only: the leading run of URL-structural bytes (scheme://host/path). We stop at the first byte that is
+           not an unreserved/structural URL char — in particular at '?', '=', '&', '#' and '%' — so query values, where a phone
+           number, code or token would live, are never emitted. Anything past the stop is omitted entirely. */
+        char pre[49]; size_t m = 0;
+        for (; m < n && m < sizeof(pre) - 1; m++) {
+            unsigned char c = p[m];
+            int structural = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')
+                           || c == ':' || c == '/' || c == '.' || c == '-' || c == '_' || c == '~';
+            if (!structural) break;
+            pre[m] = (char)c;
+        }
+        pre[m] = 0;
+        tl_log_line("bionic:   %s: structural prefix [%s]%s", name[i], pre, m < n ? " (truncated at first non-structural byte)" : "");
+    }
+}
+
+__attribute__((noinline, noreturn, used)) void tl_bionic_abort_impl(void)
+{
+    char where[200];
+    void *lr = __builtin_return_address(0);
+    /* lr is unchanged (the snapshot trampoline tail-called us with `b`), so it still points just past the guest's `bl abort`. */
+    describe_caller(lr, where, sizeof(where));
+    tl_log_line("bionic: abort() called from %s", where);
+    /* The captured callee-saved registers, so an abort with no message can still be pinned to the value that was null/false. */
+    tl_log_line("bionic: abort regs x19=%#llx x20=%#llx x21=%#llx x22=%#llx x23=%#llx x24=%#llx",
+                (unsigned long long)tl_abort_regs[0], (unsigned long long)tl_abort_regs[1], (unsigned long long)tl_abort_regs[2],
+                (unsigned long long)tl_abort_regs[3], (unsigned long long)tl_abort_regs[4], (unsigned long long)tl_abort_regs[5]);
+    abort_context((void *)tl_abort_regs[10]);  /* x29 = the aborting frame's fp: walk the guest frames above it */
+    const tl_lib *L = tl_ld_lib_of(lr);
+    if (L && (unsigned long)((const char *)lr - (const char *)tl_ld_lib_base(L)) == TL_ENC_BUILDER_ABORT_OFF)
+        tl_enc_param_probe();
+    abort();
+}
+
+__attribute__((naked, noinline, used)) static void bionic_abort(void)
+{
+    __asm__ volatile(
+        "adrp x16, _tl_abort_regs@PAGE\n"
+        "add  x16, x16, _tl_abort_regs@PAGEOFF\n"
+        "stp  x19, x20, [x16, #0]\n"
+        "stp  x21, x22, [x16, #16]\n"
+        "stp  x23, x24, [x16, #32]\n"
+        "stp  x25, x26, [x16, #48]\n"
+        "stp  x27, x28, [x16, #64]\n"
+        "str  x29,      [x16, #80]\n"
+        "b    _tl_bionic_abort_impl\n"
+    );
+}
 
 static void bionic_exit(int status)
 {
@@ -401,7 +496,7 @@ static void bionic_exit(int status)
     exit(status);
 }
 
-static void bionic___stack_chk_fail(void) { guest_abort("stack smashing detected"); }
+static void bionic___stack_chk_fail(void) { guest_abort("stack smashing detected", __builtin_return_address(0), __builtin_frame_address(0)); }
 
 static void bionic___assert2(const char *file, int line, const char *func, const char *expr)
 {

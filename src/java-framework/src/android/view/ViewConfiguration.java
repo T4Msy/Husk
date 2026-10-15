@@ -53,37 +53,37 @@ public class ViewConfiguration {
     public static final int MIN_TEXT_CURSOR_BLINK_INTERVAL_MS = 333;
     public static final int NO_BLINK_TEXT_CURSOR_BLINK_INTERVAL_MS = 0;
     public static final int NO_HAPTIC_SCROLL_TICK_INTERVAL = 2147483647;
-    public static float getAmbiguousGestureMultiplier() { return 0f; }
-    public static int getDoubleTapSlop() { return 0; }
-    public static int getHoverTooltipHideShortTimeout() { return 0; }
-    public static int getHoverTooltipHideTimeout() { return 0; }
-    public static int getHoverTooltipShowTimeout() { return 0; }
-    public static int getLongPressTooltipHideTimeout() { return 0; }
-    public static long getSendRecurringAccessibilityEventsInterval() { return 0L; }
+    public static float getAmbiguousGestureMultiplier() { return 2f; }
+    public static int getDoubleTapSlop() { return 100; }
+    public static int getHoverTooltipHideShortTimeout() { return 3000; }
+    public static int getHoverTooltipHideTimeout() { return 15000; }
+    public static int getHoverTooltipShowTimeout() { return 500; }
+    public static int getLongPressTooltipHideTimeout() { return 1500; }
+    public static long getSendRecurringAccessibilityEventsInterval() { return 100L; }
     public static void resetCacheForTesting() {}
     public static void setInstanceForTesting(android.content.Context p0, android.view.ViewConfiguration p1) {}
-    public long getAccessibilityShortcutKeyTimeout() { return 0L; }
-    public long getAccessibilityShortcutKeyTimeoutAfterConfirmation() { return 0L; }
-    public long getDeviceGlobalActionKeyTimeout() { return 0L; }
-    public int getDoubleTapMinTimeMillis() { return 0; }
-    public int getDoubleTapTimeoutMillis() { return 0; }
-    public int getHapticScrollFeedbackTickInterval(int p0, int p1, int p2) { return 0; }
-    public int getLongPressTimeoutMillis() { return 0; }
-    public int getMultiPressTimeoutMillis() { return 0; }
-    public float getScaledAmbiguousGestureMultiplier() { return 0f; }
-    public int getScaledDoubleTapTouchSlop() { return 0; }
-    public int getScaledHandwritingGestureLineMargin() { return 0; }
-    public int getScaledHandwritingSlop() { return 0; }
-    public int getScaledMaximumFlingVelocity(int p0, int p1, int p2) { return 0; }
-    public int getScaledMinScrollbarTouchTarget() { return 0; }
-    public int getScaledMinimumFlingVelocity(int p0, int p1, int p2) { return 0; }
-    public int getScaledScrollFactor() { return 0; }
-    public long getScreenshotChordKeyTimeout() { return 0L; }
-    public float getScrollFrictionAmount() { return 0f; }
-    public int getSmartSelectionInitializedTimeout() { return 0; }
-    public int getSmartSelectionInitializingTimeout() { return 0; }
-    public int getTapTimeoutMillis() { return 0; }
-    public int getTextCursorBlinkIntervalMillis() { return 0; }
+    public long getAccessibilityShortcutKeyTimeout() { return 3000L; }
+    public long getAccessibilityShortcutKeyTimeoutAfterConfirmation() { return 1000L; }
+    public long getDeviceGlobalActionKeyTimeout() { return 500L; }
+    public int getDoubleTapMinTimeMillis() { return 40; }
+    public int getDoubleTapTimeoutMillis() { return 300; }
+    public int getHapticScrollFeedbackTickInterval(int p0, int p1, int p2) { return NO_HAPTIC_SCROLL_TICK_INTERVAL; }
+    public int getLongPressTimeoutMillis() { return 400; }
+    public int getMultiPressTimeoutMillis() { return 300; }
+    public float getScaledAmbiguousGestureMultiplier() { return 2f; }
+    public int getScaledDoubleTapTouchSlop() { return getScaledTouchSlop(); }
+    public int getScaledHandwritingGestureLineMargin() { return (int) (16 * d + 0.5f); }
+    public int getScaledHandwritingSlop() { return (int) (2 * d + 0.5f); }
+    public int getScaledMaximumFlingVelocity(int p0, int p1, int p2) { return getScaledMaximumFlingVelocity(); }
+    public int getScaledMinScrollbarTouchTarget() { return (int) (48 * d + 0.5f); }
+    public int getScaledMinimumFlingVelocity(int p0, int p1, int p2) { return getScaledMinimumFlingVelocity(); }
+    public int getScaledScrollFactor() { return (int) (64 * d); }
+    public long getScreenshotChordKeyTimeout() { return 500L; }
+    public float getScrollFrictionAmount() { return 0.015f; }
+    public int getSmartSelectionInitializedTimeout() { return 200; }
+    public int getSmartSelectionInitializingTimeout() { return 500; }
+    public int getTapTimeoutMillis() { return 100; }
+    public int getTextCursorBlinkIntervalMillis() { return DEFAULT_TEXT_CURSOR_BLINK_INTERVAL_MS; }
     public boolean isFadingMarqueeEnabled() { return false; }
     public boolean isHapticScrollFeedbackEnabled(int p0, int p1, int p2) { return false; }
     public boolean isPreferKeepClearForFocusEnabled() { return false; }

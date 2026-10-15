@@ -1,0 +1,304 @@
+name: Build Husk IPA
+
+# Builds Husk.ipa from this branch without rebuilding QEMU, ANGLE or MoltenVK: those come unchanged from the official
+# 1.1.0 IPA (src/ios-jit, the QEMU patches and the ANGLE build have not changed since it). What 1.1.0 does not have is
+# built here: the app itself from the current sources, its Java runtime for Java apps (from the Lineage image the
+# Android guest boots), and the on-device pairing library.
+
+on:
+  workflow_dispatch:
+    inputs:
+      probe_only:
+        description: Only run the WhatsApp probe (no IPA, no release)
+        type: boolean
+        default: false
+  push:
+    branches: [claude/husk-ipa-build]
+    paths-ignore: ['**.md']
+
+permissions:
+  contents: write
+
+env:
+  BASE_IPA: https://github.com/Leviidev/Husk/releases/download/1.1.0/Husk.ipa
+  BASE_IPA_SHA256: f2044fea5b5f8287deffa0466f5f71bfd915fc4ee0d1cb852b10b0242c6ca949
+  LINEAGE_IMG: https://github.com/Leviidev/Husk/releases/download/lineage-v2/vda-v12.qcow2
+  LINEAGE_SHA256: a8dbaecc8fdcd682991b078d6bbb7df6972e459208634fa8dcbad24f17208d6a
+  R8_JAR: https://storage.googleapis.com/r8-releases/raw/8.5.35/r8lib.jar
+  WHATSAPP_APK: https://www.whatsapp.com/android/current/WhatsApp.apk
+
+jobs:
+  runtime:
+    name: Java runtime (Linux)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21' }
+      - name: Variadic va_list reader regression (AAPCS64)
+        run: cc -O2 -Wall -Werror -o /tmp/va_regress src/translation-layer-next/tests/va_regress.c && /tmp/va_regress
+      - name: Tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq qemu-utils e2fsprogs
+      - name: Lineage image and R8
+        run: |
+          mkdir -p "$RUNNER_TEMP/dl"
+          curl -fsSL --retry 5 -o "$RUNNER_TEMP/dl/r8.jar" "$R8_JAR"
+          curl -fsSL --retry 5 -o "$RUNNER_TEMP/dl/vda.qcow2" "$LINEAGE_IMG"
+          echo "$LINEAGE_SHA256  $RUNNER_TEMP/dl/vda.qcow2" | sha256sum -c -
+      - name: Build java-runtime and android-system
+        run: |
+          HUSK_JDK="$JAVA_HOME" HUSK_D8="$RUNNER_TEMP/dl/r8.jar" WORK="$RUNNER_TEMP/work" \
+            ./scripts/ci/build_runtime_linux.sh "$RUNNER_TEMP/dl/vda.qcow2"
+          rm -rf "$RUNNER_TEMP/work" "$RUNNER_TEMP/dl/vda.qcow2"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime
+          path: |
+            build/java-runtime
+            build/android-system
+          retention-days: 7
+
+  ipa:
+    name: App and IPA (macOS)
+    needs: runtime
+    if: ${{ !inputs.probe_only }}
+    runs-on: macos-26
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: runtime, path: build }
+      - name: Xcode
+        run: |
+          ls -d /Applications/Xcode*.app
+          X="$(ls -d /Applications/Xcode_*.app | grep -v -i beta | sort -V | tail -1)"
+          sudo xcode-select -s "$X"
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+      - name: Tools
+        env: { HOMEBREW_NO_AUTO_UPDATE: '1', HOMEBREW_NO_INSTALL_CLEANUP: '1' }
+        run: |
+          brew install xcodegen qemu
+          rustup target add aarch64-apple-ios
+      - name: Prebuilt QEMU, ANGLE, MoltenVK and guest from the official 1.1.0 IPA
+        run: |
+          curl -fsSL --retry 5 -o "$RUNNER_TEMP/base.ipa" "$BASE_IPA"
+          echo "$BASE_IPA_SHA256  $RUNNER_TEMP/base.ipa" | shasum -a 256 -c -
+          mkdir -p "$RUNNER_TEMP/base" && unzip -q "$RUNNER_TEMP/base.ipa" -d "$RUNNER_TEMP/base"
+          B="$RUNNER_TEMP/base/Payload/Husk.app"
+          mkdir -p build/ios-arm64/lib build/ios-arm64/sysroot/lib guests/phase0 third_party/build/qemu-10.0.12-utm/pc-bios
+          cp "$B/Frameworks/libqemu-aarch64-softmmu.dylib" build/ios-arm64/lib/
+          cp "$B/Frameworks/libANGLE-shared.dylib" build/ios-arm64/sysroot/lib/
+          xcodebuild -create-xcframework -framework "$B/Frameworks/MoltenVK.framework" -output build/ios-arm64/lib/MoltenVK.xcframework
+          cp "$B/vmlinuz-virt" "$B/initramfs-virt" guests/phase0/
+          cp "$B"/pc-bios/* third_party/build/qemu-10.0.12-utm/pc-bios/
+          bzip2 -c "$B/edk2-aarch64-code.fd" > third_party/build/qemu-10.0.12-utm/pc-bios/edk2-aarch64-code.fd.bz2
+          otool -L build/ios-arm64/lib/libqemu-aarch64-softmmu.dylib | head -5
+      - name: On-device pairing library (Rust)
+        run: ./scripts/build_rppairing_ios.sh
+      - name: Build and package
+        run: |
+          ./scripts/package_ipa.sh "$PWD/build/Husk.ipa" || { tail -200 /tmp/husk_ipa/build.log; { grep -E 'fatal error:|: error:|duplicate symbol|Undefined symbol|^ld: |linker command failed|BUILD FAILED|The following build commands failed' /tmp/husk_ipa/build.log | grep -v 'is an error in' | head -40 || tail -40 /tmp/husk_ipa/build.log; } | while IFS= read -r l; do echo "::error::$l"; done; exit 1; }
+          ./scripts/package_ipa.sh --trollstore "$PWD/build/Husk.tipa"
+      - name: Check the package
+        run: |
+          set -x
+          cd build
+          unzip -tq Husk.ipa
+          rm -rf chk && mkdir chk && unzip -q Husk.ipa -d chk
+          A=chk/Payload/Husk.app
+          plutil -p "$A/Info.plist" | grep -E 'CFBundle(Identifier|ShortVersionString|Version|Executable)"|MinimumOSVersion|HuskBuild|DTSDKName|DTXcode"'
+          lipo -info "$A/Husk"
+          ls "$A/Frameworks" "$A/PlugIns"
+          ls "$A/java-runtime" "$A/android-system"
+          du -sh "$A/java-runtime" "$A/android-system"
+          codesign -d --entitlements - "$A" 2>&1 | tail -20
+          for x in "$A"/PlugIns/*.appex; do plutil -p "$x/Info.plist" | grep -E 'CFBundleIdentifier"|NSExtensionPointIdentifier'; done
+          shasum -a 256 Husk.ipa Husk.tipa | tee SHA256SUMS.txt
+          echo "commit $(git rev-parse HEAD)" >> SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Husk-ipa
+          path: |
+            build/Husk.ipa
+            build/Husk.tipa
+            build/SHA256SUMS.txt
+      - name: Release
+        # the release API refuses (403) after many releases in a short time: retried, and a refusal leaves the IPA in the
+        # Husk-ipa artifact rather than failing the build
+        continue-on-error: true
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          TAG="husk-main-${GITHUB_SHA::7}-run${GITHUB_RUN_NUMBER}"
+          VER="$(plutil -extract CFBundleShortVersionString raw src/app/Husk/Info.plist) ($(plutil -extract CFBundleVersion raw src/app/Husk/Info.plist))"
+          for attempt in 1 2 3; do
+          gh release create "$TAG" build/Husk.ipa build/Husk.tipa build/SHA256SUMS.txt --prerelease --target "$GITHUB_SHA" \
+            --title "Husk $VER custom build (Leviidev/Husk main ${GITHUB_SHA::7})" \
+            --notes "Unofficial build of Husk from upstream main at ${GITHUB_SHA}, with its Java runtime bundled. QEMU, ANGLE and MoltenVK are taken unchanged from the official 1.1.0 IPA. Workflow run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" && exit 0
+          echo "release attempt $attempt refused; waiting"; sleep 90
+          done
+          exit 1
+
+  whatsapp-probe:
+    name: WhatsApp on the translation layer (Mac harness)
+    needs: runtime
+    runs-on: macos-26
+    continue-on-error: true
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: runtime, path: build }
+      - name: Official WhatsApp APK (not redistributed; inspected and run here only)
+        run: |
+          mkdir -p "$RUNNER_TEMP/apk"
+          curl -fsSL --retry 3 -A 'Mozilla/5.0 (Linux; Android 14)' -o "$RUNNER_TEMP/apk/com.whatsapp.apk" "$WHATSAPP_APK"
+          ls -l "$RUNNER_TEMP/apk"; shasum -a 256 "$RUNNER_TEMP/apk/com.whatsapp.apk"
+          unzip -l "$RUNNER_TEMP/apk/com.whatsapp.apk" | grep -E '\.dex$|lib/[^/]+/' | awk '{print $4}' | sed -E 's#^(lib/[^/]+)/.*#\1#' | sort | uniq -c
+          unzip -l "$RUNNER_TEMP/apk/com.whatsapp.apk" | grep -E 'META-INF/.*\.(RSA|DSA|EC)$' || true
+      - name: Husk's own scan of the APK
+        run: |
+          T=src/translation-layer
+          clang -O1 -I$T tools/compat/scan.c $T/husk-tl-scan.c $T/husk-tl-zip.c $T/husk-tl-elf.c $T/husk-tl-json.c -lz -o "$RUNNER_TEMP/tl-scan"
+          "$RUNNER_TEMP/tl-scan" "$RUNNER_TEMP/apk/com.whatsapp.apk" | tee "$RUNNER_TEMP/scan.json" | head -c 6000
+      - name: Decompile the classes in the companion-registration NPE (printed only, not stored)
+        continue-on-error: true
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/jadx.zip" https://github.com/skylot/jadx/releases/download/v1.5.1/jadx-1.5.1.zip
+          mkdir -p "$RUNNER_TEMP/jadx" && unzip -q "$RUNNER_TEMP/jadx.zip" -d "$RUNNER_TEMP/jadx"
+          for c in X.0iC X.0gC; do
+            "$RUNNER_TEMP/jadx/bin/jadx" --single-class "$c" --single-class-output "$RUNNER_TEMP/dec-$c.java" --show-bad-code --add-debug-lines -q "$RUNNER_TEMP/apk/com.whatsapp.apk" 2>&1 | tail -3
+          done
+          F="$RUNNER_TEMP/dec-X.0iC.java"
+          grep -n "A05(\|A06(\|A0X(\|/\* 70 \*/\|/\* 6[5-9] \*/\|/\* 7[0-4] \*/" "$F" | head -40
+          L=$(grep -n " A05(" "$F" | head -1 | cut -d: -f1); [ -n "$L" ] && sed -n "$((L-2)),$((L+45))p" "$F"
+          F2="$RUNNER_TEMP/dec-X.0gC.java"; L=$(grep -n " CIl(" "$F2" | head -1 | cut -d: -f1); [ -n "$L" ] && sed -n "$((L-2)),$((L+25))p" "$F2"
+          # the AtomicIntegerFieldUpdater ClassCastException on a worker thread (X.0oM.Clj): the updater, its field and the class
+          "$RUNNER_TEMP/jadx/bin/jadx" --single-class X.0oM --single-class-output "$RUNNER_TEMP/dec-X.0oM.java" --show-bad-code -q "$RUNNER_TEMP/apk/com.whatsapp.apk" 2>&1 | tail -3
+          echo "---- X.0oM"; grep -n "class \|FieldUpdater\|volatile\| Clj(\|newUpdater" "$RUNNER_TEMP/dec-X.0oM.java" | head -40
+          L=$(grep -n " Clj(" "$RUNNER_TEMP/dec-X.0oM.java" | head -1 | cut -d: -f1); [ -n "$L" ] && sed -n "$((L-2)),$((L+20))p" "$RUNNER_TEMP/dec-X.0oM.java"
+          # the declarations only (class, updater fields), for the results branch
+          mkdir -p "$RUNNER_TEMP/out"; grep -n "class \|FieldUpdater\|volatile" "$RUNNER_TEMP/dec-X.0oM.java" | head -20 > "$RUNNER_TEMP/out/x0oM-declarations.txt" || true
+      - name: Run WhatsApp in javaapp-test (Husk's Java runtime on this Mac, 120 s)
+        run: |
+          set +e
+          ./tools/regress/build.sh tools/javaapp-test.c "$RUNNER_TEMP/javaapp-test" 2>&1 | tail -30
+          R="$PWD/build/java-runtime"
+          sudo mkdir -p /Volumes/GTAV/husk2/modules/jars /Volumes/GTAV/husk2/tmp && sudo chown -R "$USER" /Volumes/GTAV
+          cp "$R/org.apache.http.legacy.jar" /Volumes/GTAV/husk2/modules/jars/
+          mkdir -p "$R/com.android.conscrypt/cacerts" && cp build/android-system/cacerts/* "$R/com.android.conscrypt/cacerts/"
+          mkdir -p "$RUNNER_TEMP/out"
+          # After the registration screen: open screens that are reachable without an account and log their view trees (harness
+          # "start"/"dump" commands), so a view WhatsApp expects and Husk does not build can be found here instead of on a phone.
+          printf 'wait 100000\nshot %s\ntap 400 1567\nwait 60000\nshot %s\nstart com.whatsapp.settings.ui.SettingsHelpActivity\nwait 12000\ndump\nshot %s\nback\nwait 3000\nstart com.whatsapp.settings.ui.SettingsTabActivity\nwait 12000\ndump\nshot %s\nback\nwait 3000\nstart com.whatsapp.settings.ui.SettingsChatActivity\nwait 12000\ndump\nshot %s\nwait 2000\nquit\n' \
+            "$RUNNER_TEMP/out/whatsapp.png" "$RUNNER_TEMP/out/whatsapp-after-agree.png" "$RUNNER_TEMP/out/settings-help.png" "$RUNNER_TEMP/out/settings-tab.png" "$RUNNER_TEMP/out/settings-chat.png" > "$RUNNER_TEMP/ctl"
+          # ANGLE for macOS (EGL/GLES over Metal), from the Google Chrome the runner image carries
+          findegl() { find "$@" -name libEGL.dylib 2>/dev/null | grep -v '\.dSYM' | head -1; }
+          EGL="$(findegl /Applications)"
+          if [ -z "$EGL" ]; then
+            HOMEBREW_NO_AUTO_UPDATE=1 brew install --cask google-chrome 2>&1 | tail -3
+            EGL="$(findegl /Applications)"
+          fi
+          if [ -z "$EGL" ]; then
+            CFT="$(curl -fsSL https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json \
+              | python3 -c "import json,sys;print(next(d['url'] for d in json.load(sys.stdin)['channels']['Stable']['downloads']['chrome'] if d['platform']=='mac-arm64'))")"
+            echo "CfT: $CFT"
+            curl -fsSL -o "$RUNNER_TEMP/cft.zip" "$CFT" && ditto -x -k "$RUNNER_TEMP/cft.zip" "$RUNNER_TEMP/cft"
+            EGL="$(findegl "$RUNNER_TEMP/cft")"
+          fi
+          GLES="$(dirname "$EGL")/libGLESv2.dylib"
+          echo "ANGLE: $EGL $GLES"
+          DYLD_LIBRARY_PATH="$(dirname "$EGL")" TL_ANGLE_EGL="$EGL" TL_ANGLE_GLES="$GLES" \
+          TL_ART="$R/com.android.art" TL_FRAMEWORK="$R/husk-framework.dex" TL_FRAMEWORK_RES="$R/framework-res.apk" \
+          TL_GC_MB=16 TL_NET_TRACE=1 TL_LOG_TIME=1 TL_PACKAGE=com.whatsapp TL_DATA="$RUNNER_TEMP/data" TL_CTL="$RUNNER_TEMP/ctl" TL_AUDIO_MUTE=1 \
+            perl -e 'alarm shift; exec @ARGV' 380 "$RUNNER_TEMP/javaapp-test" "$RUNNER_TEMP/apk/com.whatsapp.apk" 290 > "$RUNNER_TEMP/out/whatsapp.log" 2>&1
+          echo "exit code $?"
+          grep -E 'main thread ended|=== CRASH|exit\(|frames in|not implemented|unresolved import|Exception|activity' "$RUNNER_TEMP/out/whatsapp.log" | sort | uniq -c | sort -rn | head -80
+          echo "---- collector (TL_GC_MB=16: a collection every 16 MiB made)"
+          grep -E '^gc:|gc: ' "$RUNNER_TEMP/out/whatsapp.log" | head -60; echo "collections: $(grep -c 'gc: #' "$RUNNER_TEMP/out/whatsapp.log")"
+          echo "---- harness: started screens and their view trees"
+          grep -n -A400 'harness:' "$RUNNER_TEMP/out/whatsapp.log" | grep -v '^--$' | head -1500
+          tail -120 "$RUNNER_TEMP/out/whatsapp.log"
+          cp "$RUNNER_TEMP/scan.json" "$RUNNER_TEMP/out/"
+          # WhatsApp's own log (connection, xmpp, registration), and what its data folder holds
+          (cd "$RUNNER_TEMP/data" && find . -maxdepth 3 -type f | head -300) > "$RUNNER_TEMP/out/data-files.txt" 2>&1
+          mkdir -p "$RUNNER_TEMP/out/wa-logs" && find "$RUNNER_TEMP/data" -path '*Logs*' -type f -exec cp {} "$RUNNER_TEMP/out/wa-logs/" \; 2>/dev/null
+          ls -la "$RUNNER_TEMP/out/wa-logs" | head
+          # Results on their own branch (probe-results), readable with plain git
+          if [ -f "$RUNNER_TEMP/out/whatsapp.png" ]; then
+            P="$RUNNER_TEMP/results"; git init -q -b probe-results "$P"
+            cp -R "$RUNNER_TEMP/out/"* "$P/"
+            git -C "$P" add -A && git -C "$P" -c user.name=ci -c user.email=ci@localhost commit -qm "WhatsApp probe, run $GITHUB_RUN_ID"
+            git -C "$P" push -qf "https://x-access-token:${{ github.token }}@github.com/$GITHUB_REPOSITORY" probe-results
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: whatsapp-probe
+          path: ${{ runner.temp }}/out
+
+  # corvus-experimental-v3 (a modified WhatsApp 2.21.19.3 that keeps that version's native libraries) aborts in libwhatsapp.so when
+  # it asks for the registration code; Husk's report names the call site only as "<export>+<offset>". This finds the code at that
+  # site in the official 2.21.19 libwhatsapp.so (whatsapp.com's own APK of the time, from the Internet Archive): the app is run
+  # until it has unpacked its libraries (no registration, no phone number), and the frames are disassembled. Nothing is kept but
+  # the printed disassembly.
+  abort-site:
+    name: Where libwhatsapp 2.21.19 calls abort (analysis)
+    needs: runtime
+    runs-on: macos-26
+    continue-on-error: true
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: runtime, path: build }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21' }
+      - name: "Regression: JNI <clinit> lookups, as ObjectStreamClass makes them (Husk vs the host JVM)"
+        run: |
+          set -e
+          T="$RUNNER_TEMP/clinit"; mkdir -p "$T/classes" "$T/dex"
+          javac --release 8 -d "$T/classes" tests/dvm/ClinitLookup.java
+          curl -fsSL --retry 5 -o "$RUNNER_TEMP/r8.jar" "$R8_JAR"
+          java -cp "$RUNNER_TEMP/r8.jar" com.android.tools.r8.D8 --release --min-api 26 --output "$T/dex" "$T"/classes/*.class
+          want="$(java -cp "$T/classes" ClinitLookup)"
+          ./tools/regress/build.sh tools/java-test.c "$T/java-test" 2>&1 | tail -3
+          got="$(TL_ART="$PWD/build/java-runtime/com.android.art" "$T/java-test" "$T/dex/classes.dex" ClinitLookup run 2>"$T/log" | sed -n 's/^RESULT "\(.*\)"$/\1/p')"
+          grep -E 'clinit|NoSuchMethodError|abort|CRASH' "$T/log" | head -20 || true
+          echo "host JVM: $want"; echo "Husk:     $got"
+          [ -n "$got" ] && [ "$got" = "$want" ] || { tail -40 "$T/log"; echo "::error::ClinitLookup differs from the host JVM"; exit 1; }
+          # the error names the array class by its descriptor, as ART does ("[B", not "L[B;")
+          grep -F 'no static method "[B.<clinit>()V"' "$T/log" || { echo "::error::NoSuchMethodError for [B.<clinit> not raised as expected"; exit 1; }
+      - name: Official WhatsApp 2.21.19 APK (inspected here only, not redistributed)
+        run: |
+          python3 -m venv "$RUNNER_TEMP/py" && "$RUNNER_TEMP/py/bin/pip" -q install androguard pyelftools
+          mkdir -p "$RUNNER_TEMP/apk"
+          "$RUNNER_TEMP/py/bin/python" scripts/ci/old_whatsapp.py 202109 202111 2.21.19 "$RUNNER_TEMP/apk/com.whatsapp.apk" \
+            || "$RUNNER_TEMP/py/bin/python" scripts/ci/old_whatsapp.py 202108 202112 2.21.1 "$RUNNER_TEMP/apk/com.whatsapp.apk"
+          shasum -a 256 "$RUNNER_TEMP/apk/com.whatsapp.apk"
+          unzip -l "$RUNNER_TEMP/apk/com.whatsapp.apk" | grep -E 'lib/|\.spk|\.so' | head -30
+      - name: Unpack its native libraries by running it (Husk's Java runtime on this Mac, up to the first screen)
+        run: |
+          set +e
+          ./tools/regress/build.sh tools/javaapp-test.c "$RUNNER_TEMP/javaapp-test" 2>&1 | tail -5
+          R="$PWD/build/java-runtime"
+          sudo mkdir -p /Volumes/GTAV/husk2/modules/jars /Volumes/GTAV/husk2/tmp && sudo chown -R "$USER" /Volumes/GTAV
+          cp "$R/org.apache.http.legacy.jar" /Volumes/GTAV/husk2/modules/jars/
+          mkdir -p "$R/com.android.conscrypt/cacerts" && cp build/android-system/cacerts/* "$R/com.android.conscrypt/cacerts/"
+          printf 'wait 90000\nquit\n' > "$RUNNER_TEMP/ctl"
+          EGL="$(find /Applications -name libEGL.dylib 2>/dev/null | grep -v '\.dSYM' | head -1)"
+          DYLD_LIBRARY_PATH="$(dirname "$EGL")" TL_ANGLE_EGL="$EGL" TL_ANGLE_GLES="$(dirname "$EGL")/libGLESv2.dylib" \
+          TL_ART="$R/com.android.art" TL_FRAMEWORK="$R/husk-framework.dex" TL_FRAMEWORK_RES="$R/framework-res.apk" \
+          TL_PACKAGE=com.whatsapp TL_DATA="$RUNNER_TEMP/data" TL_CTL="$RUNNER_TEMP/ctl" TL_AUDIO_MUTE=1 \
+            perl -e 'alarm shift; exec @ARGV' 200 "$RUNNER_TEMP/javaapp-test" "$RUNNER_TEMP/apk/com.whatsapp.apk" 120 > "$RUNNER_TEMP/run.log" 2>&1
+          grep -E 'JNI_OnLoad|clinit|abort|CRASH|SoLoader: Loaded' "$RUNNER_TEMP/run.log" | head -40
+          find "$RUNNER_TEMP/data" -name '*.so' | head -40
+      - name: The frames of the abort in corvus-experimental-v3's report
+        run: |
+          W="$(find "$RUNNER_TEMP/data" -name libwhatsapp.so | head -1)"
+          [ -z "$W" ] && W="$(unzip -Z1 "$RUNNER_TEMP/apk/com.whatsapp.apk" | grep 'arm64-v8a/libwhatsapp.so' | head -1)" && unzip -o -q "$RUNNER_TEMP/apk/com.whatsapp.apk" "$W" -d "$RUNNER_TEMP/x" && W="$RUNNER_TEMP/x/$W"
+          ls -l "$W"; shasum -a 256 "$W"
+          # abort() called from libwhatsapp.so Java_com_whatsapp_SqliteShell_executeMetaCommand+0x4a3170 (return address 0x11d838210);
+          # the guest frames under it: 0x11d83809c, 0x11d816268, 0x11d8032cc (the last called by the interpreter: the JNI method)
+          "$RUNNER_TEMP/py/bin/python" scripts/ci/abort_site.py "$W" Java_com_whatsapp_SqliteShell_executeMetaCommand 0x4a3170 \
+            0x11d838210 0x11d83809c 0x11d816268 0x11d8032cc

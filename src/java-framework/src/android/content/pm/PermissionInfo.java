@@ -54,7 +54,7 @@ public class PermissionInfo extends PackageItemInfo { public static final int PR
     public static java.lang.String protectionToString(int p0) { return null; }
     public int calculateFootprint() { return 0; }
     public int describeContents() { return 0; }
-    public int getProtectionFlags() { return 0; }
+    public int getProtectionFlags() { return protectionLevel & ~0xf; }
     public boolean isAppOp() { return false; }
     public boolean isHardRestricted() { return false; }
     public boolean isRestricted() { return false; }

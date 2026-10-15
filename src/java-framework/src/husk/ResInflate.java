@@ -140,6 +140,13 @@ public final class ResInflate {
             return element(r, p, t);
         } catch (RuntimeException e) { throw e; } catch (Exception e) { Resources.NotFoundException n = new Resources.NotFoundException(p.getPositionDescription() + ": " + e); n.initCause(e); throw n; }
     }
+    /** Drawable.createFromXmlInner: the parser is already on the element's start tag. */
+    public static Drawable drawableHere(Resources r, XmlPullParser p, Resources.Theme t) {
+        try {
+            if (p.getEventType() != XmlPullParser.START_TAG) toStart(p);
+            return element(r, p, t);
+        } catch (RuntimeException e) { throw e; } catch (Exception e) { Resources.NotFoundException n = new Resources.NotFoundException(p.getPositionDescription() + ": " + e); n.initCause(e); throw n; }
+    }
     /** The drawable of the element the parser is on (consumes it). */
     static Drawable element(Resources r, XmlPullParser p, Resources.Theme t) throws Exception {
         String name = p.getName();
@@ -212,6 +219,22 @@ public final class ResInflate {
             rd.setFromDegrees(a.getFloat(S.RotateDrawable_fromDegrees, 0)); rd.setToDegrees(a.getFloat(S.RotateDrawable_toDegrees, 360));
             rd.setPivotX(fraction(a, S.RotateDrawable_pivotX, 0.5f)); rd.setPivotY(fraction(a, S.RotateDrawable_pivotY, 0.5f));
             a.recycle();
+            if (d == null) d = child(r, p, t); else skip(p);
+            rd.setDrawable(d);
+            return rd;
+        }
+        case "animated-rotate": {
+            // frameDuration/framesCount are private attributes the framework resources here do not name: the platform's defaults
+            TypedArray a = attrs(r, t, set, S.RotateDrawable);
+            Drawable d = a.getDrawable(S.RotateDrawable_drawable);
+            AnimatedRotateDrawable rd = new AnimatedRotateDrawable();
+            rd.setPivotX(fraction(a, S.RotateDrawable_pivotX, 0.5f), true); rd.setPivotY(fraction(a, S.RotateDrawable_pivotY, 0.5f), true);
+            a.recycle();
+            for (int i = 0; i < set.getAttributeCount(); i++) {
+                String n = set.getAttributeName(i);
+                if ("frameDuration".equals(n)) rd.setFramesDuration(set.getAttributeIntValue(i, 150));
+                else if ("framesCount".equals(n)) rd.setFramesCount(set.getAttributeIntValue(i, 12));
+            }
             if (d == null) d = child(r, p, t); else skip(p);
             rd.setDrawable(d);
             return rd;

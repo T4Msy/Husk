@@ -23,6 +23,16 @@ void tl_audio_install(void);
 /* Silence the output and stop the clock while the game is not on screen (writers block until resumed). */
 void tl_audio_set_paused(bool paused);
 
+/*
+ * The microphone. open() starts capture (the first caller's rate and channels decide the queue's; others are converted on
+ * read) and counts a user, close() drops one and stops the capture with the last. read() fills dst with frames at the given
+ * rate and channel count (1 or 2); blocking waits until all are there. -1 when nothing records.
+ */
+bool tl_audioin_open(int rate, int channels);
+int tl_audioin_read(int16_t *dst, int frames, int rate, int channels, bool blocking);
+void tl_audioin_close(void);
+bool tl_audioin_running(void);
+
 #ifdef __cplusplus
 }
 #endif

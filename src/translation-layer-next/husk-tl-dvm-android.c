@@ -9,6 +9,7 @@
 #define _DARWIN_C_SOURCE
 #include "husk-tl-dvm-javaapp.h"
 #include "husk-tl-dvm-gl.h"
+#include "husk-tl-gc.h"
 
 #include <fcntl.h>
 #include <pthread.h>
@@ -155,17 +156,52 @@ static void active11(const char *fn, const jvalue *a)
 NAT(G_glGetActiveAttrib11) { (void)self; (void)ret; active11("glGetActiveAttrib", a); return true; }
 NAT(G_glGetActiveUniform11) { (void)self; (void)ret; active11("glGetActiveUniform", a); return true; }
 
+/* GL_TEXTURE_EXTERNAL_OES (a SurfaceTexture's camera or video frames, sampled through samplerExternalOES) is a plain 2D texture
+ * here: SurfaceTexture.updateTexImage uploads the frame into it with glTexImage2D. The binding and parameter calls take the
+ * 2D target instead, and shaders lose the extension and sample with sampler2D. */
+#define GL_TEXTURE_EXTERNAL_OES 0x8D65
+#define GL_TEXTURE_2D 0x0DE1
+static int32_t tex_target(int32_t t) { return t == GL_TEXTURE_EXTERNAL_OES ? GL_TEXTURE_2D : t; }
+NAT(G_glBindTexture) { (void)self; (void)ret; void (*f)(uint32_t, uint32_t) = gl_fn("glBindTexture"); if (f) f((uint32_t)tex_target(a[0].i), (uint32_t)a[1].i); return true; }
+NAT(G_glTexParameteri) { (void)self; (void)ret; void (*f)(uint32_t, uint32_t, int32_t) = gl_fn("glTexParameteri"); if (f) f((uint32_t)tex_target(a[0].i), (uint32_t)a[1].i, a[2].i); return true; }
+NAT(G_glTexParameterf) { (void)self; (void)ret; void (*f)(uint32_t, uint32_t, float) = gl_fn("glTexParameterf"); if (f) f((uint32_t)tex_target(a[0].i), (uint32_t)a[1].i, a[2].f); return true; }
+NAT(G_glTexParameteriv) { (void)self; (void)ret; void (*f)(uint32_t, uint32_t, const int32_t *) = gl_fn("glTexParameteriv"); if (f) f((uint32_t)tex_target(a[0].i), (uint32_t)a[1].i, gl_array(a[2].l, a[3].i)); return true; }
+NAT(G_glTexParameterfv) { (void)self; (void)ret; void (*f)(uint32_t, uint32_t, const float *) = gl_fn("glTexParameterfv"); if (f) f((uint32_t)tex_target(a[0].i), (uint32_t)a[1].i, gl_array(a[2].l, a[3].i)); return true; }
+/* the source with "samplerExternalOES" as sampler2D and its #extension lines blanked (line numbers kept for the log) */
+static char *rewrite_external(const char *src)
+{
+    if (!strstr(src, "samplerExternalOES") && !strstr(src, "GL_OES_EGL_image_external")) return NULL;
+    char *out = malloc(strlen(src) + 1), *o = out;
+    for (const char *p = src; *p;) {
+        if (!strncmp(p, "samplerExternalOES", 18)) { memcpy(o, "sampler2D", 9); o += 9; p += 18; continue; }
+        if (!strncmp(p, "#extension", 10)) {
+            const char *e = strchr(p, '\n'); size_t n = e ? (size_t)(e - p) : strlen(p);
+            if (memmem(p, n, "GL_OES_EGL_image_external", 25)) { p += n; continue; }
+        }
+        *o++ = *p++;
+    }
+    *o = 0;
+    return out;
+}
 NAT(G_glShaderSource)
 {
     (void)self; (void)ret;
     void (*f)(uint32_t, int32_t, const char *const *, const int32_t *) = gl_fn("glShaderSource");
     const char *src = gl_str(a[1].l);
+    char *rw = src ? rewrite_external(src) : NULL;
+    if (rw) src = rw;
     if (f && src) f((uint32_t)a[0].i, 1, &src, NULL);
+    free(rw);
     return true;
 }
 
 static const gl_native k_gles_special[] = {
     { "glShaderSource", "(ILjava/lang/String;)V", G_glShaderSource },
+    { "glBindTexture", "(II)V", G_glBindTexture },
+    { "glTexParameteri", "(III)V", G_glTexParameteri },
+    { "glTexParameterf", "(IIF)V", G_glTexParameterf },
+    { "glTexParameteriv", "(II[II)V", G_glTexParameteriv },
+    { "glTexParameterfv", "(II[FI)V", G_glTexParameterfv },
     { "glGetString", "(I)Ljava/lang/String;", G_glGetString },
     { "glGetProgramInfoLog", "(I)Ljava/lang/String;", G_glGetProgramInfoLog },
     { "glGetShaderInfoLog", "(I)Ljava/lang/String;", G_glGetShaderInfoLog },
@@ -389,6 +425,7 @@ static void text_push(const char *kind, const char *utf8)
 }
 void tl_javaapp_text(const char *utf8) { if (utf8 && *utf8) text_push("t", utf8); }
 void tl_javaapp_text_delete(void) { text_push("d", NULL); }
+void tl_javaapp_harness_command(const char *cmd) { if (cmd && *cmd) text_push("c", cmd); }
 void tl_javaapp_text_action(void) { text_push("e", NULL); }
 void tl_javaapp_keyboard_closed(void) { text_push("h", NULL); }
 void tl_javaapp_set_insets(int l, int t, int r, int b, int ime)
@@ -491,12 +528,18 @@ dvm_native_fn tl_audio_native(const char *name, const char *sig);
 dvm_native_fn tl_sensors_native(const char *name, const char *sig);
 dvm_native_fn tl_sqlite_native(const char *name, const char *sig);
 dvm_native_fn tl_media_native(const char *name, const char *sig);
+dvm_native_fn tl_camera_native(const char *name, const char *sig);
+dvm_native_fn tl_muxer_native(const char *name, const char *sig);
+dvm_native_fn tl_demux_native(const char *name, const char *sig);
 dvm_native_fn tl_web_native(const char *name, const char *sig);
 bool tl_web_any_visible(void);
 dvm_native_fn dvm_android_native(const char *cls, const char *name, const char *sig)
 {
     if (!strcmp(cls, "husk/Sqlite")) return tl_sqlite_native(name, sig);
     if (!strcmp(cls, "husk/MediaCodecNative")) return tl_media_native(name, sig);
+    if (!strcmp(cls, "husk/Camera")) return tl_camera_native(name, sig);
+    if (!strcmp(cls, "husk/MediaMuxerNative")) return tl_muxer_native(name, sig);
+    if (!strcmp(cls, "husk/MediaDemux")) return tl_demux_native(name, sig);
     if (!strcmp(cls, "husk/Web")) return tl_web_native(name, sig);
     if (!strcmp(cls, "husk/Sensors")) return tl_sensors_native(name, sig);
     if (!strcmp(cls, "husk/Gfx")) return tl_gfx_native(name, sig);
@@ -1068,6 +1111,7 @@ static void *app_main(void *arg)
 {
     (void)arg;
     pthread_setname_np("main");
+    { void dvm_prof_start(void); dvm_prof_start(); }
     jvalue a[2] = { L(dvm_new_string_utf8(A.activity)), L(A.application[0] ? dvm_new_string_utf8(A.application) : NULL) };
     jvalue r;
     if (!tl_dvm_call_static("husk/AppRunner", "run", "(Ljava/lang/String;Ljava/lang/String;)V", a, &r)) {
@@ -1106,6 +1150,7 @@ bool tl_javaapp_start(const tl_javaapp_config *cfg)
     }
     if (cfg->package_name && cfg->package_name[0]) snprintf(A.pkg, sizeof(A.pkg), "%s", cfg->package_name);
     tl_log_line("javaapp: %s, launcher %s, application %s", A.pkg, A.activity, A.application[0] ? A.application : "(none)");
+    tl_gc_enable();
     tl_nwindow_configure(cfg->width, cfg->height, cfg->metal_layer);
     if (cfg->angle_egl && !tl_egl_init(cfg->angle_egl, cfg->angle_gles, cfg->frame_dir, cfg->frame_every)) return false;
     { void tl_set_data_dir(const char *dir); tl_set_data_dir(cfg->data_dir); }

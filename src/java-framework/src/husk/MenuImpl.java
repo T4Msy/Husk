@@ -12,12 +12,21 @@ public class MenuImpl implements Menu, SubMenu, ContextMenu {
     final ArrayList<Item> mItems = new ArrayList<>();
     private Item mParent;
     private CharSequence mHeader;
+    private ContextMenu.ContextMenuInfo mCurrentInfo;
+    /** For View.createContextMenu: the info the items added from now on report (as MenuBuilder.setCurrentMenuInfo). */
+    public void huskSetCurrentMenuInfo(ContextMenu.ContextMenuInfo info) { mCurrentInfo = info; }
+    public CharSequence huskHeaderTitle() { return mHeader; }
     public MenuImpl(Context c) { mContext = c; }
     /** A menu showing the given items (they stay the originals: clicks reach their listeners). */
     public static MenuImpl viewOf(Context c, java.util.List<MenuItem> items) { MenuImpl m = new MenuImpl(c); for (MenuItem i : items) m.mItems.add((Item) i); return m; }
     public class Item implements MenuItem {
         int id, group, order; CharSequence title, condensed; Drawable icon; Intent intent; boolean checkable, checked, visible = true, enabled = true;
         char numeric, alpha; OnMenuItemClickListener click; View actionView; ActionProvider provider; MenuImpl sub; int showAs; OnActionExpandListener expand;
+        ContextMenu.ContextMenuInfo info; CharSequence contentDescription, tooltip; android.content.res.ColorStateList iconTint; android.graphics.PorterDuff.Mode iconTintMode;
+        public MenuItem setContentDescription(CharSequence c) { contentDescription = c; return this; } public CharSequence getContentDescription() { return contentDescription; }
+        public MenuItem setTooltipText(CharSequence t) { tooltip = t; return this; } public CharSequence getTooltipText() { return tooltip; }
+        public MenuItem setIconTintList(android.content.res.ColorStateList t) { iconTint = t; if (icon != null) icon.setTintList(t); return this; } public android.content.res.ColorStateList getIconTintList() { return iconTint; }
+        public MenuItem setIconTintMode(android.graphics.PorterDuff.Mode m) { iconTintMode = m; if (icon != null) icon.setTintMode(m); return this; } public android.graphics.PorterDuff.Mode getIconTintMode() { return iconTintMode; }
         public SubMenu huskSubMenu() { if (sub == null) { sub = new MenuImpl(mContext); sub.mParent = this; } return sub; }
         public int getItemId() { return id; } public int getGroupId() { return group; } public int getOrder() { return order; }
         public MenuItem setTitle(CharSequence t) { title = t; return this; } public MenuItem setTitle(int r) { title = mContext.getText(r); return this; } public CharSequence getTitle() { return title; }
@@ -32,7 +41,7 @@ public class MenuImpl implements Menu, SubMenu, ContextMenu {
         public MenuItem setEnabled(boolean e) { enabled = e; return this; } public boolean isEnabled() { return enabled; }
         public boolean hasSubMenu() { return sub != null; } public SubMenu getSubMenu() { return sub; }
         public MenuItem setOnMenuItemClickListener(OnMenuItemClickListener l) { click = l; return this; }
-        public ContextMenu.ContextMenuInfo getMenuInfo() { return null; }
+        public ContextMenu.ContextMenuInfo getMenuInfo() { return info; }
         public void setShowAsAction(int a) { showAs = a; } public MenuItem setShowAsActionFlags(int a) { showAs = a; return this; } public int huskShowAs() { return showAs; }
         public MenuItem setActionView(View v) { actionView = v; return this; } public MenuItem setActionView(int r) { actionView = LayoutInflater.from(mContext).inflate(r, null); return this; } public View getActionView() { return actionView; }
         public MenuItem setActionProvider(ActionProvider p) { provider = p; return this; } public ActionProvider getActionProvider() { return provider; }
@@ -43,7 +52,7 @@ public class MenuImpl implements Menu, SubMenu, ContextMenu {
     }
     private Item addInternal(int group, int id, int order, CharSequence title) {
         Item it = new Item();
-        it.group = group; it.id = id; it.order = order; it.title = title;
+        it.group = group; it.id = id; it.order = order; it.title = title; it.info = mCurrentInfo;
         int i = 0;
         while (i < mItems.size() && mItems.get(i).order <= order) i++;
         mItems.add(i, it);

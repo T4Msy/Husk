@@ -92,6 +92,11 @@ public class Typeface {
     public static final class Builder {
         private byte[] data; private int weight = -1; private boolean italic; private String fallback;
         public Builder(java.io.File f) { try { data = java.nio.file.Files.readAllBytes(f.toPath()); } catch (java.io.IOException e) {} }
+        public Builder(java.io.FileDescriptor fd) {
+            /* the descriptor stays the caller's: read it, do not close it */
+            try { java.io.FileInputStream in = new java.io.FileInputStream(fd); java.io.ByteArrayOutputStream o = new java.io.ByteArrayOutputStream(); byte[] b = new byte[65536]; int n; while ((n = in.read(b)) > 0) o.write(b, 0, n); data = o.toByteArray(); }
+            catch (java.io.IOException e) {}
+        }
         public Builder(android.content.res.AssetManager m, String path) { data = husk.Native.readAsset(path); }
         public Builder setWeight(int w) { weight = w; return this; }
         public Builder setItalic(boolean i) { italic = i; return this; }

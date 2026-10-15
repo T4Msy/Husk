@@ -139,6 +139,7 @@ static void *control_thread(void *arg)
             else if (!strncmp(line, "del", 3)) tl_javaapp_text_delete();
             else if (!strncmp(line, "enter", 5)) tl_javaapp_text_action();
             else if (!strncmp(line, "back", 4)) tl_javaapp_back();
+            else if (!strncmp(line, "start ", 6) || !strncmp(line, "dump", 4)) { line[strcspn(line, "\n")] = 0; tl_javaapp_harness_command(line); }
             else if (!strncmp(line, "pause", 5)) tl_javaapp_set_paused(true);
             else if (!strncmp(line, "resume", 6)) tl_javaapp_set_paused(false);
             else if (!strncmp(line, "quit", 4)) { fprintf(stderr, "ctl: quit\n"); fflush(stderr); _exit(0); }

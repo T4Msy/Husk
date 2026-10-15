@@ -49,7 +49,7 @@ public abstract class ColorSpace {
     }
     public enum Model {
         CMYK, LAB, RGB, XYZ;
-        public int getComponentCount() { return 0; }
+        public int getComponentCount() { return this == CMYK ? 4 : 3; }
     }
     public enum RenderIntent {
         ABSOLUTE, PERCEPTUAL, RELATIVE, SATURATION;

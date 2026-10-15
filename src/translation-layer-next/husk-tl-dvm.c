@@ -10,6 +10,7 @@
 #include <pthread.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "husk-tl-bionic.h"
@@ -265,7 +266,7 @@ jobj *tl_dvm_string_u16(const uint16_t *s, int32_t n)
     jobj *o = tl_jni_new_string("");
     free(o->str.utf8);
     o->str.utf8 = u16_to_utf8(s, n);
-    o->str.u16 = malloc((size_t)(n ? n : 1) * 2);
+    o->str.u16 = tl_gc_payload_malloc((size_t)(n ? n : 1) * 2);
     if (n) memcpy(o->str.u16, s, (size_t)n * 2);
     o->str.len16 = n;
     o->refs = 1u << 30;
@@ -604,7 +605,7 @@ jvalue *dvm_slots(jobj *o)
     dvm_class *c = dvm_class_of(jc);
     uint32_t n = c ? c->nslots : 0;
     if (!n) n = 1;
-    jvalue *f = calloc(n, sizeof(jvalue));
+    jvalue *f = tl_gc_payload_calloc(n, sizeof(jvalue));
     pthread_mutex_lock(&g_lock);
     bool mine = !o->fields;
     if (mine) { o->fields = f; o->nfields = n; f = NULL; }
@@ -624,7 +625,7 @@ jvalue *dvm_grow_slots(jobj *o, uint32_t need)
         dvm_class *c = dvm_class_of(o->kind == TL_K_CLASS ? g_class_class : o->cls);
         uint32_t nn = need;
         if (c && c->nslots > nn) nn = c->nslots;
-        jvalue *f = calloc(nn, sizeof(jvalue));
+        jvalue *f = tl_gc_payload_calloc(nn, sizeof(jvalue));
         if (o->fields && o->nfields) memcpy(f, o->fields, (size_t)o->nfields * sizeof(jvalue));
         __atomic_store_n(&o->fields, f, __ATOMIC_RELEASE);
         o->nfields = nn;
@@ -648,10 +649,68 @@ tl_jclass *dvm_object_class(jobj *o)
     return o->cls;
 }
 
+/* A class's memo: a table only ever added to (an answer never changes once its class is linked), so it is read without a lock --
+ * an entry's value is written before its key, a full table is replaced by a bigger copy and the old one left for readers still in it.
+ * Keys: a call site's mref (the virtual or interface call's target on this receiver class), mref|1 (an invoke-super's target from
+ * this class), tl_jclass|2 (whether this class is assignable to that one). */
+typedef struct { _Atomic(uintptr_t) key; void *val; } memo_e;
+typedef struct { uint32_t cap, n; memo_e e[]; } memo_t;
+static pthread_mutex_t g_memo_lock = PTHREAD_MUTEX_INITIALIZER;
+
+static inline uint32_t memo_hash(uintptr_t k) { k ^= k >> 29; k *= 0x9E3779B97F4A7C15ull; return (uint32_t)(k >> 32); }
+
+static inline bool memo_get(dvm_class *c, uintptr_t key, void **val)
+{
+    memo_t *t = __atomic_load_n((memo_t **)&c->memo, __ATOMIC_ACQUIRE);
+    if (!t) return false;
+    uint32_t m = t->cap - 1, i = memo_hash(key) & m;
+    for (;;) {
+        uintptr_t k = __atomic_load_n((uintptr_t *)&t->e[i].key, __ATOMIC_ACQUIRE);
+        if (k == key) { *val = t->e[i].val; return true; }
+        if (!k) return false;
+        i = (i + 1) & m;
+    }
+}
+
+static void memo_put(dvm_class *c, uintptr_t key, void *val)
+{
+    pthread_mutex_lock(&g_memo_lock);
+    memo_t *t = (memo_t *)c->memo;
+    if (!t || (t->n + 1) * 2 > t->cap) {
+        uint32_t cap = t ? t->cap * 2 : 16;
+        memo_t *nt = calloc(1, sizeof(memo_t) + (size_t)cap * sizeof(memo_e));
+        nt->cap = cap;
+        if (t) for (uint32_t i = 0; i < t->cap; i++) {
+            uintptr_t k = (uintptr_t)t->e[i].key;
+            if (!k) continue;
+            uint32_t j = memo_hash(k) & (cap - 1);
+            while (nt->e[j].key) j = (j + 1) & (cap - 1);
+            nt->e[j].val = t->e[i].val; nt->e[j].key = k; nt->n++;
+        }
+        __atomic_store_n((memo_t **)&c->memo, nt, __ATOMIC_RELEASE);
+        t = nt;
+    }
+    uint32_t m = t->cap - 1, i = memo_hash(key) & m;
+    while (t->e[i].key && t->e[i].key != key) i = (i + 1) & m;
+    if (!t->e[i].key) { t->e[i].val = val; __atomic_store_n((uintptr_t *)&t->e[i].key, key, __ATOMIC_RELEASE); t->n++; }
+    pthread_mutex_unlock(&g_memo_lock);
+}
+
+static bool assignable_slow(tl_jclass *sub, tl_jclass *sup);
 bool dvm_assignable(tl_jclass *sub, tl_jclass *sup)
 {
     if (!sub || !sup) return false;
     if (sub == sup) return true;
+    dvm_class *dc = sub->dvm && !sub->linking && !sup->linking ? dvm_class_of(sub) : NULL;
+    void *v;
+    if (dc && memo_get(dc, (uintptr_t)sup | 2, &v)) return v == (void *)1;
+    bool r = assignable_slow(sub, sup);
+    if (dc && !sub->linking && !sup->linking) memo_put(dc, (uintptr_t)sup | 2, r ? (void *)1 : (void *)2);
+    return r;
+}
+
+static bool assignable_slow(tl_jclass *sub, tl_jclass *sup)
+{
     const char *sn = sub->name, *pn = sup->name;
     if (!strcmp(pn, "java/lang/Object")) { dvm_class *dc = dvm_class_of(sub); return !dc || !dc->prim; }
     if (sn[0] == '[') {
@@ -669,6 +728,15 @@ bool dvm_assignable(tl_jclass *sub, tl_jclass *sup)
         if (dc) for (int i = 0; i < dc->nifaces; i++) if (dvm_assignable(dc->ifaces[i], sup)) return true;
     }
     return false;
+}
+
+/* JNI's AllocObject, NewObject and Get*ID initialise the class, as ART's do: code protected by a DEX virtualiser (nmmp, as
+   GBWhatsApp's mods are) binds a class's natives in its <clinit>, and makes the class's objects from native code. */
+static bool g_core_up;      /* the core classes are initialised in their order (tl_dvm_load_natives): libcore's own JNI_OnLoad runs first */
+bool tl_dvm_initialise(tl_jclass *jc)
+{
+    dvm_class *c = g_core_up ? dvm_class_of(jc) : NULL;
+    return !c || dvm_ensure_init(c);
 }
 
 /* Whether a class itself declares a method (not one it inherits): JNI's RegisterNatives binds a native to the class that does. */
@@ -871,6 +939,67 @@ _Thread_local dvm_method *t_frames[8192];
 _Thread_local uint32_t t_pcs[8192];             /* each frame's pc at its last call out: the line a stack trace shows */
 _Thread_local int t_depth;
 
+/* The profiler: a thread that looks, 250 times a second, at which method the app's main thread is in (and what called it), and
+ * every 30 s logs where that thread's time went -- so a report from a phone says what makes an app slow there. */
+static dvm_method *volatile *g_prof_frames;
+static volatile int *g_prof_depth;
+typedef struct { dvm_method *m, *caller; uint32_t n; } prof_e;
+#define PROF_CAP 4096
+static prof_e g_prof[PROF_CAP];
+static uint32_t g_prof_total;
+
+static void *prof_main(void *arg)
+{
+    (void)arg;
+    pthread_setname_np("husk-profiler");
+    struct timespec tick = { 0, 4000000 }, now, last;
+    clock_gettime(CLOCK_MONOTONIC, &last);
+    for (;;) {
+        nanosleep(&tick, NULL);
+        int d = *g_prof_depth;
+        if (d > 8192) d = 8192;
+        dvm_method *m = d > 0 ? g_prof_frames[d - 1] : NULL, *c = d > 1 ? g_prof_frames[d - 2] : NULL;
+        uint32_t h = (uint32_t)(((uintptr_t)m >> 4) * 2654435761u ^ ((uintptr_t)c >> 4) * 40503u) & (PROF_CAP - 1);
+        for (int probe = 0; probe < 64; probe++, h = (h + 1) & (PROF_CAP - 1)) {
+            if (g_prof[h].n && (g_prof[h].m != m || g_prof[h].caller != c)) continue;
+            g_prof[h].m = m; g_prof[h].caller = c; g_prof[h].n++;
+            break;
+        }
+        g_prof_total++;
+        clock_gettime(CLOCK_MONOTONIC, &now);              /* every 30 s by the clock: a background thread's sleeps run long */
+        if (now.tv_sec - last.tv_sec < 30) continue;
+        last = now;
+        prof_e top[14]; int nt = 0;
+        for (int i = 0; i < PROF_CAP; i++) {
+            if (!g_prof[i].n) continue;
+            int k = nt < 14 ? nt++ : 13;
+            if (k == 13 && top[13].n >= g_prof[i].n) continue;
+            top[k] = g_prof[i];
+            while (k > 0 && top[k].n > top[k - 1].n) { prof_e t = top[k]; top[k] = top[k - 1]; top[k - 1] = t; k--; }
+        }
+        char b[3600]; int o = snprintf(b, sizeof(b), "prof: the main thread's last 30 s, by method (and its caller):");
+        for (int i = 0; i < nt && o < (int)sizeof(b) - 300; i++)
+            o += snprintf(b + o, sizeof(b) - o, "\n  %5.1f%% %s.%s <- %s.%s", 100.0 * top[i].n / (g_prof_total ? g_prof_total : 1),
+                          top[i].m ? top[i].m->cls->name : "(nothing: idle between messages)", top[i].m ? top[i].m->name : "",
+                          top[i].caller ? top[i].caller->cls->name : "-", top[i].caller ? top[i].caller->name : "");
+        tl_log_line("%s", b);
+        memset(g_prof, 0, sizeof(g_prof)); g_prof_total = 0;
+    }
+    return NULL;
+}
+
+/* Called on the app's main thread, once. TL_PROF=0 turns the profiler off. */
+void dvm_prof_start(void);
+void dvm_prof_start(void)
+{
+    const char *e = getenv("TL_PROF");
+    if (e && !strcmp(e, "0")) return;
+    g_prof_frames = (dvm_method *volatile *)t_frames; g_prof_depth = &t_depth;
+    pthread_t th; pthread_attr_t at; pthread_attr_init(&at); pthread_attr_setdetachstate(&at, PTHREAD_CREATE_DETACHED);
+    pthread_create(&th, &at, prof_main, NULL);
+    pthread_attr_destroy(&at);
+}
+
 /* The source line of a pc in a method, from its debug info; -1 without one. */
 int dvm_line_of(dvm_method *m, uint32_t pc)
 {
@@ -917,6 +1046,22 @@ int dvm_capture_frames(void **out, uint32_t *pcs, int max)
     int n = 0;
     for (int i = (t_depth < 8192 ? t_depth : 8192) - 1; i >= 0 && n < max; i--, n++) { out[n] = t_frames[i]; pcs[n] = t_pcs[i]; }
     return n;
+}
+
+/* Guest code is aborting on this thread (bionic's abort hook): the exception it may have found pending, and the Java methods under
+   the native code, innermost first. Names only: no argument or field values are logged. */
+void tl_jni_dump_recent(void);
+static void dvm_abort_context(void)
+{
+    char b[600];
+    if (tl_dvm_describe_pending(b, sizeof(b))) tl_log_line("dvm:   exception pending on the aborting thread: %s", b);
+    else tl_log_line("dvm:   no exception pending on the aborting thread");
+    int d = t_depth < 8192 ? t_depth : 8192;
+    for (int i = d - 1, n = 0; i >= 0 && n < 24; i--, n++) {
+        const dvm_method *m = t_frames[i];
+        if (m) tl_log_line("dvm:   java %s.%s%s%s @%u", m->cls->name, m->name, m->sig, m->insns ? "" : " (native)", t_pcs[i]);
+    }
+    tl_jni_dump_recent();   /* what the thread asked the translation layer to resolve, just before it aborted */
 }
 
 static bool dvm_call_inner(dvm_method *m, jobj *self, const jvalue *params, jvalue *ret);
@@ -1048,7 +1193,10 @@ static void mangle(const char *s, char *out, size_t n, bool sig)
 static void *find_jni(dvm_method *m)
 {
     if (m->jni_looked) return m->jni;
-    void *fn = tl_jni_native(m->cls->name, m->name, m->sig);
+    void *tl_jni_native_in(tl_jclass *, const char *, const char *);
+    void *fn = tl_jni_native_in(m->cls->jc, m->name, m->sig);
+    if (!fn) fn = tl_jni_native(m->cls->name, m->name, m->sig);
+    if (!fn) { void *tl_jni_native_any(const char *, const char *, const char *); fn = tl_jni_native_any(m->cls->name, m->name, m->sig); }
     if (!fn) {
         char cls[400], nm[200], sg[400], sym[1100];
         mangle(m->cls->name, cls, sizeof(cls), false);
@@ -1062,15 +1210,25 @@ static void *find_jni(dvm_method *m)
         }
     }
     m->jni = fn;
-    m->jni_looked = true;
+    m->jni_looked = fn != NULL;     /* not found yet: RegisterNatives may still bind it, as on Android, so look again next call */
     return fn;
 }
+
+static void *rebind_native(dvm_method *m);
 
 static bool call_native(dvm_method *m, jobj *self, const jvalue *params, jvalue *ret)
 {
     if (m->intrinsic) return m->intrinsic(self, params, ret);
     void *fn = find_jni(m);
-    if (!fn) return dvm_throw("java/lang/UnsatisfiedLinkError", "No implementation found for %s.%s%s", m->cls->name, m->name, m->sig);
+    if (!fn) {
+        /* what the next report needs to tell a native never registered from one registered somewhere else */
+        tl_log_line("dvm: no native for %s.%s%s (dex namespace %d)", m->cls->name, m->name, m->sig, m->cls->dex ? m->cls->dex->ns : -1);
+        void tl_jni_log_natives_named(const char *); tl_jni_log_natives_named(m->name);
+        fn = rebind_native(m);
+    }
+    if (!fn) {
+        return dvm_throw("java/lang/UnsatisfiedLinkError", "No implementation found for %s.%s%s", m->cls->name, m->name, m->sig);
+    }
     if (g_dvm_trace >= 2) tl_log_line("dvm: jni %s.%s%s", m->cls->name, m->name, m->sig);
     int64_t gp[8]; double fp[8]; int64_t stk[24];
     int ng = 0, nf = 0, ns = 0;
@@ -1155,6 +1313,86 @@ static mref *resolve_mref(dvm_dex *d, uint32_t idx, bool is_static)
     if (!d->mcache[idx]) __atomic_store_n(&d->mcache[idx], (dvm_method *)r, __ATOMIC_RELEASE); else { free(r); r = (mref *)d->mcache[idx]; }
     pthread_mutex_unlock(&g_lock);
     return r;
+}
+
+/* Dalvik instruction lengths in code units, the data payloads included: for reading a method's code without running it. */
+static uint32_t insn_width(const uint16_t *p)
+{
+    uint16_t w = p[0];
+    uint8_t op = w & 0xFF;
+    if (op == 0x00) {
+        if (w == 0x0100) return 4u + p[1] * 2u;
+        if (w == 0x0200) return 2u + p[1] * 4u;
+        if (w == 0x0300) { uint32_t n = p[2] | (uint32_t)p[3] << 16; return 4u + (p[1] * n + 1) / 2; }
+        return 1;
+    }
+    switch (op) {
+    case 0x02: case 0x05: case 0x08: case 0x13: case 0x15: case 0x16: case 0x19: case 0x1a: case 0x1c: case 0x1f: case 0x20:
+    case 0x22: case 0x23: case 0x29: case 0xfe: case 0xff: return 2;
+    case 0x03: case 0x06: case 0x09: case 0x14: case 0x17: case 0x1b: case 0x24: case 0x25: case 0x26: case 0x2a: case 0x2b:
+    case 0x2c: case 0xfc: case 0xfd: return 3;
+    case 0xfa: case 0xfb: return 4;
+    case 0x18: return 5;
+    }
+    if ((op >= 0x2d && op <= 0x3d) || (op >= 0x44 && op <= 0x6d) || (op >= 0x90 && op <= 0xaf) || (op >= 0xd0 && op <= 0xe2)) return 2;
+    if ((op >= 0x6e && op <= 0x72) || (op >= 0x74 && op <= 0x78)) return 3;
+    return 1;
+}
+
+/*
+ * A native nothing has bound. A class protected by a DEX virtualiser (nmmp: GBWhatsApp's mods, libsaleh's classesNInit0) binds its
+ * natives from its <clinit>, which calls a static native (I)V registrar with the class's index. Whatever path skipped that, make it
+ * happen now: initialise the class if it is not, and failing that run the registrar its <clinit> calls once more.
+ */
+static void *rebind_native(dvm_method *m)
+{
+    static _Thread_local bool busy;
+    if (busy) return NULL;
+    dvm_class *c = m->cls;
+    int st = c->state;
+    tl_log_line("dvm:   %s is %s", c->name, st == CS_INITIALIZED ? "initialised" : st == CS_INITIALIZING ? "being initialised"
+                                            : st == CS_FAILED ? "a class that failed to initialise" : "not initialised yet");
+    busy = true;
+    void *fn = NULL;
+    if (st == CS_LINKED) {
+        if (!dvm_ensure_init(c)) { char b[400]; tl_log_line("dvm:   initialising it threw %s", tl_dvm_describe_pending(b, sizeof(b)) ? b : "?"); tl_jni_clear(); }
+        m->jni_looked = false;
+        if ((fn = find_jni(m))) { tl_log_line("dvm:   bound once %s was initialised", c->name); busy = false; return fn; }
+    }
+    for (int i = 0; i < c->ndm && !fn; i++) {
+        dvm_method *ci = &c->dm[i];
+        if (strcmp(ci->name, "<clinit>") || !ci->insns) continue;
+        int32_t konst[16] = {0};
+        bool known[16] = {0};
+        for (uint32_t pc = 0; pc < ci->ninsns && !fn; ) {
+            const uint16_t *p = ci->insns + pc;
+            uint8_t op = p[0] & 0xFF;
+            if (op == 0x12) { konst[(p[0] >> 8) & 0xF] = (int16_t)p[0] >> 12; known[(p[0] >> 8) & 0xF] = true; }
+            else if ((op == 0x13 || op == 0x14) && (p[0] >> 8) < 16) {
+                konst[p[0] >> 8] = op == 0x13 ? (int16_t)p[1] : (int32_t)(p[1] | (uint32_t)p[2] << 16);
+                known[p[0] >> 8] = true;
+            } else if (op == 0x71 && (p[0] >> 12) == 1 && known[p[2] & 0xF]) {
+                mref *r = resolve_mref(c->dex, p[1], true);
+                if (r->dm && (r->dm->flags & 0x108) == 0x108 && !strcmp(r->sig, "(I)V")) {
+                    jvalue a, rr; a.j = 0; a.i = konst[p[2] & 0xF];
+                    bool ok = dvm_ensure_init(r->dm->cls) && dvm_call(r->dm, NULL, &a, &rr);
+                    if (!ok) tl_jni_clear();
+                    m->jni_looked = false;
+                    fn = find_jni(m);
+                    tl_log_line("dvm:   ran %s.%s(%d) from %s.<clinit> again%s: %s", r->dm->cls->name, r->dm->name, a.i, c->name,
+                                ok ? "" : " (it threw)", fn ? "bound" : "still unbound");
+                }
+            }
+            pc += insn_width(p);
+        }
+    }
+    if (!fn) {
+        bool has = false;
+        for (int i = 0; i < c->ndm; i++) if (!strcmp(c->dm[i].name, "<clinit>")) has = true;
+        tl_log_line("dvm:   %s", has ? "its <clinit> calls no static native (I)V registrar that binds it" : "it has no <clinit>");
+    }
+    busy = false;
+    return fn;
 }
 
 /* ---- fields */
@@ -1334,6 +1572,8 @@ static bool invoke_regs(dvm_method *caller, int kind, uint32_t midx, int count, 
         if (target && !dvm_ensure_init(target->cls)) return false;
         break;
     case 1: {                                                      /* super: from the caller's superclass */
+        void *hitv;
+        if (memo_get(caller->cls, (uintptr_t)r | 1, &hitv)) { target = hitv; break; }
         dvm_class *sc = caller->cls->super;
         dvm_class *rc = dvm_class_of(r->cls);
         if (rc && (rc->flags & 0x200)) {
@@ -1347,17 +1587,21 @@ static bool invoke_regs(dvm_method *caller, int kind, uint32_t midx, int count, 
             for (tl_jclass *k = caller->cls->jc->super; k; k = k->super) if (!dvm_class_of(k)) { r->hm = tl_jni_method(k, r->name, r->sig, false); break; }
         }
         if (!target && r->hm) { *result = tl_jni_invoke(self, r->hm, true, params); return !tl_jni_pending(); }
+        if (target && !caller->cls->jc->linking) memo_put(caller->cls, (uintptr_t)r | 1, target);
         break;
     }
     case 0: case 4: {                                              /* virtual, interface */
         tl_jclass *rc = dvm_object_class(self);
         dvm_class *dc = dvm_class_of(rc);
+        void *hitv;
+        if (dc && memo_get(dc, (uintptr_t)r, &hitv)) { target = hitv; break; }   /* this call site on this receiver class, answered before */
         if (dc && target && target->vidx >= 0 && !(target->cls->flags & 0x200) && target->vidx < dc->nvtab
             && dc->vtab[target->vidx] && !strcmp(dc->vtab[target->vidx]->name, r->name) && !strcmp(dc->vtab[target->vidx]->sig, r->sig)) {
             target = dc->vtab[target->vidx];
+            if (!rc->linking) memo_put(dc, (uintptr_t)r, target);
         } else if (dc) {
             dvm_method *v = dvm_find_virtual(rc, r->name, r->sig);
-            if (v) target = v;
+            if (v) { target = v; if (!rc->linking) memo_put(dc, (uintptr_t)r, v); }
             else if (!r->hm) {
                 for (tl_jclass *k = rc; k; k = k->super) if (!dvm_class_of(k)) { r->hm = tl_jni_method(k, r->name, r->sig, false); break; }
             }
@@ -1374,6 +1618,17 @@ static bool invoke_regs(dvm_method *caller, int kind, uint32_t midx, int count, 
     }
     if (!target) {
         if (r->hm) { *result = tl_jni_invoke(self, r->hm, kind == 2 || kind == 1, params); return !tl_jni_pending(); }
+        /* A method of the Android framework that Husk's does not have (the platform grows them every release): an app built
+           against a newer SDK reaches it, and on Android it is there. Answer as an empty one would, and say so, rather than end
+           the app in a NoSuchMethodError (WhatsApp's chat list calls View.cancelLongPress on every scroll). */
+        for (tl_jclass *k = r->cls; k; k = k->super) {
+            if (strncmp(k->name, "android/", 8) != 0 || !strncmp(k->name, "android/support/", 16)) continue;
+            static atomic_int told;
+            if (atomic_fetch_add(&told, 1) < 200) tl_log_line("dvm: Android has %s.%s%s, Husk's framework does not: answering %s", r->cls->name, r->name, r->sig,
+                                                              r->shorty[0] == 'V' ? "nothing" : r->shorty[0] == 'L' ? "null" : "zero");
+            result->j = 0;
+            return true;
+        }
         return dvm_throw("java/lang/NoSuchMethodError", "%s.%s%s", r->cls->name, r->name, r->sig);
     }
     if (g_dvm_trace >= 2) tl_log_line("dvm: -> %s.%s%s", target->cls->name, target->name, target->sig);
@@ -1707,9 +1962,14 @@ dispatch:;
             /* String.count: the length and the coder ART keeps there; Husk's strings keep their characters elsewhere */
             if (o->kind == TL_K_STRING && !put && !strcmp(f->df->name, "count")) {
                 int32_t n; const uint16_t *s = tl_dvm_string_chars(o, &n);
-                bool latin1 = true;
-                for (int32_t k = 0; k < n && latin1; k++) if (s[k] > 0xFF) latin1 = false;
-                WI(regs, A4, (n << 1) | (latin1 ? 0 : 1));
+                int coder = o->str.coder;                  /* worked out once: a string never changes */
+                if (!coder) {
+                    bool latin1 = true;
+                    for (int32_t k = 0; k < n && latin1; k++) if (s[k] > 0xFF) latin1 = false;
+                    coder = latin1 ? 1 : 2;
+                    o->str.coder = (int8_t)coder;
+                }
+                WI(regs, A4, (n << 1) | (coder == 1 ? 0 : 1));
                 NEXT(2);
             }
             jvalue *sl = dvm_slots(o);
@@ -1977,6 +2237,7 @@ bool tl_dvm_start(const char *const *boot, int nboot)
     if (!cdef_find("java/lang/Object")) { tl_log_line("dvm: no java/lang/Object on the boot class path"); return false; }
     dvm_natives_init();
     tl_dvm = &k_hooks;
+    tl_guest_abort_hook = dvm_abort_context;
     g_running = true;
     /* classes declared before the runtime started (Husk's own Java world): those it has bytecode for become its */
     tl_jni_each_declared(reattach);
@@ -2232,6 +2493,7 @@ bool tl_dvm_load_library(const char *name_or_path)
 bool tl_dvm_load_natives(const char *libdir)
 {
     tl_ld_add_search_dir(libdir);
+    void tl_tls_tap_install(void); tl_tls_tap_install();   /* observe registration's TLS plaintext (before the app's libssl loads) */
     bool ok = tl_jni_load_library("libjavacore.so");
     ok = tl_jni_load_library("libopenjdk.so") && ok;
     /* core-icu4j's natives (charset converters, ICU's Java side), which ART loads with the runtime */
@@ -2246,6 +2508,8 @@ bool tl_dvm_load_natives(const char *libdir)
         if (c && !dvm_ensure_init(c)) { char b[400]; tl_log_line("dvm: initialising %s threw %s", order[i], tl_dvm_describe_pending(b, sizeof(b)) ? b : "?"); tl_jni_clear(); }
     }
     dvm_current_thread();
+    g_core_up = true;
+    tl_log_line("dvm: Husk translation layer, T4Msy build gb36");
     return ok;
 }
 

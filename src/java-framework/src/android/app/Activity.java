@@ -499,7 +499,12 @@ public class Activity extends ContextThemeWrapper implements Window.Callback, Ke
             public int getMaxNumPictureInPictureActions() { return 0; }
             public android.media.session.MediaController getMediaController() { return (android.media.session.MediaController) huskFill.get("MediaController"); }
             public int getNextAutofillId() { return 0; }
-            public android.net.Uri getReferrer() { return null; }
+            public android.net.Uri getReferrer() {
+                android.net.Uri r = mIntent.getParcelableExtra(Intent.EXTRA_REFERRER);
+                if (r != null) return r;
+                String n = mIntent.getStringExtra(Intent.EXTRA_REFERRER_NAME);
+                return n != null ? android.net.Uri.parse(n) : android.net.Uri.parse("android-app://" + getPackageName());
+            }
             public android.view.SearchEvent getSearchEvent() { return null; }
             public android.os.IBinder getShareableActivityToken() { return null; }
             public android.app.VoiceInteractor getVoiceInteractor() { return null; }

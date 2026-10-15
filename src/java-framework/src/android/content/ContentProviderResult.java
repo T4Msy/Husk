@@ -7,11 +7,11 @@ public class ContentProviderResult {
     public java.lang.Throwable exception;
     public android.os.Bundle extras;
     public android.net.Uri uri;
-    public ContentProviderResult(int p0) { this(); }
+    public ContentProviderResult(int count) { this(); this.count = count; }
     public ContentProviderResult(android.content.ContentProviderResult p0, int p1) { this(); }
-    public ContentProviderResult(android.net.Uri p0) { this(); }
-    public ContentProviderResult(android.net.Uri p0, java.lang.Integer p1, android.os.Bundle p2, java.lang.Throwable p3) { this(); }
-    public ContentProviderResult(android.os.Bundle p0) { this(); }
+    public ContentProviderResult(android.net.Uri uri) { this(); this.uri = uri; }
+    public ContentProviderResult(android.net.Uri u, java.lang.Integer n, android.os.Bundle e, java.lang.Throwable x) { this(); uri = u; count = n; extras = e; exception = x; }
+    public ContentProviderResult(android.os.Bundle extras) { this(); this.extras = extras; }
     public ContentProviderResult(android.os.Parcel p0) { this(); }
     public ContentProviderResult(java.lang.Throwable p0) { this(); }
     public int describeContents() { return 0; }

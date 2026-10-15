@@ -17,6 +17,14 @@ public abstract class Transition implements Cloneable {
     final ArrayList<TransitionListener> mListeners = new ArrayList<>();
     final ArrayList<Integer> mTargetIds = new ArrayList<>();
     final ArrayList<View> mTargets = new ArrayList<>();
+    ArrayList<String> mTargetNames;
+    ArrayList<Class<?>> mTargetTypes;
+    private PathMotion mPathMotion = STRAIGHT_PATH_MOTION;
+    private EpicenterCallback mEpicenterCallback;
+    private TransitionPropagation mPropagation;
+    private static final PathMotion STRAIGHT_PATH_MOTION = new PathMotion() {
+        @Override public android.graphics.Path getPath(float sx, float sy, float ex, float ey) { android.graphics.Path p = new android.graphics.Path(); p.moveTo(sx, sy); p.lineTo(ex, ey); return p; }
+    };
     public Transition() {}
     public Transition(android.content.Context c, android.util.AttributeSet a) {}
     public Transition setDuration(long d) { mDuration = d; return this; }
@@ -31,13 +39,13 @@ public abstract class Transition implements Cloneable {
     public abstract void captureStartValues(TransitionValues v);
     public abstract void captureEndValues(TransitionValues v);
     public Transition addTarget(int id) { mTargetIds.add(id); return this; }
-    public Transition addTarget(String name) { return this; }
-    public Transition addTarget(Class<?> c) { return this; }
+    public Transition addTarget(String name) { if (name != null) { if (mTargetNames == null) mTargetNames = new ArrayList<>(); mTargetNames.add(name); } return this; }
+    public Transition addTarget(Class<?> c) { if (c != null) { if (mTargetTypes == null) mTargetTypes = new ArrayList<>(); mTargetTypes.add(c); } return this; }
     public Transition addTarget(View v) { mTargets.add(v); return this; }
     public Transition removeTarget(int id) { mTargetIds.remove((Integer) id); return this; }
-    public Transition removeTarget(String n) { return this; }
+    public Transition removeTarget(String n) { if (mTargetNames != null) mTargetNames.remove(n); return this; }
     public Transition removeTarget(View v) { mTargets.remove(v); return this; }
-    public Transition removeTarget(Class<?> c) { return this; }
+    public Transition removeTarget(Class<?> c) { if (mTargetTypes != null) mTargetTypes.remove(c); return this; }
     public Transition excludeTarget(int id, boolean e) { return this; }
     public Transition excludeTarget(String n, boolean e) { return this; }
     public Transition excludeChildren(int id, boolean e) { return this; }
@@ -47,22 +55,22 @@ public abstract class Transition implements Cloneable {
     public Transition excludeChildren(Class<?> c, boolean e) { return this; }
     public List<Integer> getTargetIds() { return mTargetIds; }
     public List<View> getTargets() { return mTargets; }
-    public List<String> getTargetNames() { return null; }
-    public List<Class<?>> getTargetTypes() { return null; }
+    public List<String> getTargetNames() { return mTargetNames; }
+    public List<Class<?>> getTargetTypes() { return mTargetTypes; }
     public TransitionValues getTransitionValues(View v, boolean start) { return null; }
     public boolean isTransitionRequired(TransitionValues s, TransitionValues e) { return false; }
     public Transition addListener(TransitionListener l) { mListeners.add(l); return this; }
     public Transition removeListener(TransitionListener l) { mListeners.remove(l); return this; }
-    public void setEpicenterCallback(EpicenterCallback c) {}
-    public EpicenterCallback getEpicenterCallback() { return null; }
-    public android.graphics.Rect getEpicenter() { return null; }
-    public void setPathMotion(PathMotion m) {}
-    public PathMotion getPathMotion() { return null; }
-    public void setPropagation(TransitionPropagation p) {}
-    public TransitionPropagation getPropagation() { return null; }
+    public void setEpicenterCallback(EpicenterCallback c) { mEpicenterCallback = c; }
+    public EpicenterCallback getEpicenterCallback() { return mEpicenterCallback; }
+    public android.graphics.Rect getEpicenter() { return mEpicenterCallback == null ? null : mEpicenterCallback.onGetEpicenter(this); }
+    public void setPathMotion(PathMotion m) { mPathMotion = m == null ? STRAIGHT_PATH_MOTION : m; }
+    public PathMotion getPathMotion() { return mPathMotion; }
+    public void setPropagation(TransitionPropagation p) { mPropagation = p; }
+    public TransitionPropagation getPropagation() { return mPropagation; }
     public boolean canRemoveViews() { return false; }
     public String getName() { return getClass().getName(); }
-    @Override public Transition clone() { try { return (Transition) super.clone(); } catch (CloneNotSupportedException e) { throw new RuntimeException(e); } }
+    @Override public Transition clone() { try { Transition t = (Transition) super.clone(); if (mTargetNames != null) t.mTargetNames = new ArrayList<>(mTargetNames); if (mTargetTypes != null) t.mTargetTypes = new ArrayList<>(mTargetTypes); return t; } catch (CloneNotSupportedException e) { throw new RuntimeException(e); } }
     /** Husk: tell the listeners it started and ended (nothing is animated). */
     void huskRun() { for (TransitionListener l : new ArrayList<>(mListeners)) l.onTransitionStart(this); for (TransitionListener l : new ArrayList<>(mListeners)) l.onTransitionEnd(this); }
     // ---- generated by tools/compat/fillmembers.py: the platform's members this class does not write (signatures only)

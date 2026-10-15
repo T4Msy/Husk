@@ -9,8 +9,10 @@ import java.io.FileDescriptor;
 import java.util.Map;
 
 /**
- * Music and other long sounds: the file is decoded as it plays (husk.Audio's decoder: Ogg Vorbis, MP3, AAC, WAV...) into a stream
- * of Husk's mixer, from a thread of the player's own. Video has no picture: its sound still plays.
+ * Music, voice notes and video: sound is decoded as it plays into a stream of Husk's mixer from a thread of the player's own --
+ * through husk.Audio's decoder (Ogg Vorbis, MP3, AAC, WAV...) or, for what that cannot read (Ogg Opus, MP4 with Opus), through
+ * MediaExtractor's demuxer and a MediaCodec decoder. A file with a video track gets a second thread that decodes its frames
+ * with MediaCodec into the Surface the app set, each shown when the sound's clock (or a wall clock, for silent video) reaches it.
  */
 public class MediaPlayer implements AudioRouting {
     public interface OnCompletionListener { void onCompletion(MediaPlayer mp); }
@@ -26,11 +28,13 @@ public class MediaPlayer implements AudioRouting {
     public static final int SEEK_PREVIOUS_SYNC = 0, SEEK_NEXT_SYNC = 1, SEEK_CLOSEST_SYNC = 2, SEEK_CLOSEST = 3;
     public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT = 1, VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING = 2;
     private static final int IDLE = 0, INITIALIZED = 1, PREPARING = 2, PREPARED = 3, STARTED = 4, PAUSED = 5, COMPLETED = 6, STOPPED = 7, ERROR = 8, END = 9;
+    /** Where the sound comes from: 16-bit interleaved frames at rate/channels. */
+    private interface Src { int read(short[] buf); void seek(int ms); void close(); }
     private final Object mLock = new Object();
     private final Handler mMain;
     private int mState = IDLE;
     private byte[] mBytes; private int mFd = -1; private long mFdOff, mFdLen;
-    private long mDec; private int mRate, mChannels, mDuration;
+    private Src mSrc; private int mRate, mChannels, mDuration;
     private int mTrack = -1;
     private Thread mThread;
     private volatile boolean mLooping, mStopThread;
@@ -38,7 +42,13 @@ public class MediaPlayer implements AudioRouting {
     private long mPosBase; private int mPosBaseMs;
     private float mL = 1, mR = 1;
     private int mSession;
-    private OnCompletionListener mOnCompletion; private OnPreparedListener mOnPrepared; private OnErrorListener mOnError; private OnSeekCompleteListener mOnSeek; private OnInfoListener mOnInfo; private MediaPlayer mNext;
+    /* video */
+    private android.view.Surface mSurface;
+    private long mDemux; private int mVideoTrack = -1, mVideoW, mVideoH, mRotation, mScaling = VIDEO_SCALING_MODE_SCALE_TO_FIT;
+    private Thread mVideoThread;
+    private volatile int mVideoSeekTo = -1;
+    private long mWallStartNs; private int mWallBaseMs;                   /* the clock of a video without sound */
+    private OnCompletionListener mOnCompletion; private OnPreparedListener mOnPrepared; private OnErrorListener mOnError; private OnSeekCompleteListener mOnSeek; private OnInfoListener mOnInfo; private OnVideoSizeChangedListener mOnVideoSize; private MediaPlayer mNext;
     public MediaPlayer() { Looper l = Looper.myLooper(); mMain = new Handler(l != null ? l : Looper.getMainLooper()); }
     public MediaPlayer(Context c) { this(); }
     public static MediaPlayer create(Context c, int resId) { return create(c, resId, null, 0); }
@@ -49,7 +59,7 @@ public class MediaPlayer implements AudioRouting {
     public static MediaPlayer create(Context c, Uri u) { return create(c, u, null); }
     public static MediaPlayer create(Context c, Uri u, android.view.SurfaceHolder h) { return create(c, u, h, null, 0); }
     public static MediaPlayer create(Context c, Uri u, android.view.SurfaceHolder h, AudioAttributes a, int session) {
-        try { MediaPlayer mp = new MediaPlayer(); mp.setDataSource(c, u); mp.prepare(); return mp; }
+        try { MediaPlayer mp = new MediaPlayer(); mp.setDataSource(c, u); if (h != null) mp.setDisplay(h); mp.prepare(); return mp; }
         catch (Exception e) { android.util.Log.w("MediaPlayer", "create failed for " + u + ": " + e); return null; }
     }
     private void checkIdle() { if (mState != IDLE) throw new IllegalStateException("setDataSource called in state " + mState); }
@@ -96,12 +106,98 @@ public class MediaPlayer implements AudioRouting {
         if (mState != INITIALIZED && mState != STOPPED) throw new IllegalStateException("prepare called in state " + mState);
         open();
     }
+    /** husk.Audio's decoder over the file. */
+    private final class NativeSrc implements Src {
+        private long mDec;
+        NativeSrc(long dec) { mDec = dec; }
+        public int read(short[] buf) { return husk.Audio.decRead(mDec, buf); }
+        public void seek(int ms) { husk.Audio.decSeek(mDec, ms); }
+        public void close() { husk.Audio.decClose(mDec); }
+    }
+    /** The demuxer and a MediaCodec decoder over an audio track: Opus and whatever else husk.Audio cannot read. */
+    private final class CodecSrc implements Src {
+        private final long mDm; private final int mTrack; private final MediaCodec mDec; private final byte[] mTmp;
+        private final MediaCodec.BufferInfo mInfo = new MediaCodec.BufferInfo();
+        private java.nio.ByteBuffer mLeft; private int mLeftIndex = -1; private boolean mInEos, mOutEos;
+        final int rate, channels;
+        CodecSrc(long dm, int track) throws java.io.IOException {
+            mDm = dm; mTrack = track;
+            MediaFormat f = husk.MediaDemux.format(dm, track);
+            MediaCodec d = MediaCodec.createDecoderByType(f.getString(MediaFormat.KEY_MIME));
+            try { d.configure(f, null, null, 0); } catch (RuntimeException e) { d.release(); throw new java.io.IOException("the audio track cannot be decoded: " + e); }
+            d.start(); mDec = d;
+            mTmp = new byte[Math.max(4096, f.getInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 0))];
+            husk.MediaDemux.select(dm, track, true);
+            MediaFormat o = d.getOutputFormat();
+            rate = o.getInteger(MediaFormat.KEY_SAMPLE_RATE, f.getInteger(MediaFormat.KEY_SAMPLE_RATE, 48000)); channels = o.getInteger(MediaFormat.KEY_CHANNEL_COUNT, f.getInteger(MediaFormat.KEY_CHANNEL_COUNT, 1));
+        }
+        public int read(short[] buf) {
+            int done = 0;
+            while (done < buf.length) {
+                if (mLeft != null && mLeft.remaining() >= 2) {
+                    int n = Math.min(buf.length - done, mLeft.remaining() / 2);
+                    mLeft.asShortBuffer().get(buf, done, n); mLeft.position(mLeft.position() + n * 2); done += n;
+                    continue;
+                }
+                if (mLeftIndex >= 0) { mDec.releaseOutputBuffer(mLeftIndex, false); mLeftIndex = -1; mLeft = null; }
+                if (mOutEos) break;
+                if (!mInEos) {
+                    int i = mDec.dequeueInputBuffer(0);
+                    if (i >= 0) {
+                        long size = husk.MediaDemux.sampleSize(mDm);
+                        if (size < 0) { mDec.queueInputBuffer(i, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM); mInEos = true; }
+                        else {
+                            int n = husk.MediaDemux.readSample(mDm, mTmp, 0);
+                            if (n > 0) { java.nio.ByteBuffer b = mDec.getInputBuffer(i); b.clear(); b.put(mTmp, 0, Math.min(n, b.capacity())); mDec.queueInputBuffer(i, 0, Math.min(n, b.capacity()), husk.MediaDemux.sampleTime(mDm), 0); }
+                            else mDec.queueInputBuffer(i, 0, 0, 0, 0);
+                            husk.MediaDemux.advance(mDm);
+                        }
+                    }
+                }
+                int o = mDec.dequeueOutputBuffer(mInfo, mInEos ? 10000 : 0);
+                if (o >= 0) {
+                    if ((mInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) mOutEos = true;
+                    java.nio.ByteBuffer b = mDec.getOutputBuffer(o);
+                    if (b != null && mInfo.size > 0) { b.position(mInfo.offset); b.limit(mInfo.offset + mInfo.size); mLeft = b.slice().order(java.nio.ByteOrder.nativeOrder()); mLeftIndex = o; }
+                    else mDec.releaseOutputBuffer(o, false);
+                } else if (o == MediaCodec.INFO_TRY_AGAIN_LATER && mInEos && done == 0) { if (mDec.dequeueOutputBuffer(mInfo, 50000) == MediaCodec.INFO_TRY_AGAIN_LATER) mOutEos = true; }
+            }
+            return done;
+        }
+        public void seek(int ms) {
+            if (mLeftIndex >= 0) { mDec.releaseOutputBuffer(mLeftIndex, false); mLeftIndex = -1; } mLeft = null;
+            mDec.flush(); mInEos = mOutEos = false;
+            husk.MediaDemux.seek(mDm, ms * 1000L, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
+        }
+        public void close() { mDec.release(); husk.MediaDemux.close(mDm); }
+    }
+    private long openDemux() {
+        return mBytes != null && mBytes.length > 0 ? husk.MediaDemux.openBytes(mBytes) : mFd >= 0 ? husk.MediaDemux.open(mFd, mFdOff, mFdLen > 0 ? mFdLen : 0) : 0;
+    }
     private void open() throws java.io.IOException {
         long d = mBytes != null ? husk.Audio.decOpen(mBytes) : mFd >= 0 ? husk.Audio.decOpenFd(mFd, mFdOff, mFdLen) : 0;
-        if (d == 0) { mState = ERROR; throw new java.io.IOException("Prepare failed.: status=0x1"); }
-        int[] info = new int[3];
-        husk.Audio.decInfo(d, info);
-        synchronized (mLock) { mDec = d; mRate = info[0]; mChannels = info[1]; mDuration = info[2]; mState = PREPARED; mPosBase = 0; mPosBaseMs = 0; }
+        Src src = null; int rate = 0, channels = 0, duration = 0;
+        if (d != 0) { int[] info = new int[3]; husk.Audio.decInfo(d, info); src = new NativeSrc(d); rate = info[0]; channels = info[1]; duration = info[2]; }
+        long dm = openDemux();
+        int vt = dm != 0 ? husk.MediaDemux.trackOfType(dm, husk.MediaDemux.TYPE_VIDEO) : -1;
+        if (src == null && dm != 0) {
+            int at = husk.MediaDemux.trackOfType(dm, husk.MediaDemux.TYPE_AUDIO);
+            long dm2 = at >= 0 ? openDemux() : 0;
+            if (dm2 != 0) { try { CodecSrc cs = new CodecSrc(dm2, at); src = cs; rate = cs.rate; channels = cs.channels; } catch (java.io.IOException e) { husk.MediaDemux.close(dm2); android.util.Log.w("MediaPlayer", e.toString()); } }
+        }
+        if (dm != 0) { duration = Math.max(duration, (int) (husk.MediaDemux.duration(dm) / 1000)); if (vt < 0) { husk.MediaDemux.close(dm); dm = 0; } }
+        if (src == null && dm == 0) { mState = ERROR; throw new java.io.IOException("Prepare failed.: status=0x1"); }
+        synchronized (mLock) {
+            if (mSrc != null) mSrc.close();
+            if (mDemux != 0) husk.MediaDemux.close(mDemux);
+            mSrc = src; mRate = rate; mChannels = channels; mDuration = duration; mState = PREPARED; mPosBase = 0; mPosBaseMs = 0; mWallBaseMs = 0;
+            mDemux = dm; mVideoTrack = vt;
+            if (dm != 0) {
+                mVideoW = (int) husk.MediaDemux.trackInfo(dm, vt, husk.MediaDemux.WIDTH); mVideoH = (int) husk.MediaDemux.trackInfo(dm, vt, husk.MediaDemux.HEIGHT);
+                mRotation = (int) husk.MediaDemux.trackInfo(dm, vt, husk.MediaDemux.ROTATION);
+            } else { mVideoW = mVideoH = mRotation = 0; }
+        }
+        if (dm != 0) mMain.post(() -> { if (mOnVideoSize != null) mOnVideoSize.onVideoSizeChanged(this, getVideoWidth(), getVideoHeight()); });
     }
     public void prepareAsync() {
         if (mState != INITIALIZED && mState != STOPPED) throw new IllegalStateException("prepareAsync called in state " + mState);
@@ -118,16 +214,27 @@ public class MediaPlayer implements AudioRouting {
     }
     public void start() {
         synchronized (mLock) {
-            if (mState == COMPLETED) { husk.Audio.decSeek(mDec, 0); resetPosition(0); }
+            if (mState == COMPLETED) { if (mSrc != null) mSrc.seek(0); resetPosition(0); mVideoSeekTo = 0; }
             if (mState != PREPARED && mState != PAUSED && mState != COMPLETED && mState != STARTED) throw new IllegalStateException("start called in state " + mState);
-            if (mTrack < 0) { mTrack = husk.Audio.trackOpen(mRate, mChannels); husk.Audio.trackVolume(mTrack, mL, mR); }
-            husk.Audio.trackPlay(mTrack, true);
+            if (mSrc != null) {
+                if (mTrack < 0) { mTrack = husk.Audio.trackOpen(mRate, mChannels); husk.Audio.trackVolume(mTrack, mL, mR); }
+                husk.Audio.trackPlay(mTrack, true);
+            }
+            if (mState != STARTED) mWallStartNs = System.nanoTime();
             mState = STARTED;
-            if (mThread == null) {
+            if (mThread == null && mSrc != null) {
                 mStopThread = false;
                 mThread = new Thread(this::pump, "MediaPlayer");
                 mThread.setDaemon(true);
                 mThread.start();
+            }
+            if (mVideoThread == null && mDemux != 0 && mSurface != null) {
+                mStopThread = false;
+                final long dm = mDemux; final int vt = mVideoTrack; final android.view.Surface s = mSurface;
+                mDemux = 0;                                                /* the thread owns it from here */
+                mVideoThread = new Thread(() -> videoPump(dm, vt, s), "MediaPlayer video");
+                mVideoThread.setDaemon(true);
+                mVideoThread.start();
             }
             mLock.notifyAll();
         }
@@ -136,16 +243,16 @@ public class MediaPlayer implements AudioRouting {
     private void pump() {
         short[] buf = new short[4096 * Math.max(1, mChannels)];
         for (;;) {
-            long dec; int track;
+            Src src; int track;
             synchronized (mLock) {
                 while (!mStopThread && mState != STARTED) { try { mLock.wait(); } catch (InterruptedException e) { return; } }
                 if (mStopThread) return;
-                if (mSeekTo >= 0) { husk.Audio.trackFlush(mTrack); husk.Audio.decSeek(mDec, mSeekTo); resetPosition(mSeekTo); final int ms = mSeekTo; mSeekTo = -1; mMain.post(() -> { if (mOnSeek != null) mOnSeek.onSeekComplete(this); }); }
-                dec = mDec; track = mTrack;
+                if (mSeekTo >= 0) { husk.Audio.trackFlush(mTrack); mSrc.seek(mSeekTo); resetPosition(mSeekTo); mSeekTo = -1; mMain.post(() -> { if (mOnSeek != null) mOnSeek.onSeekComplete(this); }); }
+                src = mSrc; track = mTrack;
             }
-            int n = husk.Audio.decRead(dec, buf);
+            int n = src.read(buf);
             if (n <= 0) {
-                if (mLooping) { synchronized (mLock) { husk.Audio.decSeek(mDec, 0); } continue; }
+                if (mLooping) { synchronized (mLock) { mSrc.seek(0); resetPosition(0); mVideoSeekTo = 0; } continue; }
                 // let what is queued play out, then finish
                 while (husk.Audio.trackPending(track) > 0 && !mStopThread && mState == STARTED) { try { Thread.sleep(20); } catch (InterruptedException e) { return; } }
                 synchronized (mLock) { if (mState == STARTED) mState = COMPLETED; mThread = null; }
@@ -163,23 +270,86 @@ public class MediaPlayer implements AudioRouting {
             }
         }
     }
-    private void resetPosition(int ms) { mPosBase = mTrack >= 0 ? husk.Audio.trackPosition(mTrack) : 0; mPosBaseMs = ms; }
-    public void pause() { synchronized (mLock) { if (mState == STARTED) { mState = PAUSED; if (mTrack >= 0) husk.Audio.trackPlay(mTrack, false); } } }
+    /** The video thread: samples through a MediaCodec into the Surface, each frame held until the clock reaches its time. */
+    private void videoPump(long dm, int vt, android.view.Surface surface) {
+        MediaCodec dec = null; boolean first = true;
+        try {
+            MediaFormat f = husk.MediaDemux.format(dm, vt);
+            dec = MediaCodec.createDecoderByType(f.getString(MediaFormat.KEY_MIME));
+            dec.configure(f, surface, null, 0); dec.setVideoScalingMode(mScaling); dec.start();
+            husk.MediaDemux.select(dm, vt, true);
+            int startMs; synchronized (mLock) { startMs = mVideoSeekTo >= 0 ? mVideoSeekTo : getCurrentPosition(); mVideoSeekTo = -1; }
+            if (startMs > 0) husk.MediaDemux.seek(dm, startMs * 1000L, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
+            byte[] tmp = new byte[Math.max(4096, f.getInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 0))];
+            MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
+            boolean inEos = false;
+            for (;;) {
+                synchronized (mLock) {
+                    while (!mStopThread && mState != STARTED && mVideoSeekTo < 0) { try { mLock.wait(); } catch (InterruptedException e) { return; } }
+                    if (mStopThread) return;
+                    if (mVideoSeekTo >= 0) { husk.MediaDemux.seek(dm, mVideoSeekTo * 1000L, MediaExtractor.SEEK_TO_PREVIOUS_SYNC); dec.flush(); inEos = false; mVideoSeekTo = -1; if (mState != STARTED) continue; }
+                }
+                if (!inEos) {
+                    int i = dec.dequeueInputBuffer(5000);
+                    if (i >= 0) {
+                        long size = husk.MediaDemux.sampleSize(dm);
+                        if (size < 0) { dec.queueInputBuffer(i, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM); inEos = true; }
+                        else {
+                            int n = husk.MediaDemux.readSample(dm, tmp, 0);
+                            java.nio.ByteBuffer b = dec.getInputBuffer(i);
+                            if (n > 0 && b != null) { b.clear(); n = Math.min(n, b.capacity()); b.put(tmp, 0, n); dec.queueInputBuffer(i, 0, n, husk.MediaDemux.sampleTime(dm), 0); }
+                            else dec.queueInputBuffer(i, 0, 0, 0, 0);
+                            husk.MediaDemux.advance(dm);
+                        }
+                    }
+                }
+                int o = dec.dequeueOutputBuffer(info, 5000);
+                if (o < 0) continue;
+                if ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0 && info.size == 0) {
+                    dec.releaseOutputBuffer(o, false);
+                    if (mLooping && mSrc == null) { husk.MediaDemux.seek(dm, 0, MediaExtractor.SEEK_TO_PREVIOUS_SYNC); dec.flush(); inEos = false; synchronized (mLock) { resetPosition(0); mWallBaseMs = 0; mWallStartNs = System.nanoTime(); } continue; }
+                    if (mSrc == null) {                                    /* no sound: this thread ends the playback */
+                        synchronized (mLock) { if (mState == STARTED) mState = COMPLETED; mVideoThread = null; }
+                        mMain.post(() -> { if (mNext != null) { try { mNext.start(); } catch (IllegalStateException e) {} } if (mOnCompletion != null) mOnCompletion.onCompletion(this); });
+                    }
+                    return;
+                }
+                long ptsMs = info.presentationTimeUs / 1000;
+                while (!mStopThread && mState == STARTED && mVideoSeekTo < 0) {
+                    long now = getCurrentPosition();
+                    if (now >= ptsMs - 5) break;
+                    try { Thread.sleep(Math.min(20, ptsMs - now)); } catch (InterruptedException e) { return; }
+                }
+                boolean show = !mStopThread && mVideoSeekTo < 0 && (first || getCurrentPosition() - ptsMs < 120);
+                dec.releaseOutputBuffer(o, show);
+                if (show && first) { first = false; mMain.post(() -> { if (mOnInfo != null) mOnInfo.onInfo(this, MEDIA_INFO_VIDEO_RENDERING_START, 0); }); }
+            }
+        } catch (Exception e) {
+            android.util.Log.w("MediaPlayer", "video stopped: " + e);
+        } finally {
+            if (dec != null) dec.release();
+            husk.MediaDemux.close(dm);
+            synchronized (mLock) { if (mVideoThread == Thread.currentThread()) mVideoThread = null; }
+        }
+    }
+    private void resetPosition(int ms) { mPosBase = mTrack >= 0 ? husk.Audio.trackPosition(mTrack) : 0; mPosBaseMs = ms; mWallBaseMs = ms; mWallStartNs = System.nanoTime(); }
+    public void pause() { synchronized (mLock) { if (mState == STARTED) { mWallBaseMs = wallMs(); mState = PAUSED; if (mTrack >= 0) husk.Audio.trackPlay(mTrack, false); } } }
     public void stop() {
         synchronized (mLock) {
             if (mState == IDLE || mState == END || mState == ERROR) return;
             mStopThread = true; mLock.notifyAll();
             if (mTrack >= 0) { husk.Audio.trackFlush(mTrack); husk.Audio.trackPlay(mTrack, false); }
-            if (mDec != 0) { husk.Audio.decClose(mDec); mDec = 0; }
-            mThread = null;
+            if (mSrc != null) { mSrc.close(); mSrc = null; }
+            if (mDemux != 0) { husk.MediaDemux.close(mDemux); mDemux = 0; }
+            mThread = null; mVideoThread = null;
             mState = STOPPED;
         }
     }
     public void reset() {
         stop();
-        synchronized (mLock) { if (mTrack >= 0) { husk.Audio.trackClose(mTrack); mTrack = -1; } mBytes = null; mFd = -1; mState = IDLE; mSeekTo = -1; }
+        synchronized (mLock) { if (mTrack >= 0) { husk.Audio.trackClose(mTrack); mTrack = -1; } mBytes = null; mFd = -1; mState = IDLE; mSeekTo = -1; mVideoSeekTo = -1; mVideoTrack = -1; mVideoW = mVideoH = mRotation = 0; }
     }
-    public void release() { reset(); mState = END; mOnCompletion = null; mOnPrepared = null; mOnError = null; mOnSeek = null; }
+    public void release() { reset(); mState = END; mOnCompletion = null; mOnPrepared = null; mOnError = null; mOnSeek = null; mOnVideoSize = null; mSurface = null; }
     public boolean isPlaying() { return mState == STARTED; }
     public boolean isLooping() { return mLooping; }
     public void setLooping(boolean l) { mLooping = l; }
@@ -188,29 +358,35 @@ public class MediaPlayer implements AudioRouting {
     public void setVolume(float v) { setVolume(v, v); }
     public void seekTo(int ms) {
         synchronized (mLock) {
-            if (mDec == 0) return;
+            if (mSrc == null && mDemux == 0 && mVideoThread == null) return;
             ms = Math.max(0, mDuration > 0 ? Math.min(ms, mDuration) : ms);
-            if (mState == STARTED || mThread != null) { mSeekTo = ms; mLock.notifyAll(); }
-            else { husk.Audio.decSeek(mDec, ms); if (mTrack >= 0) husk.Audio.trackFlush(mTrack); resetPosition(ms); final int done = ms; mMain.post(() -> { if (mOnSeek != null) mOnSeek.onSeekComplete(this); }); }
+            if (mVideoThread != null) mVideoSeekTo = ms;
+            if (mSrc != null && (mState == STARTED || mThread != null)) { mSeekTo = ms; mLock.notifyAll(); }
+            else { if (mSrc != null) { mSrc.seek(ms); if (mTrack >= 0) husk.Audio.trackFlush(mTrack); } resetPosition(ms); mLock.notifyAll(); mMain.post(() -> { if (mOnSeek != null) mOnSeek.onSeekComplete(this); }); }
             if (mState == COMPLETED) mState = PAUSED;
         }
     }
     public void seekTo(long ms, int mode) { seekTo((int) ms); }
+    private int wallMs() { long p = mWallBaseMs + (mState == STARTED ? (System.nanoTime() - mWallStartNs) / 1000000 : 0); return (int) Math.min(mDuration > 0 ? mDuration : Integer.MAX_VALUE, p); }
     public int getCurrentPosition() {
         synchronized (mLock) {
             if (mSeekTo >= 0) return mSeekTo;
             if (mState == COMPLETED) return mDuration;
+            if (mSrc == null) return mVideoSeekTo >= 0 ? mVideoSeekTo : wallMs();
             if (mTrack < 0 || mRate <= 0) return mPosBaseMs;
             long frames = husk.Audio.trackPosition(mTrack) - mPosBase;
             return (int) Math.min(mDuration > 0 ? mDuration : Integer.MAX_VALUE, mPosBaseMs + frames * 1000L / mRate);
         }
     }
     public int getDuration() { return mState == IDLE || mState == INITIALIZED || mState == ERROR ? -1 : mDuration; }
-    public int getVideoWidth() { return 0; }
-    public int getVideoHeight() { return 0; }
-    public void setDisplay(android.view.SurfaceHolder h) {}
-    public void setSurface(android.view.Surface s) {}
-    public void setVideoScalingMode(int m) {}
+    public int getVideoWidth() { return mRotation == 90 || mRotation == 270 ? mVideoH : mVideoW; }
+    public int getVideoHeight() { return mRotation == 90 || mRotation == 270 ? mVideoW : mVideoH; }
+    public void setDisplay(android.view.SurfaceHolder h) { setSurface(h != null ? h.getSurface() : null); }
+    public void setSurface(android.view.Surface s) {
+        synchronized (mLock) { mSurface = s; }
+        if (s != null && mState == STARTED) start();                      /* a video given its surface while playing: its thread starts now */
+    }
+    public void setVideoScalingMode(int m) { mScaling = m; }
     public void setScreenOnWhilePlaying(boolean b) {}
     public void setWakeMode(Context c, int mode) {}
     @Deprecated public void setAudioStreamType(int t) {}
@@ -231,7 +407,7 @@ public class MediaPlayer implements AudioRouting {
     public void setOnSeekCompleteListener(OnSeekCompleteListener l) { mOnSeek = l; }
     public void setOnInfoListener(OnInfoListener l) { mOnInfo = l; }
     public void setOnBufferingUpdateListener(OnBufferingUpdateListener l) {}
-    public void setOnVideoSizeChangedListener(OnVideoSizeChangedListener l) {}
+    public void setOnVideoSizeChangedListener(OnVideoSizeChangedListener l) { mOnVideoSize = l; }
     public void setOnTimedTextListener(OnTimedTextListener l) {}
     public AudioDeviceInfo getRoutedDevice() { return AudioDeviceInfo.huskSpeaker(); }
     public boolean setPreferredDevice(AudioDeviceInfo d) { return true; }

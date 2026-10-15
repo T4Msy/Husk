@@ -124,6 +124,13 @@ public abstract class Context {
     public void startActivities(Intent[] intents, Bundle options) { startActivities(intents); }
     public void sendBroadcast(Intent i, String perm) { sendBroadcast(i); }
     public void sendOrderedBroadcast(Intent i, String perm) { sendBroadcast(i); }
+    /** The registered receivers hear it, then the result receiver with the initial result (the others' changes to it are not collected). */
+    public void sendOrderedBroadcast(Intent i, String perm, BroadcastReceiver result, android.os.Handler h, int code, String data, Bundle extras) {
+        sendBroadcast(i);
+        if (result == null) return;
+        Runnable r = () -> { result.setPendingResult(new BroadcastReceiver.PendingResult(code, data, extras)); result.setOrderedHint(true); result.onReceive(this, i); };
+        if (h != null) h.post(r); else r.run();
+    }
     public void sendStickyBroadcast(Intent i) { sendBroadcast(i); }
     public Intent registerReceiver(BroadcastReceiver r, IntentFilter f, int flags) { return registerReceiver(r, f); }
     public Intent registerReceiver(BroadcastReceiver r, IntentFilter f, String perm, Handler h) { return registerReceiver(r, f); }
@@ -441,7 +448,7 @@ public abstract class Context {
     public int getDeviceId() { return 0; }
     public android.view.Display getDisplayNoVerify() { return null; }
     public java.lang.String getFeatureId() { return null; }
-    public android.os.Handler getMainThreadHandler() { return null; }
+    public android.os.Handler getMainThreadHandler() { return new Handler(getMainLooper()); }
     public int getNextAutofillId() { return 0; }
     public android.content.ContextParams getParams() { return null; }
     public int getPermissionRequestState(java.lang.String p0) { return 0; }
@@ -453,7 +460,7 @@ public abstract class Context {
     public java.io.File getSharedPreferencesPath(java.lang.String p0) { return null; }
     public java.io.File getSharedPrefsFile(java.lang.String p0) { return null; }
     public android.content.Context.BindServiceFlags getUpdateableFlags() { return null; }
-    public android.os.UserHandle getUser() { return null; }
+    public android.os.UserHandle getUser() { return android.os.Process.myUserHandle(); }
     public android.graphics.drawable.Drawable getWallpaper() { return (android.graphics.drawable.Drawable) huskFill.get("Wallpaper"); }
     public int getWallpaperDesiredMinimumHeight() { return 0; }
     public int getWallpaperDesiredMinimumWidth() { return 0; }
@@ -487,9 +494,8 @@ public abstract class Context {
     public void sendBroadcastMultiplePermissions(android.content.Intent p0, java.lang.String[] p1, java.lang.String[] p2, java.lang.String[] p3) {}
     public void sendBroadcastMultiplePermissions(android.content.Intent p0, java.lang.String[] p1, java.lang.String[] p2, java.lang.String[] p3, android.app.BroadcastOptions p4) {}
     public void sendBroadcastWithMultiplePermissions(android.content.Intent p0, java.lang.String[] p1) {}
-    public void sendOrderedBroadcast(android.content.Intent p0, int p1, java.lang.String p2, java.lang.String p3, android.content.BroadcastReceiver p4, android.os.Handler p5, java.lang.String p6, android.os.Bundle p7, android.os.Bundle p8) {}
-    public void sendOrderedBroadcast(android.content.Intent p0, java.lang.String p1, int p2, android.content.BroadcastReceiver p3, android.os.Handler p4, int p5, java.lang.String p6, android.os.Bundle p7) {}
-    public void sendOrderedBroadcast(android.content.Intent p0, java.lang.String p1, android.content.BroadcastReceiver p2, android.os.Handler p3, int p4, java.lang.String p5, android.os.Bundle p6) {}
+    public void sendOrderedBroadcast(Intent i, int code, String perm, String appOp, BroadcastReceiver result, android.os.Handler h, String data, Bundle extras, Bundle options) { sendOrderedBroadcast(i, perm, result, h, code, data, extras); }
+    public void sendOrderedBroadcast(Intent i, String perm, int appOp, BroadcastReceiver result, android.os.Handler h, int code, String data, Bundle extras) { sendOrderedBroadcast(i, perm, result, h, code, data, extras); }
     public void sendOrderedBroadcast(android.content.Intent p0, java.lang.String p1, android.os.Bundle p2) {}
     public void sendOrderedBroadcast(android.content.Intent p0, java.lang.String p1, android.os.Bundle p2, android.content.BroadcastReceiver p3, android.os.Handler p4, int p5, java.lang.String p6, android.os.Bundle p7) {}
     public void sendOrderedBroadcast(android.content.Intent p0, java.lang.String p1, java.lang.String p2, android.content.BroadcastReceiver p3, android.os.Handler p4, int p5, java.lang.String p6, android.os.Bundle p7) {}

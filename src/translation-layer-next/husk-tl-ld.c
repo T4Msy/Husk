@@ -50,7 +50,7 @@ enum {
 #define MAX_DEPS 48
 
 struct tl_lib {
-    char name[96];                 /* as asked for */
+    char name[256];                /* as asked for; an app-container path runs ~140 chars, so a short buffer silently loses the basename */
     char soname[96];
     uint8_t *rx, *rw;              /* image: address of base_vaddr, in each view */
     uint64_t base_vaddr;
@@ -470,6 +470,27 @@ tl_lib *tl_ld_lib_of(const void *addr)
 }
 
 const char *tl_ld_lib_name(const tl_lib *lib) { return lib ? lib->name : NULL; }
+const char *tl_ld_lib_soname(const tl_lib *lib) { return lib ? lib->soname : NULL; }
+/* Each library's writable segments (data, bss, GOT), in their writable view: the collector's roots in the app's own libraries. */
+void tl_ld_each_writable(void (*cb)(const void *start, size_t len, void *user), void *user);
+void tl_ld_each_writable(void (*cb)(const void *start, size_t len, void *user), void *user)
+{
+    int n = G.nlibs;
+    for (int i = 0; i < n && i < MAX_LIBS; i++) {
+        const tl_lib *L = G.libs[i];
+        if (!L || !L->phdr || !L->rw) continue;
+        size_t span = L->npages * PAGE;
+        for (unsigned k = 0; k < L->phnum; k++) {
+            const elf_phdr *p = &L->phdr[k];
+            if (p->p_type != PT_LOAD_ || !(p->p_flags & PF_W_) || p->p_vaddr < L->base_vaddr) continue;
+            uint64_t off = p->p_vaddr - L->base_vaddr, len = p->p_memsz;
+            if (off >= span) continue;
+            if (off + len > span) len = span - off;
+            cb(L->rw + off, (size_t)len, user);
+        }
+    }
+}
+
 
 const char *tl_ld_symbol_at(const void *addr, const char **lib_name, const void **sym_addr)
 {
@@ -944,8 +965,13 @@ static int x18_rewrite(tl_lib *L, uint32_t *site_rw, const uint8_t *pc, ptrdiff_
         EMIT(e_ldur(T, -8)); EMIT(e_ldur(S, -16));
         EMIT_B(back);
     } else if ((insn & 0xFFFFFC1Fu) == 0xD61F0000u) {                       /* br x18 */
-        EMIT(e_mrs_tsd(17)); EMIT(e_and_tsd(17)); EMIT(e_ldr_slot(17, 17));
-        EMIT(0xD61F0000u | (17u << 5));
+        /* Hold the target in the real x18, not x17. A branch cannot restore its scratch
+           afterwards, so the old code (br x17) silently destroyed a live x17 across the
+           dispatch -- fatal when `br x18` is a jump table and x17 holds a sibling table
+           base, as in MCFURL's URL state machine. The real x18 is dead for the guest
+           (Apple reserves it, we virtualise it), so clobbering it here is harmless. */
+        EMIT(e_mrs_tsd(18)); EMIT(e_and_tsd(18)); EMIT(e_ldr_slot(18, 18));
+        EMIT(0xD61F0000u | (18u << 5));
     } else if ((insn & 0x7E000000u) == 0x34000000u || (insn & 0x7E000000u) == 0x36000000u) {   /* cbz, cbnz, tbz, tbnz */
         bool is_tb = (insn & 0x7E000000u) == 0x36000000u;
         int64_t imm = is_tb ? (int64_t)((insn >> 5) & 0x3FFFu) : (int64_t)((insn >> 5) & 0x7FFFFu);

@@ -9,36 +9,59 @@ public final class PendingIntent implements android.os.Parcelable {
         FLAG_IMMUTABLE = 0x04000000, FLAG_MUTABLE = 0x02000000, FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT = 0x01000000;
     public static class CanceledException extends android.util.AndroidException { public CanceledException() {} public CanceledException(String s) { super(s); } public CanceledException(Exception e) { super(e); } }
     public interface OnFinished { void onSendFinished(PendingIntent p, Intent i, int resultCode, String resultData, android.os.Bundle resultExtras); }
-    private final Context mContext; private final Intent mIntent; private final int mKind;   /* 0 activity, 1 broadcast, 2 service */
-    private PendingIntent(Context c, Intent i, int kind) { mContext = c; mIntent = i; mKind = kind; }
-    public static PendingIntent getActivity(Context c, int req, Intent i, int flags) { return new PendingIntent(c, i, 0); }
-    public static PendingIntent getActivity(Context c, int req, Intent i, int flags, android.os.Bundle o) { return new PendingIntent(c, i, 0); }
-    public static PendingIntent getActivities(Context c, int req, Intent[] i, int flags) { return new PendingIntent(c, i[i.length - 1], 0); }
-    public static PendingIntent getBroadcast(Context c, int req, Intent i, int flags) { return new PendingIntent(c, i, 1); }
-    public static PendingIntent getService(Context c, int req, Intent i, int flags) { return new PendingIntent(c, i, 2); }
-    public static PendingIntent getForegroundService(Context c, int req, Intent i, int flags) { return new PendingIntent(c, i, 2); }
+    /* As Android keeps them: one record per (kind, request code, intent as Intent.filterEquals sees it). Every getX for the same
+       key hands out a PendingIntent over that record, so they are equal and AlarmManager.cancel(an equal one) cancels; the flags
+       update, replace or only look up the record. */
+    private static final class Rec { final int kind, req; Intent intent; boolean oneShot, canceled; Rec(int k, int r, Intent i) { kind = k; req = r; intent = i; } }
+    private static final java.util.ArrayList<Rec> sRecs = new java.util.ArrayList<>();
+    private final Context mContext; private final Rec mRec;
+    private PendingIntent(Context c, Rec r) { mContext = c; mRec = r; }
+    private static PendingIntent get(Context c, int req, Intent i, int flags, int kind) {
+        if (i == null) return null;
+        synchronized (sRecs) {
+            Rec r = null;
+            for (Rec x : sRecs) if (x.kind == kind && x.req == req && x.intent.filterEquals(i)) { r = x; break; }
+            if (r != null && (flags & FLAG_CANCEL_CURRENT) != 0) { r.canceled = true; sRecs.remove(r); r = null; }
+            if (r == null) {
+                if ((flags & FLAG_NO_CREATE) != 0) return null;
+                r = new Rec(kind, req, new Intent(i)); sRecs.add(r);
+            } else if ((flags & FLAG_UPDATE_CURRENT) != 0) r.intent.replaceExtras(i);
+            r.oneShot = (flags & FLAG_ONE_SHOT) != 0;
+            return new PendingIntent(c, r);
+        }
+    }
+    public static PendingIntent getActivity(Context c, int req, Intent i, int flags) { return get(c, req, i, flags, 0); }
+    public static PendingIntent getActivity(Context c, int req, Intent i, int flags, android.os.Bundle o) { return get(c, req, i, flags, 0); }
+    public static PendingIntent getActivities(Context c, int req, Intent[] i, int flags) { return i == null || i.length == 0 ? null : get(c, req, i[i.length - 1], flags, 0); }
+    public static PendingIntent getBroadcast(Context c, int req, Intent i, int flags) { return get(c, req, i, flags, 1); }
+    public static PendingIntent getService(Context c, int req, Intent i, int flags) { return get(c, req, i, flags, 2); }
+    public static PendingIntent getForegroundService(Context c, int req, Intent i, int flags) { return get(c, req, i, flags, 2); }
     public void send() throws CanceledException { send(mContext, 0, null); }
     public void send(int code) throws CanceledException { send(mContext, code, null); }
     public void send(Context c, int code, Intent fill) throws CanceledException {
-        Intent i = fill != null ? new Intent(mIntent).putExtras(fill) : mIntent;
-        if (mKind == 0) mContext.startActivity(i); else if (mKind == 1) mContext.sendBroadcast(i); else mContext.startService(i);
+        if (mRec.canceled) throw new CanceledException();
+        Intent i = fill != null ? new Intent(mRec.intent).putExtras(fill) : new Intent(mRec.intent);
+        if (mRec.oneShot) cancel();
+        if (mRec.kind == 0) mContext.startActivity(i); else if (mRec.kind == 1) mContext.sendBroadcast(i); else mContext.startService(i);
     }
     public void send(int code, OnFinished f, android.os.Handler h) throws CanceledException { send(); }
     public void send(Context c, int code, Intent i, OnFinished f, android.os.Handler h) throws CanceledException { send(c, code, i); }
-    public void cancel() {}
+    public void cancel() { synchronized (sRecs) { mRec.canceled = true; sRecs.remove(mRec); } }
+    @Override public boolean equals(Object o) { return o instanceof PendingIntent && ((PendingIntent) o).mRec == mRec; }
+    @Override public int hashCode() { return System.identityHashCode(mRec); }
     public String getCreatorPackage() { return husk.Native.packageName(); }
     public String getTargetPackage() { return getCreatorPackage(); }
     public int getCreatorUid() { return android.os.Process.myUid(); }
     public android.os.UserHandle getCreatorUserHandle() { return android.os.UserHandle.getUserHandleForUid(0); }
     public android.content.IntentSender getIntentSender() { return new android.content.IntentSender(); }
-    public boolean isImmutable() { return true; } public boolean isActivity() { return mKind == 0; } public boolean isBroadcast() { return mKind == 1; } public boolean isService() { return mKind == 2; }
+    public boolean isImmutable() { return true; } public boolean isActivity() { return mRec.kind == 0; } public boolean isBroadcast() { return mRec.kind == 1; } public boolean isService() { return mRec.kind == 2; }
     public int describeContents() { return 0; }
     // ---- generated by tools/compat/fillmembers.py: the platform's members this class does not write (signatures only)
     public static final long BLOCK_MUTABLE_IMPLICIT_PENDING_INTENT = 236704164L;
     public static android.os.Parcelable.Creator CREATOR;
     public static final int FLAG_MUTABLE_UNAUDITED = 33554432;
     public static final long PENDING_INTENT_OPTIONS_CHECK = 320664730L;
-    public static android.app.PendingIntent getActivities(android.content.Context p0, int p1, android.content.Intent[] p2, int p3, android.os.Bundle p4) { return null; }
+    public static android.app.PendingIntent getActivities(android.content.Context c, int req, android.content.Intent[] i, int flags, android.os.Bundle o) { return getActivities(c, req, i, flags); }
     public static android.app.PendingIntent getActivitiesAsUser(android.content.Context p0, int p1, android.content.Intent[] p2, int p3, android.os.Bundle p4, android.os.UserHandle p5) { return null; }
     public static android.app.PendingIntent getActivityAsUser(android.content.Context p0, int p1, android.content.Intent p2, int p3, android.os.Bundle p4, android.os.UserHandle p5) { return null; }
     public static android.app.PendingIntent getBroadcastAsUser(android.content.Context p0, int p1, android.content.Intent p2, int p3, android.os.UserHandle p4) { return null; }
@@ -48,11 +71,11 @@ public final class PendingIntent implements android.os.Parcelable {
     public static void writePendingIntentOrNullToParcel(android.app.PendingIntent p0, android.os.Parcel p1) {}
     public boolean addCancelListener(java.util.concurrent.Executor p0, android.app.PendingIntent.CancelListener p1) { return false; }
     public void dumpDebug(android.util.proto.ProtoOutputStream p0, long p1) {}
-    public android.content.Intent getIntent() { return null; }
+    public android.content.Intent getIntent() { return new Intent(mRec.intent); }
+    public boolean isForegroundService() { return false; }
     public java.lang.String getTag(java.lang.String p0) { return null; }
     public android.os.IBinder getWhitelistToken() { return null; }
-    public boolean intentFilterEquals(android.app.PendingIntent p0) { return false; }
-    public boolean isForegroundService() { return false; }
+    public boolean intentFilterEquals(android.app.PendingIntent p0) { return p0 != null && mRec.intent.filterEquals(p0.mRec.intent); }
     public boolean isTargetedToPackage() { return false; }
     public java.util.List queryIntentComponents(int p0) { return new java.util.ArrayList(); }
     public void registerCancelListener(android.app.PendingIntent.CancelListener p0) {}
