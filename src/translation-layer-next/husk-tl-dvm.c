@@ -2509,7 +2509,7 @@ bool tl_dvm_load_natives(const char *libdir)
     }
     dvm_current_thread();
     g_core_up = true;
-    tl_log_line("dvm: Husk translation layer, T4Msy build gb35");
+    tl_log_line("dvm: Husk translation layer, T4Msy build gb36");
     return ok;
 }
 

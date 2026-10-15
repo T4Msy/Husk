@@ -1131,12 +1131,17 @@ static jo jni_NewString(void *env, const uint16_t *chars, int32_t len) { (void)e
  */
 static void jni_num_probe(const char *s)
 {
-    static int budget = 60;
+    static int budget = 400;
     if (!s || budget <= 0) return;
     size_t n = strlen(s), d = 0;
-    if (n < 1 || n > 18) return;
-    for (size_t i = 0; i < n; i++) if (s[i] >= '0' && s[i] <= '9') d++;
-    if (d * 10 < n * 6) return;                 /* fewer than 60% digits: not a number */
+    if (n < 2 || n > 20) return;
+    for (size_t i = 0; i < n; i++) {
+        char c = s[i];
+        if (c >= '0' && c <= '9') { d++; continue; }
+        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) return;   /* letters: charset names, cert hashes -- not a phone number */
+        /* '+', '-', ' ', '(', ')', '.' are allowed as phone punctuation */
+    }
+    if (d < 2 || d * 2 < n) return;             /* need a couple of digits and a digit-majority: catches cc "55", the national number, and a truncated one */
     budget--;
     tl_log_line("num-probe: jni string \"%s\" (%zu chars, %zu digits)", s, n, d);
 }
